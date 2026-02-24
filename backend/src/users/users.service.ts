@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -16,7 +17,7 @@ export class UsersService {
     });
   }
 
-  async updateRole(userId: number, role: 'ADMIN' | 'MANAGER' | 'VIEWER', currentUserId: number) {
+  async updateRole(userId: number, role: Role, currentUserId: number) {
     if (userId === currentUserId) {
       throw new ForbiddenException('You cannot change your own role');
     }

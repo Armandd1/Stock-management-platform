@@ -20,8 +20,13 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
+  const jwtSecret = configService.get<string>('JWT_SECRET');
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET is not configured. Please set JWT_SECRET before starting the application.');
+  }
+
   await app.register(fastifyCookie, {
-    secret: configService.get<string>('JWT_SECRET'), // same secret for simple signing
+    secret: jwtSecret, // same secret for simple signing
   });
 
   const logger = app.get(Logger);
