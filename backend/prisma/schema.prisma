@@ -26,7 +26,9 @@ enum MovementType {
 model User {
   id             Int             @id @default(autoincrement())
   email          String          @unique
-  password       String
+  name           String?
+  password       String?
+  provider       String          @default("local")
   role           Role            @default(VIEWER)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
