@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuthStore } from '../store/useAuthStore';
 import { api } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { Label } from '../components/ui/Label';
@@ -127,6 +127,13 @@ export const Login: React.FC = () => {
               </svg>
               GitHub
             </Button>
+
+            <div className="mt-4 text-center text-sm pt-2">
+              <span className="text-muted-foreground mr-1">{t('login.noAccount')}</span>
+              <Link to="/register" className="text-primary hover:underline font-medium">
+                {t('login.createAccount')}
+              </Link>
+            </div>
           </form>
         </CardContent>
       </Card>

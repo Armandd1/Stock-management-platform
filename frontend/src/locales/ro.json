@@ -4,6 +4,7 @@
     "products": "Produse",
     "warehouses": "Depozite",
     "movements": "Mișcări stoc",
+    "users": "Utilizatori",
     "logout": "Deconectare"
   },
   "common": {
@@ -29,6 +30,8 @@
     "noStockData": "Nu există date de stoc",
     "noAlerts": "Nu există alerte active",
     "noStockRecorded": "Niciun stoc înregistrat.",
+    "loadingUsers": "Se încarcă utilizatorii...",
+    "failedLoadUsers": "Încărcarea utilizatorilor a eșuat.",
     "close": "Închide",
     "confirmDelete": "Sunteți sigur că doriți să ștergeți acest produs?",
     "confirmDeleteWh": "Ștergeți acest depozit? Acțiunea este ireversibilă."
@@ -162,8 +165,38 @@
     "submit": "Autentificare",
     "submitting": "Se autentifică...",
     "orContinue": "Sau continuați cu",
-    "invalidEmail": "Adresă de email invalidă",
-    "passwordRequired": "Parola este obligatorie",
+    "toast": {
+      "success": "Autentificat cu succes",
+      "invalid": "Credențiale invalide",
+      "failed": "Autentificarea a eșuat. Vă rugăm să încercați din nou."
+    },
+    "noAccount": "Nu aveți un cont?",
+    "createAccount": "Creați un cont"
+  },
+  "register": {
+    "title": "Creați un cont",
+    "subtitle": "Introduceți detaliile pentru a vă înregistra",
+    "nameLabel": "Numele Complet",
+    "namePlaceholder": "Ion Popescu",
+    "passwordPlaceholder": "Creați o parolă (min 6 caractere)",
+    "confirmPasswordLabel": "Confirmă Parola",
+    "confirmPasswordPlaceholder": "Reintroduceți parola",
+    "submit": "Creați Cont",
+    "submitting": "Se creează contul...",
+    "haveAccount": "Aveți deja un cont?",
+    "loginLink": "Autentificare",
+    "validation": {
+      "name": "Numele trebuie să conțină cel puțin 2 caractere",
+      "email": "Adresă de email invalidă",
+      "password": "Parola trebuie să conțină cel puțin 6 caractere",
+      "passwordsMatch": "Parolele nu se potrivesc"
+    },
+    "toast": {
+      "success": "Cont creat cu succes",
+      "failed": "Înregistrarea a eșuat. Vă rugăm să verificați detaliile."
+    }
+  },
+  "auth": {
     "toast": {
       "success": "Autentificat cu succes",
       "failed": "Autentificarea a eșuat",
@@ -172,5 +205,22 @@
       "githubFailed": "Autentificarea GitHub a eșuat"
     },
     "completing": "Finalizare autentificare..."
+  },
+  "users": {
+    "title": "Gestionare Utilizatori",
+    "subtitle": "Gestionați accesul personalului și rolurile de sistem",
+    "noUsersFound": "Niciun utilizator găsit",
+    "name": "Nume",
+    "email": "Email",
+    "role": "Rol",
+    "you": "Tu",
+    "changeRole": "Schimbă Rolul",
+    "editRoleTitle": "Editează Rolul Utilizatorului",
+    "selectRole": "Selectați Rolul",
+    "adminWarning": "Avertisment: Atribuirea rolului ADMIN oferă acces complet la sistem, inclusiv posibilitatea de a șterge date și a schimba rolurile altor utilizatori.",
+    "toast": {
+      "roleUpdated": "Rol utilizator actualizat cu succes",
+      "failedUpdate": "Actualizarea rolului a eșuat"
+    }
   }
 }

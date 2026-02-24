@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, Warehouse, ArrowRightLeft, Boxes } from 'lucide-react';
+import { LayoutDashboard, Package, Warehouse, ArrowRightLeft, Boxes, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useAuthStore, type Role } from '../../store/useAuthStore';
@@ -16,6 +16,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, ...props }) => {
     { name: t('nav.products'), href: '/products', icon: Package },
     { name: t('nav.warehouses'), href: '/warehouses', icon: Warehouse },
     { name: t('nav.movements'), href: '/movements', icon: ArrowRightLeft, allowedRoles: ['ADMIN', 'MANAGER'] },
+    { name: t('nav.users'), href: '/users', icon: Users, allowedRoles: ['ADMIN'] },
   ];
 
   const filteredNavigation = navigation.filter(item => {

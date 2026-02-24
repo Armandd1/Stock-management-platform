@@ -14,6 +14,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiExcludeEndpoint, ApiResponse }
 import { AuthService } from './auth.service';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -46,6 +47,32 @@ export class AuthController {
       sameSite: 'lax',
       path: '/',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    });
+
+    return result;
+  }
+
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ status: 201, description: 'Successful registration. Returns access token.' })
+  @ApiResponse({ status: 400, description: 'Bad Request. Validation failed.' })
+  @ApiResponse({ status: 409, description: 'Conflict. Email already in use.' })
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    const result = await this.authService.register(
+      registerDto.email,
+      registerDto.password,
+      registerDto.name,
+    );
+
+    res.setCookie('auth_token', result.access_token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     return result;

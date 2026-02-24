@@ -4,6 +4,7 @@
     "products": "Products",
     "warehouses": "Warehouses",
     "movements": "Movements",
+    "users": "Users",
     "logout": "Logout"
   },
   "common": {
@@ -29,6 +30,8 @@
     "noStockData": "No stock data available",
     "noAlerts": "No alerts available",
     "noStockRecorded": "No stock recorded.",
+    "loadingUsers": "Loading users...",
+    "failedLoadUsers": "Failed to load users.",
     "close": "Close",
     "confirmDelete": "Are you sure you want to delete this product?",
     "confirmDeleteWh": "Delete this warehouse? Action is irreversible."
@@ -165,6 +168,39 @@
     "invalidEmail": "Invalid email address",
     "passwordRequired": "Password is required",
     "toast": {
+      "success": "Logged in successfully",
+      "invalid": "Invalid credentials",
+      "failed": "Login failed. Please try again."
+    },
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create an account",
+    "completing": "Completing authentication..."
+  },
+  "register": {
+    "title": "Create an account",
+    "subtitle": "Enter your details to register",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "John Doe",
+    "passwordPlaceholder": "Create a password (min 6 chars)",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "submit": "Create Account",
+    "submitting": "Creating Account...",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Sign in",
+    "validation": {
+      "name": "Name must be at least 2 characters",
+      "email": "Invalid email address",
+      "password": "Password must be at least 6 characters",
+      "passwordsMatch": "Passwords do not match"
+    },
+    "toast": {
+      "success": "Account created successfully",
+      "failed": "Registration failed. Please check your details."
+    }
+  },
+  "auth": {
+    "toast": {
       "success": "Successfully logged in",
       "failed": "Login failed",
       "invalid": "Invalid email or password",
@@ -172,5 +208,22 @@
       "githubFailed": "GitHub authentication failed"
     },
     "completing": "Completing authentication..."
+  },
+  "users": {
+    "title": "User Management",
+    "subtitle": "Manage staff access and assign system roles",
+    "noUsersFound": "No users found",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "you": "You",
+    "changeRole": "Change Role",
+    "editRoleTitle": "Edit User Role",
+    "selectRole": "Select Role",
+    "adminWarning": "Warning: Assigning the ADMIN role gives full access to the system, including deleting data and changing other users' roles.",
+    "toast": {
+      "roleUpdated": "User role successfully updated",
+      "failedUpdate": "Failed to update user role"
+    }
   }
 }

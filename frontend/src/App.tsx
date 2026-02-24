@@ -12,11 +12,13 @@ import { ThemeProvider } from './components/theme-provider';
 
 // Pages
 import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Products } from './pages/Products';
 import { AuthCallback } from './pages/AuthCallback';
 import { Warehouses } from './pages/Warehouses';
 import { Movements } from './pages/Movements';
+import { Users } from './pages/Users';
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,7 @@ export const App: React.FC = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             
             <Route element={<AuthGuard />}>
@@ -48,6 +51,14 @@ export const App: React.FC = () => {
                       <Movements />
                     </RoleGuard>
                   } 
+                />
+                <Route
+                  path="/users"
+                  element={
+                    <RoleGuard allowedRoles={['ADMIN']} isRoute>
+                      <Users />
+                    </RoleGuard>
+                  }
                 />
               </Route>
             </Route>
