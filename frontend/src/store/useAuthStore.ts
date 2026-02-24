@@ -46,7 +46,10 @@ export const useAuthStore = create<AuthState>((set) => ({
 }));
 
 if (typeof window !== 'undefined') {
-  window.addEventListener('auth-unauthorized', () => {
-    useAuthStore.getState().setUser(null);
-  });
+  if (!(window as any).__AUTH_LISTENER_REGISTERED__) {
+    window.addEventListener('auth-unauthorized', () => {
+      useAuthStore.getState().setUser(null);
+    });
+    (window as any).__AUTH_LISTENER_REGISTERED__ = true;
+  }
 }

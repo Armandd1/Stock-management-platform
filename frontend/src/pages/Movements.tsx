@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
 import { Plus, ArrowRightLeft, ArrowDownToLine, ArrowUpFromLine, Inbox } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../utils/cn';
 
 import { api } from '../services/api';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
+import { Card, CardContent, CardHeader } from '../components/ui/Card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -26,10 +27,10 @@ interface Movement {
   type: 'IN' | 'OUT' | 'TRANSFER';
   quantity: number;
   createdAt: string;
-  product: Product;
-  fromWarehouse: Warehouse | null;
-  toWarehouse: Warehouse | null;
-  performedBy: User;
+  Product: Product;
+  FromWarehouse: Warehouse | null;
+  ToWarehouse: Warehouse | null;
+  CreatedBy: User;
 }
 
 const movementSchema = z.object({
@@ -61,6 +62,7 @@ const movementSchema = z.object({
 type MovementFormValues = z.infer<typeof movementSchema>;
 
 export const Movements: React.FC = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterType, setFilterType] = useState<string>('ALL');
@@ -106,11 +108,11 @@ export const Movements: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['movements'] });
       queryClient.invalidateQueries({ queryKey: ['stock-on-hand'] });
-      toast.success('Movement recorded successfully');
+      toast.success(t('movements.toast.recorded'));
       setIsModalOpen(false);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to record movement');
+      toast.error(error.response?.data?.message || t('movements.toast.failedRecord'));
     }
   });
 
@@ -137,13 +139,13 @@ export const Movements: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Stock Movements</h1>
-          <p className="text-slate-500">Track and manage inventory flow across warehouses.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('movements.title')}</h1>
+          <p className="text-muted-foreground">{t('movements.subtitle')}</p>
         </div>
         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
           <Button onClick={openCreateModal} className="gap-2">
             <Plus className="h-4 w-4" />
-            Record Movement
+            {t('movements.record')}
           </Button>
         </RoleGuard>
       </div>
@@ -152,19 +154,19 @@ export const Movements: React.FC = () => {
         <CardHeader className="pb-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Type</Label>
+              <Label className="text-xs text-muted-foreground">{t('movements.type')}</Label>
               <Select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-                <option value="ALL">All Types</option>
-                <option value="IN">IN (Receiving)</option>
-                <option value="OUT">OUT (Shipping)</option>
-                <option value="TRANSFER">TRANSFER</option>
+                <option value="ALL">{t('movements.allTypes')}</option>
+                <option value="IN">{t('movements.in')}</option>
+                <option value="OUT">{t('movements.out')}</option>
+                <option value="TRANSFER">{t('movements.transfer')}</option>
               </Select>
             </div>
             
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Warehouse</Label>
+              <Label className="text-xs text-muted-foreground">{t('dashboard.warehouse')}</Label>
               <Select value={filterWarehouse} onChange={(e) => setFilterWarehouse(e.target.value)}>
-                <option value="ALL">All Warehouses</option>
+                <option value="ALL">{t('movements.allWarehouses')}</option>
                 {warehouses?.map(w => (
                   <option key={w.id} value={w.id}>{w.name}</option>
                 ))}
@@ -172,9 +174,9 @@ export const Movements: React.FC = () => {
             </div>
             
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Product / SKU</Label>
+              <Label className="text-xs text-muted-foreground">{t('movements.product')}</Label>
               <Select value={filterProduct} onChange={(e) => setFilterProduct(e.target.value)}>
-                <option value="ALL">All Products</option>
+                <option value="ALL">{t('movements.allProducts')}</option>
                 {products?.map(p => (
                   <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
                 ))}
@@ -182,7 +184,7 @@ export const Movements: React.FC = () => {
             </div>
             
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Date</Label>
+              <Label className="text-xs text-muted-foreground">{t('movements.date')}</Label>
               <Input 
                 type="date" 
                 value={filterDate} 
@@ -194,24 +196,24 @@ export const Movements: React.FC = () => {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-             <div className="py-12 flex justify-center text-muted-foreground">Loading records...</div>
+             <div className="py-12 flex justify-center text-muted-foreground">{t('common.loadingRecords')}</div>
           ) : !filteredMovements?.length ? (
             <div className="py-16 flex flex-col items-center justify-center text-muted-foreground text-center">
               <Inbox className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
-              <p className="text-lg font-medium text-foreground">No movements found</p>
-              <p className="text-sm">Change filters or record a new stock movement.</p>
+              <p className="text-lg font-medium text-foreground">{t('common.noMovementsFound')}</p>
+              <p className="text-sm">{t('common.noMovementsDesc')}</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Destination</TableHead>
-                  <TableHead>User</TableHead>
+                  <TableHead>{t('movements.type')}</TableHead>
+                  <TableHead>{t('movements.date')}</TableHead>
+                  <TableHead>{t('movements.product')}</TableHead>
+                  <TableHead>{t('movements.quantity')}</TableHead>
+                  <TableHead>{t('movements.source')}</TableHead>
+                  <TableHead>{t('movements.destination')}</TableHead>
+                  <TableHead>{t('movements.user')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -227,13 +229,13 @@ export const Movements: React.FC = () => {
                       {format(new Date(m.createdAt), 'MMM d, yyyy HH:mm')}
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium text-foreground">{m.product?.name}</div>
-                      <div className="text-xs text-muted-foreground">{m.product?.sku}</div>
+                      <div className="font-medium text-foreground">{m.Product?.name}</div>
+                      <div className="text-xs text-muted-foreground">{m.Product?.sku}</div>
                     </TableCell>
                     <TableCell className="font-bold text-foreground">{m.quantity}</TableCell>
-                    <TableCell className="text-muted-foreground">{m.fromWarehouse?.name || '-'}</TableCell>
-                    <TableCell className="text-muted-foreground">{m.toWarehouse?.name || '-'}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{m.performedBy?.name || m.performedBy?.email}</TableCell>
+                    <TableCell className="text-muted-foreground">{m.FromWarehouse?.name || '-'}</TableCell>
+                    <TableCell className="text-muted-foreground">{m.ToWarehouse?.name || '-'}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{m.CreatedBy?.name || m.CreatedBy?.email}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -242,60 +244,60 @@ export const Movements: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Record Stock Movement">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={t('movements.recordTitle')}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 col-span-2">
-              <Label htmlFor="type">Transaction Type</Label>
+              <Label htmlFor="type">{t('movements.transactionType')}</Label>
               <Select id="type" {...register('type')}>
-                <option value="IN">Receiving (IN)</option>
-                <option value="OUT">Shipping/Usage (OUT)</option>
-                <option value="TRANSFER">Inter-warehouse (TRANSFER)</option>
+                <option value="IN">{t('movements.receivingIn')}</option>
+                <option value="OUT">{t('movements.shippingUsage')}</option>
+                <option value="TRANSFER">{t('movements.interWarehouse')}</option>
               </Select>
             </div>
             
             <div className="space-y-2 col-span-2 sm:col-span-1">
-              <Label htmlFor="productId">Product</Label>
+              <Label htmlFor="productId">{t('movements.product')}</Label>
               <Select id="productId" {...register('productId')}>
-                <option value={0}>Select a product...</option>
+                <option value={0}>{t('movements.selectProduct')}</option>
                 {products?.map(p => <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>)}
               </Select>
-              {errors.productId && <p className="text-sm text-destructive">{errors.productId.message}</p>}
+              {errors.productId && <p className="text-sm text-destructive">{t('movements.validation.productRequired')}</p>}
             </div>
 
             <div className="space-y-2 col-span-2 sm:col-span-1">
-              <Label htmlFor="quantity">Quantity</Label>
+              <Label htmlFor="quantity">{t('movements.quantity')}</Label>
               <Input id="quantity" type="number" min="1" {...register('quantity')} />
-              {errors.quantity && <p className="text-sm text-destructive">{errors.quantity.message}</p>}
+              {errors.quantity && <p className="text-sm text-destructive">{t('movements.validation.qtyMin')}</p>}
             </div>
 
             {(selectedType === 'OUT' || selectedType === 'TRANSFER') && (
               <div className="space-y-2 col-span-2 sm:col-span-1 border-l-2 pl-3 border-amber-200">
-                <Label htmlFor="fromWarehouseId">From Warehouse</Label>
+                <Label htmlFor="fromWarehouseId">{t('movements.fromWarehouse')}</Label>
                 <Select id="fromWarehouseId" {...register('fromWarehouseId')}>
-                  <option value={0}>Select source...</option>
+                  <option value={0}>{t('movements.selectSource')}</option>
                   {warehouses?.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
                 </Select>
-                {errors.fromWarehouseId && <p className="text-sm text-destructive">{errors.fromWarehouseId.message}</p>}
+                {errors.fromWarehouseId && <p className="text-sm text-destructive">{t('movements.validation.sourceValid')}</p>}
               </div>
             )}
 
             {(selectedType === 'IN' || selectedType === 'TRANSFER') && (
               <div className="space-y-2 col-span-2 sm:col-span-1 border-l-2 pl-3 border-emerald-200">
-                <Label htmlFor="toWarehouseId">To Warehouse</Label>
+                <Label htmlFor="toWarehouseId">{t('movements.toWarehouse')}</Label>
                 <Select id="toWarehouseId" {...register('toWarehouseId')}>
-                  <option value={0}>Select destination...</option>
+                  <option value={0}>{t('movements.selectDestination')}</option>
                   {warehouses?.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
                 </Select>
-                {errors.toWarehouseId && <p className="text-sm text-destructive">{errors.toWarehouseId.message}</p>}
+                {errors.toWarehouseId && <p className="text-sm text-destructive">{t('movements.validation.destValid')}</p>}
               </div>
             )}
           </div>
           
           <div className="flex justify-end gap-2 pt-6">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('common.cancel')}</Button>
             <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? 'Processing...' : 'Confirm Movement'}
+              {createMutation.isPending ? t('movements.processing') : t('movements.confirmMovement')}
             </Button>
           </div>
         </form>

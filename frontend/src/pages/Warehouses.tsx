@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
-import { Plus, Trash2, Edit, Warehouse as WarehouseIcon } from 'lucide-react';
+import { Plus, Trash2, Edit, Warehouse as WarehouseIcon, Eye } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 
 import { api } from '../services/api';
-import { Card, CardContent, CardHeader } from '../components/ui/Card';
+import { Card, CardContent } from '../components/ui/Card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -21,6 +23,13 @@ interface Warehouse {
   location: string | null;
 }
 
+interface WarehouseDetails extends Warehouse {
+  Stocks: {
+    quantity: number;
+    Product: { id: number; sku: string; name: string };
+  }[];
+}
+
 const warehouseSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   location: z.string().optional(),
@@ -29,13 +38,32 @@ const warehouseSchema = z.object({
 type WarehouseFormValues = z.infer<typeof warehouseSchema>;
 
 export const Warehouses: React.FC = () => {
+  const { t } = useTranslation();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
+  const [viewingWarehouseId, setViewingWarehouseId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const state = location.state as any;
+    if (state?.viewWarehouseId) {
+      setViewingWarehouseId(state.viewWarehouseId);
+    }
+  }, [location.state]);
 
   const { data: warehouses, isLoading, isError } = useQuery({
     queryKey: ['warehouses'],
     queryFn: async () => (await api.get<Warehouse[]>('/warehouses')).data
+  });
+
+  const { data: warehouseDetails, isLoading: isLoadingDetails } = useQuery({
+    queryKey: ['warehouse', viewingWarehouseId],
+    queryFn: async () => {
+      const res = await api.get<WarehouseDetails>(`/warehouses/${viewingWarehouseId}`);
+      return res.data;
+    },
+    enabled: !!viewingWarehouseId,
   });
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<WarehouseFormValues>({
@@ -66,11 +94,11 @@ export const Warehouses: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['warehouses'] });
-      toast.success(`Warehouse successfully ${editingWarehouse ? 'updated' : 'created'}`);
+      toast.success(editingWarehouse ? t('warehouses.toast.updated') : t('warehouses.toast.created'));
       setIsModalOpen(false);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to save warehouse');
+      toast.error(error.response?.data?.message || t('warehouses.toast.failedSave'));
     }
   });
 
@@ -78,9 +106,9 @@ export const Warehouses: React.FC = () => {
     mutationFn: async (id: number) => api.delete(`/warehouses/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['warehouses'] });
-      toast.success('Warehouse deleted');
+      toast.success(t('warehouses.toast.deleted'));
     },
-    onError: () => toast.error('Failed to delete warehouse')
+    onError: () => toast.error(t('warehouses.toast.failedDelete'))
   });
 
   const onSubmit = (data: WarehouseFormValues) => saveMutation.mutate(data);
@@ -89,13 +117,13 @@ export const Warehouses: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Warehouses</h1>
-          <p className="text-muted-foreground">Manage your storage locations and facilities.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('warehouses.title')}</h1>
+          <p className="text-muted-foreground">{t('warehouses.subtitle')}</p>
         </div>
         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
           <Button onClick={openCreateModal} className="gap-2">
             <Plus className="h-4 w-4" />
-            Add Warehouse
+            {t('warehouses.add')}
           </Button>
         </RoleGuard>
       </div>
@@ -103,34 +131,51 @@ export const Warehouses: React.FC = () => {
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="py-12 flex justify-center text-muted-foreground">Loading warehouses...</div>
+            <div className="py-12 flex justify-center text-muted-foreground">{t('common.loadingWarehouses')}</div>
           ) : isError ? (
-            <div className="py-12 flex justify-center text-destructive">Failed to load warehouses.</div>
+            <div className="py-12 flex justify-center text-destructive">{t('common.failedLoadWarehouses')}</div>
           ) : !warehouses?.length ? (
             <div className="py-16 flex flex-col items-center justify-center text-muted-foreground text-center">
               <WarehouseIcon className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
-              <p className="text-lg font-medium text-foreground">No warehouses configured</p>
-              <p className="text-sm">Click "Add Warehouse" to get started.</p>
+              <p className="text-lg font-medium text-foreground">{t('common.noWarehousesFound')}</p>
+              <p className="text-sm">{t('common.noWarehousesDesc')}</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Location Details</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('warehouses.locationDetails')}</TableHead>
+                  <TableHead className="text-right">{t('common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {warehouses.map((warehouse) => (
-                  <TableRow key={warehouse.id}>
+                  <TableRow 
+                    key={warehouse.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => setViewingWarehouseId(warehouse.id)}
+                  >
                     <TableCell>
                       <div className="font-medium text-foreground text-base">{warehouse.name}</div>
-                      <div className="text-sm text-muted-foreground mt-1">{warehouse.location || 'No location specified'}</div>
+                      <div className="text-sm text-muted-foreground mt-1">{warehouse.location || t('warehouses.noLocation')}</div>
                     </TableCell>
                     <TableCell className="text-right align-top pt-4">
                       <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={(e) => { e.stopPropagation(); setViewingWarehouseId(warehouse.id); }} 
+                          className="h-8 w-8 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
-                          <Button variant="ghost" size="icon" onClick={() => openEditModal(warehouse)} className="h-8 w-8 text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={(e) => { e.stopPropagation(); openEditModal(warehouse); }} 
+                            className="h-8 w-8 text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400"
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                         </RoleGuard>
@@ -138,7 +183,10 @@ export const Warehouses: React.FC = () => {
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            onClick={() => { if(confirm('Delete this warehouse? Action is irreversible.')) deleteMutation.mutate(warehouse.id) }} 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              if(confirm(t('common.confirmDeleteWh'))) deleteMutation.mutate(warehouse.id); 
+                            }} 
                             className="h-8 w-8 text-muted-foreground hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -157,25 +205,82 @@ export const Warehouses: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingWarehouse ? 'Edit Warehouse' : 'Register Warehouse'}
+        title={editingWarehouse ? t('warehouses.editTitle') : t('warehouses.addTitle')}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Warehouse Name</Label>
-            <Input id="name" {...register('name')} placeholder="e.g. Main Hub" />
-            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+            <Label htmlFor="name">{t('warehouses.name')}</Label>
+            <Input id="name" {...register('name')} placeholder={t('warehouses.namePlaceholder')} />
+            {errors.name && <p className="text-sm text-destructive">{t('warehouses.validation.nameMin')}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="location">Physical Location (Optional)</Label>
-            <Input id="location" {...register('location')} placeholder="e.g. 123 Storage Lane, City" />
+            <Label htmlFor="location">{t('warehouses.location')}</Label>
+            <Input id="location" {...register('location')} placeholder={t('warehouses.locationPlaceholder')} />
           </div>
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('common.cancel')}</Button>
             <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? 'Saving...' : 'Save Warehouse'}
+              {saveMutation.isPending ? t('common.loading') : t('warehouses.saveWarehouse')}
             </Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={!!viewingWarehouseId}
+        onClose={() => setViewingWarehouseId(null)}
+        title={t('warehouses.detailsTitle')}
+      >
+        <div className="space-y-4">
+          {isLoadingDetails ? (
+            <div className="py-8 flex justify-center text-muted-foreground">{t('common.loadingDetails')}</div>
+          ) : warehouseDetails ? (
+            <>
+              <div>
+                <h3 className="font-semibold text-foreground text-lg">{warehouseDetails.name}</h3>
+                <p className="text-sm text-muted-foreground mt-1">{t('warehouses.location')}: {warehouseDetails.location || t('warehouses.noLocation')}</p>
+              </div>
+              
+              <div className="border rounded-md overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead>{t('dashboard.product')}</TableHead>
+                      <TableHead className="text-right">{t('products.stockLevel')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {warehouseDetails.Stocks.length > 0 ? (
+                      warehouseDetails.Stocks.map((stock, i) => (
+                        <TableRow key={i}>
+                          <TableCell>
+                            <div className="font-medium text-foreground">{stock.Product.name}</div>
+                            <div className="text-xs text-muted-foreground">{stock.Product.sku}</div>
+                          </TableCell>
+                          <TableCell className="text-right font-bold text-foreground">
+                            {stock.quantity}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={2} className="text-center text-muted-foreground py-4">
+                          {t('warehouses.noStock')}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          ) : (
+            <div className="py-8 flex justify-center text-destructive">{t('common.failedLoadDetails')}</div>
+          )}
+          
+          <div className="flex justify-end pt-4">
+            <Button onClick={() => setViewingWarehouseId(null)}>{t('common.close')}</Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

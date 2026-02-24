@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
 import { Plus, Search, Trash2, Edit, Package, Eye } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 
 import { api } from '../services/api';
-import { useAuthStore } from '../store/useAuthStore';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
+import { Card, CardContent, CardHeader } from '../components/ui/Card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -42,11 +43,20 @@ interface ProductDetails extends Product {
 }
 
 export const Products: React.FC = () => {
+  const { t } = useTranslation();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [viewingProductId, setViewingProductId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const state = location.state as any;
+    if (state?.viewProductId) {
+      setViewingProductId(state.viewProductId);
+    }
+  }, [location.state]);
 
   const { data: products, isLoading, isError } = useQuery({
     queryKey: ['products', search],
@@ -95,11 +105,11 @@ export const Products: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success(`Product successfully ${editingProduct ? 'updated' : 'created'}`);
+      toast.success(editingProduct ? t('products.toast.updated') : t('products.toast.created'));
       setIsModalOpen(false);
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to save product');
+      toast.error(error.response?.data?.message || t('products.toast.failedSave'));
     }
   });
 
@@ -107,9 +117,9 @@ export const Products: React.FC = () => {
     mutationFn: async (id: number) => api.delete(`/products/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success('Product deleted');
+      toast.success(t('products.toast.deleted'));
     },
-    onError: () => toast.error('Failed to delete product')
+    onError: () => toast.error(t('products.toast.failedDelete'))
   });
 
   const onSubmit = (data: ProductFormValues) => saveMutation.mutate(data);
@@ -118,13 +128,13 @@ export const Products: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Products</h1>
-          <p className="text-muted-foreground">Manage your product catalog and view inventory.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('products.title')}</h1>
+          <p className="text-muted-foreground">{t('products.subtitle')}</p>
         </div>
         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
           <Button onClick={openCreateModal} className="gap-2">
             <Plus className="h-4 w-4" />
-            Add Product
+            {t('products.add')}
           </Button>
         </RoleGuard>
       </div>
@@ -136,7 +146,7 @@ export const Products: React.FC = () => {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search by SKU or name..."
+                placeholder={t('products.searchPlaceholder')}
                 className="pl-9"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -146,28 +156,32 @@ export const Products: React.FC = () => {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="py-8 flex justify-center text-muted-foreground">Loading products...</div>
+            <div className="py-8 flex justify-center text-muted-foreground">{t('common.loadingProducts')}</div>
           ) : isError ? (
-            <div className="py-8 flex justify-center text-destructive">Failed to load products.</div>
+            <div className="py-8 flex justify-center text-destructive">{t('common.failedLoadProducts')}</div>
           ) : !products?.length ? (
             <div className="py-12 flex flex-col items-center justify-center text-muted-foreground text-center">
               <Package className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
-              <p className="text-lg font-medium text-foreground">No products found</p>
-              <p className="text-sm">Adjust your search or add a new product.</p>
+              <p className="text-lg font-medium text-foreground">{t('common.noProductsFound')}</p>
+              <p className="text-sm">{t('common.noProductsDesc')}</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('products.sku')}</TableHead>
+                  <TableHead>{t('products.tableName')}</TableHead>
+                  <TableHead>{t('products.price')}</TableHead>
+                  <TableHead className="text-right">{t('common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {products.map((product) => (
-                  <TableRow key={product.id}>
+                  <TableRow 
+                    key={product.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => setViewingProductId(product.id)}
+                  >
                     <TableCell className="font-mono text-sm">{product.sku}</TableCell>
                     <TableCell>
                       <div className="font-medium text-foreground">{product.name}</div>
@@ -176,11 +190,21 @@ export const Products: React.FC = () => {
                     <TableCell>${product.price.toFixed(2)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => setViewingProductId(product.id)} className="h-8 w-8 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={(e) => { e.stopPropagation(); setViewingProductId(product.id); }} 
+                          className="h-8 w-8 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400"
+                        >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
-                          <Button variant="ghost" size="icon" onClick={() => openEditModal(product)} className="h-8 w-8 text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={(e) => { e.stopPropagation(); openEditModal(product); }} 
+                            className="h-8 w-8 text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400"
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                         </RoleGuard>
@@ -188,7 +212,10 @@ export const Products: React.FC = () => {
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            onClick={() => { if(confirm('Are you sure you want to delete this product?')) deleteMutation.mutate(product.id) }} 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              if(confirm(t('common.confirmDelete'))) deleteMutation.mutate(product.id); 
+                            }} 
                             className="h-8 w-8 text-muted-foreground hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -207,34 +234,34 @@ export const Products: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingProduct ? 'Edit Product' : 'Add New Product'}
+        title={editingProduct ? t('products.editTitle') : t('products.addTitle')}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 col-span-2 sm:col-span-1">
-              <Label htmlFor="sku">SKU</Label>
-              <Input id="sku" {...register('sku')} placeholder="e.g. WH-123" />
-              {errors.sku && <p className="text-sm text-destructive">{errors.sku.message}</p>}
+              <Label htmlFor="sku">{t('products.sku')}</Label>
+              <Input id="sku" {...register('sku')} placeholder={t('products.skuPlaceholder')} />
+              {errors.sku && <p className="text-sm text-destructive">{t('products.validation.skuMin')}</p>}
             </div>
             <div className="space-y-2 col-span-2 sm:col-span-1">
-              <Label htmlFor="price">Price</Label>
-              <Input id="price" type="number" step="0.01" {...register('price')} placeholder="0.00" />
-              {errors.price && <p className="text-sm text-destructive">{errors.price.message}</p>}
+              <Label htmlFor="price">{t('products.price')}</Label>
+              <Input id="price" type="number" step="0.01" {...register('price')} placeholder={t('products.pricePlaceholder')} />
+              {errors.price && <p className="text-sm text-destructive">{t('products.validation.priceMin')}</p>}
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="name">Product Name</Label>
-            <Input id="name" {...register('name')} placeholder="Enter product name..." />
-            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+            <Label htmlFor="name">{t('products.name')}</Label>
+            <Input id="name" {...register('name')} placeholder={t('products.namePlaceholder')} />
+            {errors.name && <p className="text-sm text-destructive">{t('products.validation.nameMin')}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
-            <Input id="description" {...register('description')} placeholder="Add details..." />
+            <Label htmlFor="description">{t('products.description')}</Label>
+            <Input id="description" {...register('description')} placeholder={t('products.descriptionPlaceholder')} />
           </div>
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('common.cancel')}</Button>
             <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? 'Saving...' : 'Save Product'}
+              {saveMutation.isPending ? t('products.saving') : t('products.saveProduct')}
             </Button>
           </div>
         </form>
@@ -243,11 +270,11 @@ export const Products: React.FC = () => {
       <Modal
         isOpen={!!viewingProductId}
         onClose={() => setViewingProductId(null)}
-        title="Product Stock Details"
+        title={t('products.detailsTitle')}
       >
         <div className="space-y-4">
           {isLoadingDetails ? (
-            <div className="py-8 flex justify-center text-muted-foreground">Loading details...</div>
+            <div className="py-8 flex justify-center text-muted-foreground">{t('common.loadingDetails')}</div>
           ) : productDetails ? (
             <>
               <div>
@@ -259,8 +286,8 @@ export const Products: React.FC = () => {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
-                      <TableHead>Warehouse</TableHead>
-                      <TableHead className="text-right">Stock Level</TableHead>
+                      <TableHead>{t('dashboard.warehouse')}</TableHead>
+                      <TableHead className="text-right">{t('products.stockLevel')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -278,7 +305,7 @@ export const Products: React.FC = () => {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={2} className="text-center text-muted-foreground py-4">
-                          No stock recorded.
+                          {t('common.noStockRecorded')}
                         </TableCell>
                       </TableRow>
                     )}
@@ -287,11 +314,11 @@ export const Products: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="py-8 flex justify-center text-destructive">Failed to load details.</div>
+            <div className="py-8 flex justify-center text-destructive">{t('common.failedLoadDetails')}</div>
           )}
           
           <div className="flex justify-end pt-4">
-            <Button onClick={() => setViewingProductId(null)}>Close</Button>
+            <Button onClick={() => setViewingProductId(null)}>{t('common.close')}</Button>
           </div>
         </div>
       </Modal>

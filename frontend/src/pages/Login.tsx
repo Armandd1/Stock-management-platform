@@ -12,6 +12,7 @@ import { Button } from '../components/ui/Button';
 import toast from 'react-hot-toast';
 import { Boxes } from 'lucide-react';
 import { ModeToggle } from '../components/mode-toggle';
+import { useTranslation } from 'react-i18next';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -23,6 +24,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export const Login: React.FC = () => {
   const { checkAuth } = useAuthStore();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -38,11 +40,11 @@ export const Login: React.FC = () => {
     try {
       await api.post('/auth/login', data);
       await checkAuth(); // Hydrates user state from API
-      toast.success('Successfully logged in');
+      toast.success(t('login.toast.success'));
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid email or password');
-      toast.error('Login failed');
+      setError(err.response?.data?.message || t('login.toast.invalid'));
+      toast.error(t('login.toast.failed'));
     }
   };
 
@@ -60,33 +62,34 @@ export const Login: React.FC = () => {
       
       <Card className="w-full max-w-md shadow-xl border-border">
         <CardHeader className="space-y-2 text-center pb-8 border-b border-border">
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardTitle className="text-2xl">{t('login.welcome')}</CardTitle>
+          <CardDescription>{t('login.subtitle')}</CardDescription>
         </CardHeader>
         <CardContent className="pt-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">{t('login.emailLabel')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="name@company.com"
+                placeholder={t('login.emailPlaceholder')}
                 {...register('email')}
                 className={errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}
               />
-              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+              {errors.email && <p className="text-sm text-destructive">{t('login.invalidEmail')}</p>}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('login.passwordLabel')}</Label>
               </div>
               <Input
                 id="password"
                 type="password"
+                placeholder={t('login.passwordPlaceholder')}
                 {...register('password')}
                 className={errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}
               />
-              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+              {errors.password && <p className="text-sm text-destructive">{t('login.passwordRequired')}</p>}
             </div>
             
             {error && (
@@ -96,7 +99,7 @@ export const Login: React.FC = () => {
             )}
             
             <Button type="submit" className="w-full mt-2" size="lg" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in...' : 'Sign in'}
+              {isSubmitting ? t('login.submitting') : t('login.submit')}
             </Button>
 
             <div className="relative my-4">
@@ -104,7 +107,7 @@ export const Login: React.FC = () => {
                 <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                <span className="bg-card px-2 text-muted-foreground">{t('login.orContinue')}</span>
               </div>
             </div>
 

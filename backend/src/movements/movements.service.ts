@@ -208,6 +208,12 @@ export class MovementsService {
       where.productId = filters.productId;
     }
     if (filters?.type) {
+      const allowedTypes = ['IN', 'OUT', 'TRANSFER'];
+      if (!allowedTypes.includes(filters.type)) {
+        throw new BadRequestException(
+          `Invalid movement type: ${filters.type}. Allowed values are IN, OUT, TRANSFER.`,
+        );
+      }
       where.type = filters.type as Prisma.EnumMovementTypeFilter['equals'];
     }
     if (filters?.warehouseId) {
