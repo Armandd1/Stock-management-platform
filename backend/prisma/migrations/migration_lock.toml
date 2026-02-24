@@ -1,0 +1,2 @@
+-- This migration_lock indicates this project uses PostgreSQL
+provider = "postgresql"

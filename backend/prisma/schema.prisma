@@ -34,14 +34,14 @@ model User {
 }
 
 model Warehouse {
-  id                 Int             @id @default(autoincrement())
-  name               String
-  location           String?
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-  Stocks             Stock[]
-  MovementsFromThis  StockMovement[] @relation("FromWarehouse")
-  MovementsToThis    StockMovement[] @relation("ToWarehouse")
+  id                Int             @id @default(autoincrement())
+  name              String
+  location          String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  Stocks            Stock[]
+  MovementsFrom     StockMovement[] @relation("FromWarehouse")
+  MovementsTo       StockMovement[] @relation("ToWarehouse")
 }
 
 model Product {
@@ -57,14 +57,14 @@ model Product {
 }
 
 model Stock {
-  id          Int      @id @default(autoincrement())
-  quantity    Int      @default(0)
+  id          Int       @id @default(autoincrement())
+  quantity    Int       @default(0)
   productId   Int
-  Product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  Product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   warehouseId Int
   Warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@unique([productId, warehouseId])
 }
@@ -74,16 +74,16 @@ model StockMovement {
   type            MovementType
   quantity        Int
   date            DateTime     @default(now())
-  
+
   productId       Int
   Product         Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
+
   fromWarehouseId Int?
   FromWarehouse   Warehouse?   @relation("FromWarehouse", fields: [fromWarehouseId], references: [id])
-  
+
   toWarehouseId   Int?
   ToWarehouse     Warehouse?   @relation("ToWarehouse", fields: [toWarehouseId], references: [id])
-  
+
   createdById     Int
   CreatedBy       User         @relation(fields: [createdById], references: [id])
 
