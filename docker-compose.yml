@@ -13,7 +13,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-stockmanager}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-stockmanager}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -34,7 +34,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: npm run start:dev
+    command: >
+      sh -c "npx prisma migrate deploy &&
+             npx prisma db seed &&
+             npm run start:dev"
 
   frontend:
     build:
@@ -50,6 +53,6 @@ services:
     depends_on:
       - backend
     command: npm run dev -- --host
-    
+
 volumes:
   pgdata:
