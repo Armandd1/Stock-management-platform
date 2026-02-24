@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -34,7 +35,8 @@ export class UsersController {
   async updateRole(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateRoleDto: UpdateRoleDto,
+    @CurrentUser() currentUser: { userId: number },
   ) {
-    return this.usersService.updateRole(id, updateRoleDto.role);
+    return this.usersService.updateRole(id, updateRoleDto.role, currentUser.userId);
   }
 }

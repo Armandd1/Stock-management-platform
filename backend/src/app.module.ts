@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -24,6 +25,10 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     UsersModule,
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // 1 minute
+      limit: 10, // Max 10 requests per minute
+    }]),
   ],
   controllers: [AppController],
   providers: [AppService],

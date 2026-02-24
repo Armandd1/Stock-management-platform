@@ -1,6 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 
 interface GithubTokenResponse {
@@ -27,6 +29,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   // --- Local Auth ---
@@ -58,70 +61,121 @@ export class AuthService {
 
   // --- GitHub OAuth2 (manual flow for Fastify) ---
 
-  getGithubAuthUrl(): string {
-    const clientId = process.env.GITHUB_CLIENT_ID || '';
+  getGithubAuthUrl(): { url: string; state: string } {
+    const clientId = this.configService.get<string>('GITHUB_CLIENT_ID');
+    
+    if (!clientId) {
+      throw new InternalServerErrorException('GitHub OAuth is not properly configured on the server (Missing GITHUB_CLIENT_ID)');
+    }
+
     const callbackUrl =
-      process.env.GITHUB_CALLBACK_URL ||
+      this.configService.get<string>('GITHUB_CALLBACK_URL') ||
       'http://localhost:3000/api/v1/auth/github/callback';
     const scope = 'user:email';
+    const state = crypto.randomBytes(16).toString('hex');
 
-    return `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=${scope}`;
+    const url = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=${scope}&state=${state}`;
+    
+    return { url, state };
   }
 
   async exchangeGithubCode(code: string) {
-    // 1. Exchange code for access token
-    const tokenRes = await fetch(
-      'https://github.com/login/oauth/access_token',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          client_id: process.env.GITHUB_CLIENT_ID || '',
-          client_secret: process.env.GITHUB_CLIENT_SECRET || '',
-          code,
-        }),
-      },
-    );
+    const clientId = this.configService.get<string>('GITHUB_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('GITHUB_CLIENT_SECRET');
 
-    const tokenData = (await tokenRes.json()) as GithubTokenResponse;
-    if (!tokenData.access_token) {
-      throw new UnauthorizedException('Failed to get GitHub access token');
+    if (!clientId || !clientSecret) {
+      throw new InternalServerErrorException('GitHub OAuth is not properly configured on the server (Missing credentials)');
     }
 
-    // 2. Get GitHub user profile
-    const userRes = await fetch('https://api.github.com/user', {
-      headers: { Authorization: `Bearer ${tokenData.access_token}` },
-    });
-    const githubUser = (await userRes.json()) as GithubUserResponse;
+    try {
+      // 1. Exchange code for access token
+      const tokenRes = await fetch(
+        'https://github.com/login/oauth/access_token',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            client_id: clientId,
+            client_secret: clientSecret,
+            code,
+          }),
+        },
+      );
 
-    // 3. Get primary email (might be private)
-    let email = githubUser.email;
-    if (!email) {
-      const emailsRes = await fetch('https://api.github.com/user/emails', {
+      if (!tokenRes.ok) {
+        throw new UnauthorizedException('Failed to authenticate with GitHub');
+      }
+
+      const tokenData = (await tokenRes.json()) as GithubTokenResponse;
+      if (!tokenData.access_token) {
+        throw new UnauthorizedException('Failed to get GitHub access token');
+      }
+
+      // 2. Get GitHub user profile
+      const userRes = await fetch('https://api.github.com/user', {
         headers: { Authorization: `Bearer ${tokenData.access_token}` },
       });
-      const emails = (await emailsRes.json()) as GithubEmailResponse[];
-      const primary = emails.find((e) => e.primary && e.verified);
-      email = primary?.email || `${githubUser.login}@github.local`;
-    }
 
-    // 4. Find or create user
-    let user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      user = await this.prisma.user.create({
-        data: {
-          email,
-          name: githubUser.name || githubUser.login,
-          provider: 'github',
-          role: 'VIEWER',
-        },
-      });
-    }
+      if (!userRes.ok) {
+        throw new UnauthorizedException('Failed to authenticate with GitHub');
+      }
 
-    return this.issueToken(user);
+      const githubUser = (await userRes.json()) as GithubUserResponse;
+
+      // 3. Get primary email (might be private)
+      let email = githubUser.email;
+      if (!email) {
+        const emailsRes = await fetch('https://api.github.com/user/emails', {
+          headers: { Authorization: `Bearer ${tokenData.access_token}` },
+        });
+
+        if (!emailsRes.ok) {
+          throw new UnauthorizedException('Failed to authenticate with GitHub');
+        }
+
+        const emails = (await emailsRes.json()) as GithubEmailResponse[];
+        const primaryVerified = emails.find((e) => e.primary && e.verified);
+        const anyVerified = primaryVerified ?? emails.find((e) => e.verified);
+        email = anyVerified?.email || null;
+      }
+
+      if (!email) {
+        throw new UnauthorizedException(
+          'No verified email found for your GitHub account. Please make a verified email available in GitHub.',
+        );
+      }
+
+      // 4. Find or create user
+      let user = await this.prisma.user.findUnique({ where: { email } });
+      
+      if (user && user.provider !== 'github') {
+        throw new UnauthorizedException(
+          'An account with this email already exists using password login. Please sign in with your email and password.',
+        );
+      }
+
+      if (!user) {
+        user = await this.prisma.user.create({
+          data: {
+            email,
+            name: githubUser.name || githubUser.login,
+            provider: 'github',
+            role: 'VIEWER',
+          },
+        });
+      }
+
+      return this.issueToken(user);
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      // Normalize any other fetch/network errors to a generic unauthorized error
+      throw new UnauthorizedException('Failed to authenticate with GitHub');
+    }
   }
 
   // --- Profile ---

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -12,13 +12,15 @@ export class UsersService {
         email: true,
         name: true,
         role: true,
-        provider: true,
-        createdAt: true,
       },
     });
   }
 
-  async updateRole(userId: number, role: 'ADMIN' | 'MANAGER' | 'VIEWER') {
+  async updateRole(userId: number, role: 'ADMIN' | 'MANAGER' | 'VIEWER', currentUserId: number) {
+    if (userId === currentUserId) {
+      throw new ForbiddenException('You cannot change your own role');
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -35,7 +37,6 @@ export class UsersService {
         email: true,
         name: true,
         role: true,
-        provider: true,
       },
     });
   }
