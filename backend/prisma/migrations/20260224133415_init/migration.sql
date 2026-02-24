@@ -8,7 +8,9 @@ CREATE TYPE "MovementType" AS ENUM ('IN', 'OUT', 'TRANSFER');
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
+    "name" TEXT,
+    "password" TEXT,
+    "provider" TEXT NOT NULL DEFAULT 'local',
     "role" "Role" NOT NULL DEFAULT 'VIEWER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

@@ -17,9 +17,9 @@ async function main() {
   // WARNING: These default passwords are for local development only.
   // In production, always set strong passwords via environment variables:
   // ADMIN_PASSWORD, MANAGER_PASSWORD, VIEWER_PASSWORD.
-  const adminPlainPassword = process.env.ADMIN_PASSWORD ?? 'admin123';
-  const managerPlainPassword = process.env.MANAGER_PASSWORD ?? 'manager123';
-  const viewerPlainPassword = process.env.VIEWER_PASSWORD ?? 'viewer123';
+  const adminPlainPassword = process.env.ADMIN_PASSWORD ?? 'Admin123!';
+  const managerPlainPassword = process.env.MANAGER_PASSWORD ?? 'Manager123!';
+  const viewerPlainPassword = process.env.VIEWER_PASSWORD ?? 'Viewer123!';
 
   const adminPassword = await bcrypt.hash(adminPlainPassword, 10);
   const managerPassword = await bcrypt.hash(managerPlainPassword, 10);

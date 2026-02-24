@@ -3,11 +3,13 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import fastifyCookie from '@fastify/cookie';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -15,6 +17,17 @@ async function bootstrap() {
     new FastifyAdapter(),
     { bufferLogs: true },
   );
+
+  const configService = app.get(ConfigService);
+
+  const jwtSecret = configService.get<string>('JWT_SECRET');
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET is not configured. Please set JWT_SECRET before starting the application.');
+  }
+
+  await app.register(fastifyCookie, {
+    secret: jwtSecret, // same secret for simple signing
+  });
 
   const logger = app.get(Logger);
   app.useLogger(logger);
@@ -48,7 +61,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   // Listen on 0.0.0.0 for Docker port forwarding
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  await app.listen(configService.get<number>('PORT') ?? 3000, '0.0.0.0');
   logger.log(`Application is running on: ${await app.getUrl()}`);
   logger.log(`Swagger docs: ${await app.getUrl()}/api/docs`);
 }

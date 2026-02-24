@@ -23,13 +23,16 @@
     "prisma:seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@fastify/static": "^9.0.0",
     "@nestjs/common": "^11.1.14",
+    "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.1.14",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.0",
     "@nestjs/platform-fastify": "^11.1.14",
     "@nestjs/swagger": "^11.2.6",
+    "@nestjs/throttler": "^6.5.0",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
@@ -75,15 +78,18 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/tests"
+    ],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "src/**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
+    "coverageDirectory": "./coverage",
     "testEnvironment": "node"
   },
   "prisma": {
