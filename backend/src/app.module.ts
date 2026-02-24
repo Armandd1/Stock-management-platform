@@ -7,6 +7,10 @@ import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { WarehousesModule } from './warehouses/warehouses.module';
+import { ProductsModule } from './products/products.module';
+import { MovementsModule } from './movements/movements.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -25,6 +29,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
     }),
     AuthModule,
     UsersModule,
+    WarehousesModule,
+    ProductsModule,
+    MovementsModule,
+    ReportsModule,
     ThrottlerModule.forRoot([{
       ttl: 60000, // 1 minute
       limit: 10, // Max 10 requests per minute

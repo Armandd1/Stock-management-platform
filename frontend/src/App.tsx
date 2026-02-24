@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect } from 'react';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
+import { useAuthStore } from './store/useAuthStore';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Layouts & Guards
+import { AppLayout } from './components/layout/AppLayout';
+import { AuthGuard } from './components/layout/AuthGuard';
+import { RoleGuard } from './components/layout/RoleGuard';
+import { ThemeProvider } from './components/theme-provider';
+
+// Pages
+import { Login } from './pages/Login';
+import { Dashboard } from './pages/Dashboard';
+import { Products } from './pages/Products';
+import { AuthCallback } from './pages/AuthCallback';
+import { Warehouses } from './pages/Warehouses';
+import { Movements } from './pages/Movements';
+
+const queryClient = new QueryClient();
+
+export const App: React.FC = () => {
+  const { checkAuth } = useAuthStore();
+
+  // Check auth on initial load
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <ThemeProvider defaultTheme="light" storageKey="stockify-theme">
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            
+            <Route element={<AuthGuard />}>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/warehouses" element={<Warehouses />} />
+                <Route 
+                  path="/movements" 
+                  element={
+                    <RoleGuard allowedRoles={['ADMIN', 'MANAGER']} isRoute>
+                      <Movements />
+                    </RoleGuard>
+                  } 
+                />
+              </Route>
+            </Route>
+          </Routes>
+        </BrowserRouter>
+        <Toaster position="top-right" />
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+};
 
-export default App
+export default App;
