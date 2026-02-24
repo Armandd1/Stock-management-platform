@@ -7,12 +7,17 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
+    { bufferLogs: true },
   );
+
+  const logger = app.get(Logger);
+  app.useLogger(logger);
 
   // Global prefix for API versioning
   app.setGlobalPrefix('api/v1');
@@ -44,8 +49,8 @@ async function bootstrap() {
 
   // Listen on 0.0.0.0 for Docker port forwarding
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
-  console.log(`Application is running on: ${await app.getUrl()}`);
-  console.log(`Swagger docs: ${await app.getUrl()}/api/docs`);
+  logger.log(`Application is running on: ${await app.getUrl()}`);
+  logger.log(`Swagger docs: ${await app.getUrl()}/api/docs`);
 }
 bootstrap();
 

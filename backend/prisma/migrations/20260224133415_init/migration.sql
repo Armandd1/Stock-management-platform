@@ -49,7 +49,8 @@ CREATE TABLE "Stock" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Stock_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Stock_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "Stock_quantity_check" CHECK ("quantity" >= 0)
 );
 
 -- CreateTable
@@ -61,7 +62,7 @@ CREATE TABLE "StockMovement" (
     "productId" INTEGER NOT NULL,
     "fromWarehouseId" INTEGER,
     "toWarehouseId" INTEGER,
-    "createdById" INTEGER NOT NULL,
+    "createdById" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "StockMovement_pkey" PRIMARY KEY ("id")
@@ -92,4 +93,4 @@ ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_fromWarehouseId_fkey" 
 ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_toWarehouseId_fkey" FOREIGN KEY ("toWarehouseId") REFERENCES "Warehouse"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

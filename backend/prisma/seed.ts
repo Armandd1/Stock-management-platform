@@ -1,15 +1,29 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import pino from 'pino';
 
+const logger = pino({
+  transport: {
+    target: 'pino-pretty',
+    options: { singleLine: true, colorize: true },
+  },
+});
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  logger.info('🌱 Seeding database...');
 
   // --- Users ---
-  const adminPassword = await bcrypt.hash('admin123', 10);
-  const managerPassword = await bcrypt.hash('manager123', 10);
-  const viewerPassword = await bcrypt.hash('viewer123', 10);
+  // WARNING: These default passwords are for local development only.
+  // In production, always set strong passwords via environment variables:
+  // ADMIN_PASSWORD, MANAGER_PASSWORD, VIEWER_PASSWORD.
+  const adminPlainPassword = process.env.ADMIN_PASSWORD ?? 'admin123';
+  const managerPlainPassword = process.env.MANAGER_PASSWORD ?? 'manager123';
+  const viewerPlainPassword = process.env.VIEWER_PASSWORD ?? 'viewer123';
+
+  const adminPassword = await bcrypt.hash(adminPlainPassword, 10);
+  const managerPassword = await bcrypt.hash(managerPlainPassword, 10);
+  const viewerPassword = await bcrypt.hash(viewerPlainPassword, 10);
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@example.com' },
@@ -41,7 +55,7 @@ async function main() {
     },
   });
 
-  console.log(`  Users: ${admin.email}, ${manager.email}, ${viewer.email}`);
+  logger.info(`  Users: ${admin.email}, ${manager.email}, ${viewer.email}`);
 
   // --- Warehouses ---
   const warehouse1 = await prisma.warehouse.upsert({
@@ -56,7 +70,7 @@ async function main() {
     create: { name: 'West Depot', location: 'Győr, HU' },
   });
 
-  console.log(`  Warehouses: ${warehouse1.name}, ${warehouse2.name}`);
+  logger.info(`  Warehouses: ${warehouse1.name}, ${warehouse2.name}`);
 
   // --- Products ---
   const products = [
@@ -107,13 +121,13 @@ async function main() {
     });
   }
 
-  console.log(`  Products: ${products.length} products with stock in both warehouses`);
-  console.log('✅ Seeding complete!');
+  logger.info(`  Products: ${products.length} products with stock in both warehouses`);
+  logger.info('✅ Seeding complete!');
 }
 
 main()
   .catch((e) => {
-    console.error('Seeding error:', e);
+    logger.error('Seeding error: ', e);
     process.exit(1);
   })
   .finally(async () => {

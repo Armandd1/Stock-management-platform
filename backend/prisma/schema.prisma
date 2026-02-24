@@ -84,8 +84,8 @@ model StockMovement {
   toWarehouseId   Int?
   ToWarehouse     Warehouse?   @relation("ToWarehouse", fields: [toWarehouseId], references: [id])
 
-  createdById     Int
-  CreatedBy       User         @relation(fields: [createdById], references: [id])
+  createdById     Int?
+  CreatedBy       User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   createdAt       DateTime     @default(now())
 }
