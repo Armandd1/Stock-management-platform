@@ -23,7 +23,7 @@ interface Product {
 interface Wh {
   id: number;
   name: string;
-  location: string;
+  location: string | null;
 }
 interface StockReportItem {
   warehouse: Wh;

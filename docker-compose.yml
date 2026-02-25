@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:15-alpine
     container_name: stock_db
+    env_file: .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
@@ -20,6 +21,7 @@ services:
     build:
       context: ./backend
     container_name: stock_backend
+    env_file: .env
     environment:
       - PORT=3000
       - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secret}@db:5432/${POSTGRES_DB:-stockmanager}?schema=public
@@ -45,6 +47,7 @@ services:
     build:
       context: ./frontend
     container_name: stock_frontend
+    env_file: .env
     environment:
       - VITE_API_URL=http://localhost:3000/api/v1
     ports:

@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { ModeToggle } from '../mode-toggle';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { logger } from '../../utils/logger';
 
 interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -12,8 +13,12 @@ export const Header: React.FC<HeaderProps> = ({ className, ...props }) => {
   const { user, logout } = useAuthStore();
   const { t } = useTranslation();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      logger.error({ err: error }, 'Logout failed');
+    }
   };
 
   return (

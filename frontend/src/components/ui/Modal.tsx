@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useId } from 'react';
 import { cn } from '../../utils/cn';
 import { X } from 'lucide-react';
 
@@ -13,6 +13,7 @@ interface ModalProps {
 export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, className }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
+  const titleId = useId();
 
   // Close on Escape key
   const handleKeyDown = useCallback(
@@ -54,7 +55,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="modal-title"
+        aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
           'relative z-50 w-full max-w-lg rounded-xl bg-card text-card-foreground p-6 shadow-lg border border-border animate-in fade-in zoom-in-95 duration-200 outline-none',
@@ -68,7 +69,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
         >
           <X className="h-5 w-5 text-muted-foreground" />
         </button>
-        <div id="modal-title" className="mb-5 text-xl font-semibold tracking-tight">
+        <div id={titleId} className="mb-5 text-xl font-semibold tracking-tight">
           {title}
         </div>
         {children}

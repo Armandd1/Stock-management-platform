@@ -1,6 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Login flow', () => {
+  test.beforeEach(async ({ page }) => {
+    // Force language to English for deterministic testing
+    await page.addInitScript(() => {
+      window.localStorage.setItem('i18nextLng', 'en');
+    });
+  });
   test('should display login page', async ({ page }) => {
     await page.goto('/login');
     // The Login page title is "Welcome back" from en.json login.welcome

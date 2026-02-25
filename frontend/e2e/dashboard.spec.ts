@@ -2,6 +2,10 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Dashboard flow', () => {
   test.beforeEach(async ({ page }) => {
+    // Force language to English for deterministic testing
+    await page.addInitScript(() => {
+      window.localStorage.setItem('i18nextLng', 'en');
+    });
     // Login as Admin before each test
     await page.goto('/login');
     await page.fill('input[name="email"]', 'admin@example.com');

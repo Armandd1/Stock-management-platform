@@ -180,7 +180,7 @@ async function main() {
 main()
   .catch((e) => {
     fs.writeFileSync('seed-error.json', JSON.stringify({ message: e.message, name: e.name, code: e.code, meta: e.meta }, null, 2));
-    console.error('Seeding error: ', e);
+    logger.error({ err: e }, 'Seeding error: ');
     process.exit(1);
   })
   .finally(async () => {
