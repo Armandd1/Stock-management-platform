@@ -9,7 +9,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly configService: ConfigService) {
     const jwtSecret = configService.get<string>('JWT_SECRET');
     if (!jwtSecret) {
-      throw new Error('JWT_SECRET is not configured. Please set JWT_SECRET before starting the application.');
+      throw new Error(
+        'JWT_SECRET is not configured. Please set JWT_SECRET before starting the application.',
+      );
     }
 
     super({

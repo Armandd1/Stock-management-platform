@@ -10,7 +10,13 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiExcludeEndpoint, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiExcludeEndpoint,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { LoginDto } from './dto/login.dto';
@@ -33,13 +39,22 @@ export class AuthController {
   @Throttle({ default: { limit: 20, ttl: 60000 } }) // 20 requests per minute
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email and password' })
-  @ApiResponse({ status: 200, description: 'Successful login. Returns access token.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized. Invalid credentials.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successful login. Returns access token.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized. Invalid credentials.',
+  })
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    const result = await this.authService.login(loginDto.email, loginDto.password);
+    const result = await this.authService.login(
+      loginDto.email,
+      loginDto.password,
+    );
 
     // Set HTTP-only cookie for consistency with GitHub OAuth flow
     res.setCookie('auth_token', result.access_token, {
@@ -55,7 +70,10 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, description: 'Successful registration. Returns access token.' })
+  @ApiResponse({
+    status: 201,
+    description: 'Successful registration. Returns access token.',
+  })
   @ApiResponse({ status: 400, description: 'Bad Request. Validation failed.' })
   @ApiResponse({ status: 409, description: 'Conflict. Email already in use.' })
   async register(
@@ -91,8 +109,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
-  @ApiResponse({ status: 200, description: 'Successfully retrieved user profile.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized. Token is missing or invalid.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved user profile.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized. Token is missing or invalid.',
+  })
   async getProfile(
     @CurrentUser() user: { userId: number; email: string; role: string },
   ) {
@@ -103,7 +127,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Redirect to GitHub OAuth2 login' })
   async githubLogin(@Res() res: FastifyReply) {
     const { url, state } = this.authService.getGithubAuthUrl();
-    
+
     // Store CSRF state as a secure, http-only cookie
     res.setCookie('github_oauth_state', state, {
       httpOnly: true,
@@ -124,25 +148,32 @@ export class AuthController {
     @Res() res: FastifyReply,
   ) {
     if (typeof code !== 'string' || !code.trim()) {
-      return res.status(400).send({ message: 'Invalid or missing code parameter' });
+      return res
+        .status(400)
+        .send({ message: 'Invalid or missing code parameter' });
     }
 
     if (typeof state !== 'string' || !/^[0-9a-f]{32}$/i.test(state)) {
-      return res.status(400).send({ message: 'Invalid or missing state parameter' });
+      return res
+        .status(400)
+        .send({ message: 'Invalid or missing state parameter' });
     }
 
     const storedState = req.cookies['github_oauth_state'];
-    
+
     // CSRF verification check
     if (!storedState || state !== storedState) {
-      return res.status(403).send({ message: 'Invalid or missing CSRF state token' });
+      return res
+        .status(403)
+        .send({ message: 'Invalid or missing CSRF state token' });
     }
 
     // Clear the consumed state cookie
     res.clearCookie('github_oauth_state', { path: '/' });
     const result = await this.authService.exchangeGithubCode(code);
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
-    
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+
     // Validate the redirect URL against allowed origins
     const allowedOrigins = [
       'http://localhost:5173',
@@ -152,9 +183,9 @@ export class AuthController {
 
     // Ensure there is at least one allowed origin configured
     if (allowedOrigins.length === 0) {
-      return res
-        .status(500)
-        .send({ message: 'No allowed redirect origins are configured on the server' });
+      return res.status(500).send({
+        message: 'No allowed redirect origins are configured on the server',
+      });
     }
 
     try {
@@ -165,9 +196,9 @@ export class AuthController {
       });
 
       if (!isAllowed) {
-        return res
-          .status(400)
-          .send({ message: 'Redirect origin is not allowed by server configuration' });
+        return res.status(400).send({
+          message: 'Redirect origin is not allowed by server configuration',
+        });
       }
     } catch (error) {
       return res.status(400).send({
@@ -187,4 +218,3 @@ export class AuthController {
     return res.status(302).redirect(`${frontendUrl}/auth/callback`);
   }
 }
-

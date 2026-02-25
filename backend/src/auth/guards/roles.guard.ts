@@ -12,17 +12,19 @@ export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     // If no @Roles() decorator is set, allow access
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context
+      .switchToHttp()
+      .getRequest<{ user?: { role?: string } }>();
     const user = request.user;
 
     if (!user) {
@@ -32,9 +34,7 @@ export class RolesGuard implements CanActivate {
     }
 
     if (typeof user.role !== 'string') {
-      throw new ForbiddenException(
-        'User role is missing or invalid',
-      );
+      throw new ForbiddenException('User role is missing or invalid');
     }
 
     if (!requiredRoles.includes(user.role)) {

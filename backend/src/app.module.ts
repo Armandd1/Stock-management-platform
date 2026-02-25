@@ -38,13 +38,14 @@ import { ReportsModule } from './reports/reports.module';
     ProductsModule,
     MovementsModule,
     ReportsModule,
-    ThrottlerModule.forRoot([{
-      ttl: 60000, // 1 minute
-      limit: 10, // Max 10 requests per minute
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute
+        limit: 10, // Max 10 requests per minute
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
-

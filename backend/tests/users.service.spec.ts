@@ -59,8 +59,18 @@ describe('UsersService', () => {
   // --- updateRole ---
 
   describe('updateRole', () => {
-    const mockUser = { id: 2, email: 'viewer@example.com', name: 'Viewer', role: 'VIEWER' };
-    const updatedUser = { id: 2, email: 'viewer@example.com', name: 'Viewer', role: 'MANAGER' };
+    const mockUser = {
+      id: 2,
+      email: 'viewer@example.com',
+      name: 'Viewer',
+      role: 'VIEWER',
+    };
+    const updatedUser = {
+      id: 2,
+      email: 'viewer@example.com',
+      name: 'Viewer',
+      role: 'MANAGER',
+    };
 
     it('should successfully update the role of a user', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
@@ -77,25 +87,25 @@ describe('UsersService', () => {
     });
 
     it('should throw ForbiddenException when trying to change own role', async () => {
-      await expect(
-        service.updateRole(1, 'VIEWER', 1),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.updateRole(1, 'VIEWER', 1)).rejects.toThrow(
+        ForbiddenException,
+      );
 
-      await expect(
-        service.updateRole(1, 'VIEWER', 1),
-      ).rejects.toThrow('You cannot change your own role');
+      await expect(service.updateRole(1, 'VIEWER', 1)).rejects.toThrow(
+        'You cannot change your own role',
+      );
     });
 
     it('should throw NotFoundException when user does not exist', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.updateRole(999, 'ADMIN', 1),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.updateRole(999, 'ADMIN', 1)).rejects.toThrow(
+        NotFoundException,
+      );
 
-      await expect(
-        service.updateRole(999, 'ADMIN', 1),
-      ).rejects.toThrow('User with ID 999 not found');
+      await expect(service.updateRole(999, 'ADMIN', 1)).rejects.toThrow(
+        'User with ID 999 not found',
+      );
     });
   });
 });

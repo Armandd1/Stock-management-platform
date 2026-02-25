@@ -28,9 +28,9 @@ test.describe('Login flow', () => {
     await page.click('button[type="submit"]');
     // Toast or inline error should appear
     // Both inline error and toast appear — just check the inline one
-    await expect(
-      page.locator('.bg-red-50', { hasText: 'Invalid credentials' }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.bg-red-50', { hasText: 'Invalid credentials' })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should login successfully as admin', async ({ page }) => {

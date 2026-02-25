@@ -62,7 +62,10 @@ describe('WarehousesService', () => {
     it('should update a warehouse', async () => {
       mockPrisma.warehouse.findUnique.mockResolvedValue({ id: 1 });
       mockPrisma.warehouse.update.mockResolvedValue({ id: 1, name: 'Updated' });
-      expect(await service.update(1, { name: 'Updated' })).toEqual({ id: 1, name: 'Updated' });
+      expect(await service.update(1, { name: 'Updated' })).toEqual({
+        id: 1,
+        name: 'Updated',
+      });
     });
   });
 

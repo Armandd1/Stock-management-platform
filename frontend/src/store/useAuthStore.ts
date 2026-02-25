@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     try {
       await api.post('/auth/logout');
-    } catch (e) {
+    } catch {
       // Ignore
     }
     set({ user: null, isAuthenticated: false });
@@ -46,10 +46,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 }));
 
 if (typeof window !== 'undefined') {
-  if (!(window as any).__AUTH_LISTENER_REGISTERED__) {
+  const win = window as unknown as { __AUTH_LISTENER_REGISTERED__?: boolean };
+  if (!win.__AUTH_LISTENER_REGISTERED__) {
     window.addEventListener('auth-unauthorized', () => {
       useAuthStore.getState().setUser(null);
     });
-    (window as any).__AUTH_LISTENER_REGISTERED__ = true;
+    win.__AUTH_LISTENER_REGISTERED__ = true;
   }
 }
