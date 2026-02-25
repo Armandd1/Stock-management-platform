@@ -59,4 +59,84 @@ export class ReportsService {
 
     return Object.values(grouped);
   }
+
+  async getMovementSummary(startDate?: string, endDate?: string) {
+    const where: any = {};
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) where.date.gte = new Date(startDate);
+      if (endDate) where.date.lte = new Date(endDate);
+    }
+
+    const movements = await this.prisma.stockMovement.groupBy({
+      by: ['type'],
+      where,
+      _sum: {
+        quantity: true,
+      },
+      _count: {
+        id: true,
+      },
+    });
+
+    return movements.map((m) => ({
+      type: m.type,
+      totalQuantity: m._sum.quantity || 0,
+      count: m._count.id,
+    }));
+  }
+
+  async getTopMovedProducts(limit = 10, startDate?: string, endDate?: string) {
+    const where: any = {};
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) where.date.gte = new Date(startDate);
+      if (endDate) where.date.lte = new Date(endDate);
+    }
+
+    const movements = await this.prisma.stockMovement.groupBy({
+      by: ['productId', 'type'],
+      where,
+      _sum: {
+        quantity: true,
+      },
+      orderBy: {
+        _sum: {
+          quantity: 'desc',
+        },
+      },
+      take: 100, // Get more to handle the limit after sorting by total
+    });
+
+    // Sum across all types for each product
+    const productTotals: Record<number, number> = {};
+    movements.forEach((m) => {
+      productTotals[m.productId] =
+        (productTotals[m.productId] || 0) + (m._sum.quantity || 0);
+    });
+
+    const sortedIds = Object.keys(productTotals)
+      .map(Number)
+      .sort((a, b) => productTotals[b] - productTotals[a])
+      .slice(0, limit);
+
+    if (sortedIds.length === 0) return [];
+
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: sortedIds } },
+      select: { id: true, name: true, sku: true },
+    });
+
+    return sortedIds
+      .map((id) => {
+        const product = products.find((p) => p.id === id);
+        return product
+          ? {
+              ...product,
+              totalMoved: productTotals[id],
+            }
+          : null;
+      })
+      .filter((p) => p !== null);
+  }
 }

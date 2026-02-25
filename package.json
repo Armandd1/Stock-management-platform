@@ -5,6 +5,11 @@
     "lint": "npm run lint:backend && npm run lint:frontend",
     "lint:backend": "cd backend && npx eslint \"{src,test}/**/*.ts\" --fix",
     "lint:frontend": "cd frontend && npx eslint . --fix",
+    "test:unit:backend": "npm --prefix backend run test",
+    "test:backend": "npm run test:unit:backend",
+    "test:e2e:backend": "npm --prefix backend run test:e2e",
+    "test:e2e": "npm --prefix frontend run test:e2e",
+    "test:all": "npm run test:unit:backend && npm run test:e2e:backend && npm run test:e2e",
     "format": "npx prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md,yml,yaml}\"",
     "format:check": "npx prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md,yml,yaml}\""
   },

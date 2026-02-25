@@ -5,6 +5,8 @@
     "warehouses": "Warehouses",
     "movements": "Movements",
     "users": "Users",
+    "auditLogs": "Audit Logs",
+    "reports": "Reports",
     "logout": "Logout"
   },
   "common": {
@@ -13,6 +15,7 @@
     "cancel": "Cancel",
     "actions": "Actions",
     "search": "Search...",
+    "error": "Error loading data",
     "loadingProducts": "Loading products...",
     "loadingWarehouses": "Loading warehouses...",
     "loadingRecords": "Loading records...",
@@ -34,7 +37,11 @@
     "failedLoadUsers": "Failed to load users.",
     "close": "Close",
     "confirmDelete": "Are you sure you want to delete this product?",
-    "confirmDeleteWh": "Delete this warehouse? Action is irreversible."
+    "confirmDeleteWh": "Delete this warehouse? Action is irreversible.",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "changeLanguage": "Change Language",
+    "toggleTheme": "Toggle theme"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -73,6 +80,7 @@
     "namePlaceholder": "Enter product name...",
     "pricePlaceholder": "0.00",
     "stockLevel": "Stock Level",
+    "importCsv": "Import CSV",
     "validation": {
       "skuMin": "SKU must be at least 3 characters",
       "nameMin": "Name must be at least 2 characters",
@@ -83,7 +91,11 @@
       "updated": "Product successfully updated",
       "failedSave": "Failed to save product",
       "deleted": "Product deleted",
-      "failedDelete": "Failed to delete product"
+      "failedDelete": "Failed to delete product",
+      "imported": "Products imported successfully!",
+      "failedImport": "Failed to import CSV",
+      "noValidRows": "No valid rows found. Ensure CSV has SKU, Name, and Price columns.",
+      "invalidRowsSkipped": "Skipped {{count}} invalid rows."
     }
   },
   "warehouses": {
@@ -141,6 +153,7 @@
     "selectDestination": "Select destination...",
     "confirmMovement": "Confirm Movement",
     "processing": "Processing...",
+    "you": "You",
     "validation": {
       "productRequired": "Product is required",
       "qtyMin": "Quantity must be greater than 0",
@@ -153,6 +166,27 @@
     "toast": {
       "recorded": "Movement recorded successfully",
       "failedRecord": "Failed to record movement"
+    }
+  },
+  "audit": {
+    "title": "Audit Logs",
+    "subtitle": "System activity tracking and history",
+    "noLogs": "No audit logs found",
+    "date": "Date",
+    "user": "User",
+    "action": "Action",
+    "entity": "Entity",
+    "details": "Details",
+    "system": "System",
+    "actions": {
+      "CREATE": "Create",
+      "UPDATE": "Update",
+      "REMOVE": "Delete",
+      "STOCK_IN": "Stock In",
+      "STOCK_OUT": "Stock Out",
+      "STOCK_TRANSFER": "Transfer",
+      "UPDATE_ROLE": "Update Role",
+      "CREATE_BULK": "Bulk Import"
     }
   },
   "login": {
@@ -225,5 +259,28 @@
       "roleUpdated": "User role successfully updated",
       "failedUpdate": "Failed to update user role"
     }
+  },
+  "roles": {
+    "ADMIN": "ADMIN",
+    "MANAGER": "MANAGER",
+    "VIEWER": "VIEWER"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Analysis and insights into your inventory.",
+    "stockOnHand": "Stock on Hand",
+    "stockOnHandDesc": "Current inventory levels grouped by warehouse",
+    "movementSummary": "Movement Summary",
+    "movementSummaryDesc": "Total volume of IN, OUT, and TRANSFER operations",
+    "topMoved": "Top Moved Products",
+    "topMovedDesc": "Products with the highest movement volume",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "filter": "Filter",
+    "totalVolume": "Total Volume",
+    "movementCount": "Operations",
+    "product": "Product",
+    "volume": "Volume",
+    "allTime": "All Time"
   }
 }

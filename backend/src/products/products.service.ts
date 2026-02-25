@@ -7,10 +7,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Prisma } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async findAll(search?: string) {
     const where: Prisma.ProductWhereInput = search
@@ -47,9 +51,19 @@ export class ProductsService {
     return product;
   }
 
-  async create(dto: CreateProductDto) {
+  async create(dto: CreateProductDto, userId?: number) {
     try {
-      return await this.prisma.product.create({ data: dto });
+      const product = await this.prisma.product.create({ data: dto });
+      if (userId) {
+        await this.auditService.logAction(
+          userId,
+          'CREATE',
+          'Product',
+          product.id,
+          dto,
+        );
+      }
+      return product;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -63,13 +77,40 @@ export class ProductsService {
     }
   }
 
-  async update(id: number, dto: UpdateProductDto) {
+  async createBulk(dtos: CreateProductDto[], userId?: number) {
+    const result = await this.prisma.product.createMany({
+      data: dtos,
+      skipDuplicates: true, // Will just ignore duplicates instead of crashing
+    });
+    if (userId && result.count > 0) {
+      await this.auditService.logAction(
+        userId,
+        'CREATE_BULK',
+        'Product',
+        undefined,
+        { count: result.count },
+      );
+    }
+    return { count: result.count };
+  }
+
+  async update(id: number, dto: UpdateProductDto, userId?: number) {
     await this.findOne(id);
     try {
-      return await this.prisma.product.update({
+      const product = await this.prisma.product.update({
         where: { id },
         data: dto,
       });
+      if (userId) {
+        await this.auditService.logAction(
+          userId,
+          'UPDATE',
+          'Product',
+          product.id,
+          dto,
+        );
+      }
+      return product;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -83,8 +124,18 @@ export class ProductsService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, userId?: number) {
     await this.findOne(id);
-    return this.prisma.product.delete({ where: { id } });
+    const product = await this.prisma.product.delete({ where: { id } });
+    if (userId) {
+      await this.auditService.logAction(
+        userId,
+        'DELETE',
+        'Product',
+        product.id,
+        product,
+      );
+    }
+    return product;
   }
 }

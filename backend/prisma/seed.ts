@@ -201,6 +201,64 @@ async function main() {
     logger.info(`  Stock Movements: Added 3 sample historical movements`);
   }
 
+  // --- Audit Logs ---
+  // Clean up old audit logs first
+  await prisma.auditLog.deleteMany({});
+
+  const auditLogs = [
+    {
+      userId: admin.id,
+      action: 'CREATE',
+      entity: 'Product',
+      entityId: allProducts[0].id,
+      changes: { name: allProducts[0].name, sku: allProducts[0].sku },
+      createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+    },
+    {
+      userId: admin.id,
+      action: 'STOCK_IN',
+      entity: 'Stock',
+      entityId: allProducts[0].id,
+      changes: { warehouse: warehouse1.name, quantity: 50 },
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    },
+    {
+      userId: manager.id,
+      action: 'STOCK_TRANSFER',
+      entity: 'Stock',
+      entityId: allProducts[0].id,
+      changes: { from: warehouse1.name, to: warehouse2.name, quantity: 10 },
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    },
+    {
+      userId: admin.id,
+      action: 'STOCK_OUT',
+      entity: 'Stock',
+      entityId: allProducts[1].id,
+      changes: { from: warehouse2.name, quantity: 5 },
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    },
+    {
+      userId: admin.id,
+      action: 'UPDATE_ROLE',
+      entity: 'User',
+      entityId: manager.id,
+      changes: { oldRole: 'VIEWER', newRole: 'MANAGER' },
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    },
+  ];
+
+  for (const log of auditLogs) {
+    await prisma.auditLog.create({
+      data: {
+        ...log,
+        changes: log.changes as any,
+      },
+    });
+  }
+
+  logger.info(`  Audit Logs: Added ${auditLogs.length} sample audit logs`);
+
   logger.info('✅ Seeding complete!');
 }
 

@@ -159,15 +159,49 @@ export const Movements: React.FC = () => {
 
   const createMutation = useMutation({
     mutationFn: async (data: MovementFormValues) => api.post('/movements', data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['movements'] });
-      queryClient.invalidateQueries({ queryKey: ['stock-on-hand'] });
-      toast.success(t('movements.toast.recorded'));
+    onMutate: async (newMovement) => {
+      await queryClient.cancelQueries({ queryKey: ['movements'] });
+      const queryKey = ['movements', filterType, filterWarehouse, filterProduct];
+      const previousMovements = queryClient.getQueryData<Movement[]>(queryKey);
+
+      queryClient.setQueryData<Movement[]>(queryKey, (old) => {
+        const optimisticMovement: Movement = {
+          id: Math.random(),
+          type: newMovement.type,
+          quantity: newMovement.quantity,
+          date: new Date().toISOString(),
+          Product: products?.find((p) => p.id === newMovement.productId) || {
+            id: newMovement.productId,
+            name: '...',
+            sku: '...',
+          },
+          FromWarehouse: newMovement.fromWarehouseId
+            ? warehouses?.find((w) => w.id === newMovement.fromWarehouseId) || null
+            : null,
+          ToWarehouse: newMovement.toWarehouseId
+            ? warehouses?.find((w) => w.id === newMovement.toWarehouseId) || null
+            : null,
+          CreatedBy: { id: 0, name: t('movements.you'), email: '' },
+        };
+        return old ? [optimisticMovement, ...old] : [optimisticMovement];
+      });
+
       setIsModalOpen(false);
+      return { previousMovements, queryKey };
     },
-    onError: (error) => {
+    onError: (error, _newMovement, context) => {
+      if (context?.previousMovements) {
+        queryClient.setQueryData(context.queryKey, context.previousMovements);
+      }
       const e = error as { response?: { data?: { message?: string } } };
       toast.error(e.response?.data?.message || t('movements.toast.failedRecord'));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['movements'] });
+      queryClient.invalidateQueries({ queryKey: ['stock-on-hand'] });
+    },
+    onSuccess: () => {
+      toast.success(t('movements.toast.recorded'));
     },
   });
 
@@ -292,7 +326,7 @@ export const Movements: React.FC = () => {
                         )}
                       >
                         {getMovementIcon(m.type)}
-                        {m.type}
+                        {t(`movements.${m.type.toLowerCase()}`)}
                       </span>
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-muted-foreground text-sm">

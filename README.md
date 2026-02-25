@@ -12,8 +12,10 @@ A full-stack inventory management system for tracking products, warehouses, and 
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Getting Started (Docker)](#getting-started-docker)
+- [Testing](#testing)
 - [Seed User Credentials](#seed-user-credentials)
 - [API Documentation](#api-documentation)
+- [Rate Limiting & Session Notes](#rate-limiting--session-notes)
 - [Features](#features)
 - [Environment Variables](#environment-variables)
 - [Decisions and Trade-offs](#decisions-and-trade-offs)
@@ -50,7 +52,8 @@ AppModule
 ├── MovementsModule     — Stock IN / OUT / TRANSFER with atomic consistency
 ├── ReportsModule       — Stock-on-hand & movement summary reporting
 ├── PrismaModule        — Database ORM (global, singleton)
-└── ThrottlerModule     — Rate limiting (10 req/min)
+├── AuditModule         — Centralized audit trail endpoints & service
+└── ThrottlerModule     — Global + endpoint-specific rate limiting
 ```
 
 ### Frontend (React + Vite + TailwindCSS)
@@ -109,7 +112,7 @@ App
 | **Auth**     | JWT (Bearer + HTTP-only cookie), GitHub OAuth2                       |
 | **Logging**  | Pino (structured JSON, pretty-print in dev)                          |
 | **Infra**    | Docker & Docker Compose                                              |
-| **i18n**     | i18next (EN/HU)                                                      |
+| **i18n**     | i18next (EN/HU/RO)                                                   |
 
 ---
 
@@ -128,10 +131,14 @@ Stock-management-platform/
 │   │   ├── schema.prisma       # Database schema
 │   │   ├── seed.ts             # Seed data (users, products, warehouses)
 │   │   └── migrations/         # SQL migrations
+│   ├── tests/
+│   │   ├── unit/               # Jest unit tests
+│   │   └── e2e/                # Jest e2e tests
 │   └── src/
 │       ├── main.ts             # Fastify bootstrap, cookie plugin, Swagger
 │       ├── app.module.ts       # Root module
 │       ├── auth/               # Authentication & authorization
+│       ├── audit/              # Audit log controller/service
 │       ├── users/              # User management (Admin)
 │       ├── products/           # Product CRUD
 │       ├── warehouses/         # Warehouse CRUD
@@ -143,6 +150,8 @@ Stock-management-platform/
 └── frontend/
     ├── Dockerfile
     ├── package.json
+    ├── e2e/                    # Playwright e2e tests
+    ├── playwright.config.ts    # Playwright configuration
     └── src/
         ├── App.tsx             # Root component with routing
         ├── pages/              # Page components
@@ -219,6 +228,40 @@ npm run lint
 
 ---
 
+## Testing
+
+Run all test commands from the **root directory**:
+
+Before running any **e2e** test command, start Docker services manually:
+
+```bash
+docker compose up -d
+```
+
+```bash
+# Backend unit tests (Jest)
+npm run test:unit:backend
+
+# Backend end-to-end tests (Jest e2e)
+npm run test:e2e:backend
+
+# Frontend end-to-end tests (Playwright)
+npm run test:e2e
+
+# Full test suite: backend unit + backend e2e + frontend e2e
+npm run test:all
+```
+
+Notes:
+
+- E2E test scripts do **not** start Docker automatically.
+- Ensure required services are already running before `npm run test:e2e:backend`, `npm run test:e2e`, or `npm run test:all`.
+- Backend unit tests execute the `backend/tests/unit` suite.
+- `npm run test:e2e:backend` executes the `backend/tests/e2e` suite.
+- `npm run test:all` chains backend unit + backend e2e + frontend e2e; Docker must already be running for e2e steps.
+
+---
+
 ## Seed User Credentials
 
 The database is seeded automatically on first start with three users:
@@ -268,6 +311,17 @@ Interactive API documentation is available via Swagger at:
 | `GET`   | `/api/v1/reports/movement-summary` | Bearer    | Movement summary with filters |
 | `GET`   | `/api/v1/users`                    | Admin     | List all users                |
 | `PATCH` | `/api/v1/users/:id/role`           | Admin     | Update a user's role          |
+| `GET`   | `/api/v1/audit-logs`               | Admin     | View system audit trail       |
+| `GET`   | `/api/v1/movements/sse`            | Bearer    | Real-time update stream (SSE) |
+
+---
+
+## Rate Limiting & Session Notes
+
+- **Global API throttling**: `500 requests / minute` per client (Throttler global guard).
+- **Login endpoint throttling**: `POST /api/v1/auth/login` is stricter at `20 requests / minute`.
+- **Auth cookie**: `auth_token` is set as HTTP-only cookie with ~24h max age.
+- **OAuth state cookie**: `github_oauth_state` has a 10-minute lifetime for callback validation.
 
 ---
 
@@ -280,18 +334,23 @@ Interactive API documentation is available via Swagger at:
 - ✅ **Stock Movements** — IN (receive), OUT (ship), TRANSFER (between warehouses)
 - ✅ **Stock Consistency** — Atomic updates, prevents negative stock levels
 - ✅ **Reporting** — Stock-on-hand per warehouse, movement summary
+- ✅ **CSV Import** — Bulk import products via CSV
+- ✅ **QR/Barcode Integration** — Generate and view QR codes for items directly
+- ✅ **Optimistic UI** — Instant feedback for stock movements
+- ✅ **Live Updates** — Server-Sent Events (SSE) for real-time frontend syncing
+- ✅ **Audit Logging** — Track system activity across the platform
 
 ### Authentication & Authorization
 
 - ✅ **JWT Authentication** — Token via Bearer header or HTTP-only cookie
 - ✅ **GitHub OAuth2** — One-click login, auto-creates VIEWER accounts
-- ✅ **Role-Based Access** — Admin / Manager / Viewer with granular permissions
+- ✅ **Policy-based RBAC** — CASL-based Guards for fine-grained resource permission policies
 - ✅ **Provider Conflict Detection** — Prevents GitHub login for email/password accounts
 
 ### Frontend
 
 - ✅ **Responsive SPA** — Dark/light theme, TailwindCSS, Lucide icons
-- ✅ **Internationalization** — English and Hungarian (i18next)
+- ✅ **Internationalization** — English, Hungarian, and Romanian (i18next)
 - ✅ **Form Validation** — React Hook Form + Zod schemas
 - ✅ **Toast Notifications** — Success/error feedback
 - ✅ **Client-side Route Guards** — AuthGuard + RoleGuard
@@ -301,7 +360,7 @@ Interactive API documentation is available via Swagger at:
 - ✅ **Fully Dockerized** — Single `docker compose up` to start
 - ✅ **Auto Migration & Seed** — Database setup on container start
 - ✅ **Structured Logging** — Pino with request IDs
-- ✅ **Rate Limiting** — 10 requests/minute per IP (Throttler)
+- ✅ **Rate Limiting** — Global 500 req/min; stricter login limit 20 req/min
 - ✅ **Swagger/OpenAPI** — Interactive API documentation
 
 ---
@@ -365,11 +424,35 @@ Interactive API documentation is available via Swagger at:
 **Why**: Default passwords make local development frictionless, while production deployments can override them without modifying code.
 **Trade-off**: If someone forgets to change defaults in production, the system ships with known credentials. The `JWT_SECRET` validation (throws in production if unset) partially mitigates this pattern.
 
-### 7. Rate limiting
+### 8. Policy-based RBAC (CASL)
 
-**Decision**: Global `@nestjs/throttler` with 10 requests per minute.
-**Why**: Prevents brute-force login attempts and API abuse with minimal configuration.
-**Trade-off**: The limit is aggressive for development/testing. Adjust `ttl` and `limit` in `AppModule` for production workloads.
+**Decision**: Replaced simple role-string checks with a policy-based approach using **CASL** for both backend guards and frontend UI visibility.
+**Why**: It decouples permission logic from controllers. Instead of checking if a user is an "ADMIN", we check if they "can create products". This allows for easier adjustments to permissions and supports complex rules (e.g., users can only edit their own profile) without touching business logic.
+**Trade-off**: Requires more boilerplate (Ability factory, policy decorators) compared to primitive role checks, but significantly improves maintainability.
+
+### 9. SSE for Real-time Updates
+
+**Decision**: Used **Server-Sent Events (SSE)** instead of WebSockets for live stock and movement notifications.
+**Why**: SSE is simpler to implement (native browser support, standard HTTP), handles automatic reconnection, and is perfectly suited for server-to-client notifications. It is more resource-efficient than WebSockets for high-read, low-bidirectional-traffic scenarios.
+**Trade-off**: SSE only supports unidirectional communication. If real-time bidirectional interaction (like a chat) were required, WebSockets would be necessary.
+
+### 10. Optimistic UI for Movements
+
+**Decision**: Implemented **Optimistic Updates** in the Movements interface using TanStack Query.
+**Why**: Database transactions for stock movements involving multiple warehouses can take ~1s. Updating the local UI state immediately before the server response makes the application feel "snappy" and high-performance.
+**Trade-off**: Increases frontend complexity, requiring robust error handling to rollback the UI if the server request fails.
+
+### 11. Explicit Audit Logging
+
+**Decision**: Implemented an explicit `AuditService` called directly from business logic services, rather than using a global interceptor.
+**Why**: Global interceptors are "blind"—they only see request metadata. Explicit logging allows capturing granular details like "before and after" states, specific entity IDs, and precise field changes (e.g., `oldRole` vs `newRole`) which are essential for security.
+**Trade-off**: Developers must manually ensure the `AuditService` is correctly called in every mutating method.
+
+### 12. Local JSON-based i18n
+
+**Decision**: Used **i18next** with local JSON files and browser language detection, supporting English, Hungarian, and Romanian.
+**Why**: Local files provide the fastest load times and zero-dependency rendering. `react-i18next` handles pluralization and complex interpolation seamlessly.
+**Trade-off**: As the application grows, translation files can become large. This can be mitigated later with lazy-loading specific namespaces.
 
 ---
 

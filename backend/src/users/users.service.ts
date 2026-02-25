@@ -5,10 +5,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '@prisma/client';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async findAll() {
     return this.prisma.user.findMany({
@@ -34,7 +38,7 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
-    return this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: { role },
       select: {
@@ -44,5 +48,15 @@ export class UsersService {
         role: true,
       },
     });
+
+    await this.auditService.logAction(
+      currentUserId,
+      'UPDATE_ROLE',
+      'User',
+      userId,
+      { oldRole: user.role, newRole: role },
+    );
+
+    return updatedUser;
   }
 }

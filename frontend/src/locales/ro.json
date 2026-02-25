@@ -5,6 +5,8 @@
     "warehouses": "Depozite",
     "movements": "Mișcări stoc",
     "users": "Utilizatori",
+    "auditLogs": "Jurnal Audit",
+    "reports": "Rapoarte",
     "logout": "Deconectare"
   },
   "common": {
@@ -13,6 +15,7 @@
     "cancel": "Anulează",
     "actions": "Acțiuni",
     "search": "Căutare...",
+    "error": "Eroare la încărcarea datelor",
     "loadingProducts": "Se încarcă produsele...",
     "loadingWarehouses": "Se încarcă depozitele...",
     "loadingRecords": "Se încarcă înregistrările...",
@@ -34,7 +37,11 @@
     "failedLoadUsers": "Încărcarea utilizatorilor a eșuat.",
     "close": "Închide",
     "confirmDelete": "Sunteți sigur că doriți să ștergeți acest produs?",
-    "confirmDeleteWh": "Ștergeți acest depozit? Acțiunea este ireversibilă."
+    "confirmDeleteWh": "Ștergeți acest depozit? Acțiunea este ireversibilă.",
+    "openMenu": "Deschide meniul",
+    "closeMenu": "Închide meniul",
+    "changeLanguage": "Schimbă Limba",
+    "toggleTheme": "Schimbă tema"
   },
   "dashboard": {
     "title": "Tablou de bord",
@@ -73,6 +80,7 @@
     "namePlaceholder": "Introduceți numele produsului...",
     "pricePlaceholder": "0.00",
     "stockLevel": "Nivel Stoc",
+    "importCsv": "Importă CSV",
     "validation": {
       "skuMin": "SKU trebuie să aibă cel puțin 3 caractere.",
       "nameMin": "Numele trebuie să aibă cel puțin 2 caractere.",
@@ -83,7 +91,11 @@
       "updated": "Produs actualizat cu succes",
       "failedSave": "Salvarea produsului a eșuat",
       "deleted": "Produs șters",
-      "failedDelete": "Ștergerea produsului a eșuat"
+      "failedDelete": "Ștergerea produsului a eșuat",
+      "imported": "Produse importate cu succes!",
+      "failedImport": "Importul CSV a eșuat",
+      "noValidRows": "Nu s-au găsit rânduri valide. Asigurați-vă că CSV are coloanele SKU, Nume și Preț.",
+      "invalidRowsSkipped": "{{count}} rânduri invalide omise."
     }
   },
   "warehouses": {
@@ -141,6 +153,7 @@
     "selectDestination": "Selectați destinația...",
     "confirmMovement": "Confirmă Mișcarea",
     "processing": "Așteptați...",
+    "you": "Tu",
     "validation": {
       "productRequired": "Produsul este obligatoriu",
       "qtyMin": "Cantitatea trebuie să fie mai mare ca 0",
@@ -153,6 +166,27 @@
     "toast": {
       "recorded": "Mișcare înregistrată cu succes",
       "failedRecord": "Înregistrarea mișcării a eșuat"
+    }
+  },
+  "audit": {
+    "title": "Jurnal Audit",
+    "subtitle": "Urmărirea activității sistemului și istoric",
+    "noLogs": "Nu s-au găsit jurnale de audit",
+    "date": "Data",
+    "user": "Utilizator",
+    "action": "Acțiune",
+    "entity": "Entitate",
+    "details": "Detalii",
+    "system": "Sistem",
+    "actions": {
+      "CREATE": "Creare",
+      "UPDATE": "Actualizare",
+      "REMOVE": "Ștergere",
+      "STOCK_IN": "Intrare Stoc",
+      "STOCK_OUT": "Ieșire Stoc",
+      "STOCK_TRANSFER": "Transfer",
+      "UPDATE_ROLE": "Schimbare Rol",
+      "CREATE_BULK": "Import în masă"
     }
   },
   "login": {
@@ -186,9 +220,9 @@
     "haveAccount": "Aveți deja un cont?",
     "loginLink": "Autentificare",
     "validation": {
-      "name": "Numele trebuie să conțină cel puțin 2 caractere",
+      "name": "Numele trebuie să conţinã cel puțin 2 caractere",
       "email": "Adresă de email invalidă",
-      "password": "Parola trebuie să conțină cel puțin 6 caractere",
+      "password": "Parola trebuie să conţinã cel puțin 6 caractere",
       "passwordsMatch": "Parolele nu se potrivesc"
     },
     "toast": {
@@ -222,5 +256,28 @@
       "roleUpdated": "Rol utilizator actualizat cu succes",
       "failedUpdate": "Actualizarea rolului a eșuat"
     }
+  },
+  "roles": {
+    "ADMIN": "Administrator",
+    "MANAGER": "Manager",
+    "VIEWER": "Vizualizator"
+  },
+  "reports": {
+    "title": "Rapoarte",
+    "subtitle": "Analiză și informații despre inventarul dvs.",
+    "stockOnHand": "Stoc Disponibil",
+    "stockOnHandDesc": "Nivelurile actuale de inventar grupate pe depozit",
+    "movementSummary": "Rezumat Mișcări",
+    "movementSummaryDesc": "Volumul total al operațiunilor de INTRARE, IEȘIRE și TRANSFER",
+    "topMoved": "Cele mai Mișcate Produse",
+    "topMovedDesc": "Produsele cu cel mai mare volum de mișcare",
+    "startDate": "Data de Început",
+    "endDate": "Data de Sfârșit",
+    "filter": "Filtrează",
+    "totalVolume": "Volum Total",
+    "movementCount": "Operațiuni",
+    "product": "Produs",
+    "volume": "Volum",
+    "allTime": "Toate timpurile"
   }
 }

@@ -32,6 +32,8 @@ test.describe('Dashboard flow', () => {
   });
 
   test('should log out correctly', async ({ page }) => {
+    // Wait for the "Logged in successfully" toast to disappear (it can block the Logout button)
+    await page.waitForSelector('text=Logged in successfully', { state: 'hidden', timeout: 10000 });
     // Click the Logout button in the header
     await page.getByRole('button', { name: 'Logout' }).click();
     await expect(page).toHaveURL('/login', { timeout: 10000 });

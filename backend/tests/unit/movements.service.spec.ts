@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { MovementsService } from '../src/movements/movements.service';
-import { PrismaService } from '../src/prisma/prisma.service';
+import { MovementsService } from '../../src/movements/movements.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
+
+import { AuditService } from '../../src/audit/audit.service';
 
 describe('MovementsService', () => {
   let service: MovementsService;
@@ -29,11 +31,16 @@ describe('MovementsService', () => {
     $transaction: jest.fn((fn) => (typeof fn === 'function' ? fn(mockTx) : fn)),
   };
 
+  const mockAuditService = {
+    logAction: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MovementsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: AuditService, useValue: mockAuditService },
       ],
     }).compile();
 

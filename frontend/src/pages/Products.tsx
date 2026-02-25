@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import Papa from 'papaparse';
+import QRCode from 'react-qr-code';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
-import { Plus, Search, Trash2, Edit, Package, Eye } from 'lucide-react';
+import { Plus, Search, Trash2, Edit, Package, Eye, Upload } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { api } from '../services/api';
 
@@ -52,16 +54,25 @@ interface ProductDetails extends Product {
 export const Products: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [viewingProductId, setViewingProductId] = useState<number | null>(null);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
     const state = location.state as { viewProductId?: number } | null;
     if (state?.viewProductId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setViewingProductId(state.viewProductId);
     }
   }, [location.state]);
@@ -71,9 +82,9 @@ export const Products: React.FC = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['products', search],
+    queryKey: ['products', debouncedSearch],
     queryFn: async () => {
-      const res = await api.get<Product[]>('/products', { params: { search } });
+      const res = await api.get<Product[]>('/products', { params: { search: debouncedSearch } });
       return res.data;
     },
   });
@@ -141,6 +152,59 @@ export const Products: React.FC = () => {
     onError: () => toast.error(t('products.toast.failedDelete')),
   });
 
+  const importMutation = useMutation({
+    mutationFn: async (data: Omit<Product, 'id'>[]) => api.post('/products/bulk', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success(t('products.toast.imported'));
+    },
+    onError: () => toast.error(t('products.toast.failedImport')),
+  });
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const parsedData = results.data as Record<string, string>[];
+        const validProducts: Omit<Product, 'id'>[] = [];
+        let errorCount = 0;
+
+        parsedData.forEach((row) => {
+          if (row.sku && row.name && row.price && !isNaN(Number(row.price))) {
+            validProducts.push({
+              sku: row.sku,
+              name: row.name,
+              description: row.description || '',
+              price: Number(row.price),
+            });
+          } else {
+            errorCount++;
+          }
+        });
+
+        if (validProducts.length > 0) {
+          importMutation.mutate(validProducts);
+        } else {
+          toast.error(t('products.toast.noValidRows'));
+        }
+
+        if (errorCount > 0) {
+          toast.error(t('products.toast.invalidRowsSkipped', { count: errorCount }));
+        }
+
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      },
+    });
+  };
+
   const onSubmit = (data: ProductFormValues) => saveMutation.mutate(data);
 
   return (
@@ -153,10 +217,28 @@ export const Products: React.FC = () => {
           <p className="text-muted-foreground">{t('products.subtitle')}</p>
         </div>
         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
-          <Button onClick={openCreateModal} className="gap-2">
-            <Plus className="h-4 w-4" />
-            {t('products.add')}
-          </Button>
+          <div className="flex gap-2 items-center">
+            <input
+              type="file"
+              accept=".csv"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+            />
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              className="gap-2"
+              disabled={importMutation.isPending}
+            >
+              <Upload className="h-4 w-4" />
+              {importMutation.isPending ? t('common.loading') : t('products.importCsv')}
+            </Button>
+            <Button onClick={openCreateModal} className="gap-2">
+              <Plus className="h-4 w-4" />
+              {t('products.add')}
+            </Button>
+          </div>
         </RoleGuard>
       </div>
 
@@ -333,12 +415,17 @@ export const Products: React.FC = () => {
             </div>
           ) : productDetails ? (
             <>
-              <div>
-                <h3 className="font-semibold text-foreground text-lg">{productDetails.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">SKU: {productDetails.sku}</p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold text-foreground text-lg">{productDetails.name}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">SKU: {productDetails.sku}</p>
+                </div>
+                <div className="bg-white p-2 border rounded shadow-sm">
+                  <QRCode value={productDetails.sku} size={64} />
+                </div>
               </div>
 
-              <div className="border rounded-md overflow-hidden">
+              <div className="border rounded-md overflow-hidden mt-4">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
@@ -349,7 +436,15 @@ export const Products: React.FC = () => {
                   <TableBody>
                     {productDetails.Stocks.length > 0 ? (
                       productDetails.Stocks.map((stock, i) => (
-                        <TableRow key={i}>
+                        <TableRow
+                          key={i}
+                          className="cursor-pointer hover:bg-muted"
+                          onClick={() =>
+                            navigate('/warehouses', {
+                              state: { viewWarehouseId: stock.Warehouse.id },
+                            })
+                          }
+                        >
                           <TableCell className="font-medium text-foreground">
                             {stock.Warehouse.name}
                           </TableCell>

@@ -12,6 +12,7 @@ import { Button } from '../components/ui/Button';
 import toast from 'react-hot-toast';
 import { Boxes } from 'lucide-react';
 import { ModeToggle } from '../components/mode-toggle';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 
 export const Register: React.FC = () => {
@@ -62,7 +63,8 @@ export const Register: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4 relative">
-      <div className="absolute top-4 right-4 sm:top-8 sm:right-8">
+      <div className="absolute top-4 right-4 sm:top-8 sm:right-8 flex items-center gap-2">
+        <LanguageSwitcher />
         <ModeToggle />
       </div>
       <div className="mb-8 flex items-center gap-2">

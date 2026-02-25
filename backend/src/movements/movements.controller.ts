@@ -7,7 +7,11 @@ import {
   Query,
   UseGuards,
   ParseIntPipe,
+  Sse,
+  MessageEvent,
 } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
   ApiTags,
   ApiOperation,
@@ -61,6 +65,19 @@ export class MovementsController {
       warehouseId: warehouseId ? parseInt(warehouseId, 10) : undefined,
       type,
     });
+  }
+
+  @Sse('live')
+  @ApiOperation({ summary: 'Server-Sent Events for live layout updates' })
+  liveUpdates(): Observable<MessageEvent> {
+    return this.movementsService.movementEvents$.pipe(
+      map(
+        (movement) =>
+          ({
+            data: { type: 'NEW_MOVEMENT', payload: movement },
+          }) as MessageEvent,
+      ),
+    );
   }
 
   @Get(':id')

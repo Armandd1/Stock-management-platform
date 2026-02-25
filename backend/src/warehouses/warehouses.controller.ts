@@ -21,6 +21,7 @@ import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('warehouses')
 @Controller('warehouses')
@@ -51,8 +52,11 @@ export class WarehousesController {
   @Roles('ADMIN', 'MANAGER')
   @ApiOperation({ summary: 'Create a new warehouse (Admin/Manager)' })
   @ApiResponse({ status: 201, description: 'Warehouse created.' })
-  async create(@Body() dto: CreateWarehouseDto) {
-    return this.warehousesService.create(dto);
+  async create(
+    @Body() dto: CreateWarehouseDto,
+    @CurrentUser() user: { userId: number },
+  ) {
+    return this.warehousesService.create(dto, user.userId);
   }
 
   @Patch(':id')
@@ -63,8 +67,9 @@ export class WarehousesController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateWarehouseDto,
+    @CurrentUser() user: { userId: number },
   ) {
-    return this.warehousesService.update(id, dto);
+    return this.warehousesService.update(id, dto, user.userId);
   }
 
   @Delete(':id')
@@ -72,7 +77,10 @@ export class WarehousesController {
   @ApiOperation({ summary: 'Delete a warehouse (Admin only)' })
   @ApiResponse({ status: 200, description: 'Warehouse deleted.' })
   @ApiResponse({ status: 404, description: 'Warehouse not found.' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.warehousesService.remove(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { userId: number },
+  ) {
+    return this.warehousesService.remove(id, user.userId);
   }
 }

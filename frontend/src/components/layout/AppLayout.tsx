@@ -2,10 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { useLiveUpdates } from '../../hooks/useLiveUpdates';
 
 export const AppLayout: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+
+  useLiveUpdates();
 
   // Close mobile menu on route change
   useEffect(() => {

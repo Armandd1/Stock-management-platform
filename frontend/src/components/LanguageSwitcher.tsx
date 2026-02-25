@@ -10,7 +10,7 @@ const languages = [
 ];
 
 export const LanguageSwitcher: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -41,7 +41,7 @@ export const LanguageSwitcher: React.FC = () => {
         size="icon"
         onClick={() => setIsOpen(!isOpen)}
         className="h-9 w-9 overflow-hidden rounded-full p-1"
-        title="Change Language"
+        title={t('common.changeLanguage')}
       >
         <img
           src={currentLang.flag}

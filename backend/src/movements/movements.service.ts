@@ -6,10 +6,21 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { Prisma } from '@prisma/client';
+import { Subject } from 'rxjs';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class MovementsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private movementSubject = new Subject<unknown>();
+
+  get movementEvents$() {
+    return this.movementSubject.asObservable();
+  }
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async create(dto: CreateMovementDto, userId: number) {
     // Validate product exists
@@ -20,16 +31,23 @@ export class MovementsService {
       throw new NotFoundException(`Product with ID ${dto.productId} not found`);
     }
 
+    let movement: unknown;
     switch (dto.type) {
       case 'IN':
-        return this.handleIn(dto, userId);
+        movement = await this.handleIn(dto, userId);
+        break;
       case 'OUT':
-        return this.handleOut(dto, userId);
+        movement = await this.handleOut(dto, userId);
+        break;
       case 'TRANSFER':
-        return this.handleTransfer(dto, userId);
+        movement = await this.handleTransfer(dto, userId);
+        break;
       default:
         throw new BadRequestException(`Unknown movement type: ${dto.type}`);
     }
+
+    this.movementSubject.next(movement);
+    return movement;
   }
 
   // --- IN: Add stock to a warehouse ---
@@ -60,7 +78,7 @@ export class MovementsService {
         },
       });
 
-      return tx.stockMovement.create({
+      const movement = await tx.stockMovement.create({
         data: {
           type: dto.type,
           quantity: dto.quantity,
@@ -74,6 +92,15 @@ export class MovementsService {
           CreatedBy: { select: { id: true, name: true, email: true } },
         },
       });
+
+      await this.auditService.logAction(
+        userId,
+        'STOCK_IN',
+        'StockMovement',
+        movement.id,
+        dto,
+      );
+      return movement;
     });
   }
 
@@ -107,7 +134,7 @@ export class MovementsService {
           data: { quantity: { decrement: dto.quantity } },
         });
 
-        return tx.stockMovement.create({
+        const movement = await tx.stockMovement.create({
           data: {
             type: dto.type,
             quantity: dto.quantity,
@@ -121,6 +148,15 @@ export class MovementsService {
             CreatedBy: { select: { id: true, name: true, email: true } },
           },
         });
+
+        await this.auditService.logAction(
+          userId,
+          'STOCK_OUT',
+          'StockMovement',
+          movement.id,
+          dto,
+        );
+        return movement;
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
@@ -178,7 +214,7 @@ export class MovementsService {
           },
         });
 
-        return tx.stockMovement.create({
+        const movement = await tx.stockMovement.create({
           data: {
             type: dto.type,
             quantity: dto.quantity,
@@ -194,6 +230,15 @@ export class MovementsService {
             CreatedBy: { select: { id: true, name: true, email: true } },
           },
         });
+
+        await this.auditService.logAction(
+          userId,
+          'STOCK_TRANSFER',
+          'StockMovement',
+          movement.id,
+          dto,
+        );
+        return movement;
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );

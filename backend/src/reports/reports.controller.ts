@@ -36,4 +36,37 @@ export class ReportsController {
       productId ? parseInt(productId, 10) : undefined,
     );
   }
+
+  @Get('movement-summary')
+  @ApiOperation({ summary: 'Get summary of all stock movements in a period' })
+  @ApiQuery({ name: 'startDate', required: false, type: String })
+  @ApiQuery({ name: 'endDate', required: false, type: String })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns quantities per movement type.',
+  })
+  async getMovementSummary(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.reportsService.getMovementSummary(startDate, endDate);
+  }
+
+  @Get('top-moved')
+  @ApiOperation({ summary: 'Get products with highest total movement volume' })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'startDate', required: false, type: String })
+  @ApiQuery({ name: 'endDate', required: false, type: String })
+  @ApiResponse({ status: 200, description: 'Returns top products by volume.' })
+  async getTopMovedProducts(
+    @Query('limit') limit?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.reportsService.getTopMovedProducts(
+      limit ? parseInt(limit, 10) : 10,
+      startDate,
+      endDate,
+    );
+  }
 }
