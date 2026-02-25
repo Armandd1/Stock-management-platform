@@ -14,6 +14,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiExcludeEndpoint, ApiResponse }
 import { AuthService } from './auth.service';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -29,7 +30,7 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 requests per minute
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // 20 requests per minute
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email and password' })
   @ApiResponse({ status: 200, description: 'Successful login. Returns access token.' })
@@ -49,6 +50,41 @@ export class AuthController {
     });
 
     return result;
+  }
+
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ status: 201, description: 'Successful registration. Returns access token.' })
+  @ApiResponse({ status: 400, description: 'Bad Request. Validation failed.' })
+  @ApiResponse({ status: 409, description: 'Conflict. Email already in use.' })
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ) {
+    const result = await this.authService.register(
+      registerDto.email,
+      registerDto.password,
+      registerDto.name,
+    );
+
+    res.setCookie('auth_token', result.access_token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    return result;
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Logout and clear authentication cookie' })
+  @ApiResponse({ status: 200, description: 'Successful logout.' })
+  logout(@Res({ passthrough: true }) res: FastifyReply) {
+    res.clearCookie('auth_token', { path: '/' });
+    return { message: 'Logged out successfully' };
   }
 
   @Get('me')

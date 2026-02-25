@@ -1,0 +1,228 @@
+{
+  "nav": {
+    "dashboard": "Műszerfal",
+    "products": "Termékek",
+    "warehouses": "Raktárak",
+    "movements": "Mozgások",
+    "users": "Felhasználók",
+    "logout": "Kijelentkezés"
+  },
+  "common": {
+    "loading": "Betöltés...",
+    "save": "Mentés",
+    "cancel": "Mégse",
+    "actions": "Műveletek",
+    "search": "Keresés...",
+    "loadingProducts": "Termékek betöltése...",
+    "loadingWarehouses": "Raktárak betöltése...",
+    "loadingRecords": "Bejegyzések betöltése...",
+    "loadingDetails": "Részletek betöltése...",
+    "failedLoadProducts": "Nem sikerült betölteni a termékeket.",
+    "failedLoadWarehouses": "Nem sikerült betölteni a raktárakat.",
+    "failedLoadRecords": "Nem sikerült betölteni a bejegyzéseket.",
+    "failedLoadDetails": "Nem sikerült betölteni a részleteket.",
+    "noProductsFound": "Nem található termék",
+    "noProductsDesc": "Módosítsd a keresést vagy adj hozzá új terméket.",
+    "noWarehousesFound": "Nincsenek raktárak konfigurálva",
+    "noWarehousesDesc": "Kattints az 'Új Raktár' gombra a kezdéshez.",
+    "noMovementsFound": "Nem található mozgás",
+    "noMovementsDesc": "Módosítsd a szűrőket vagy rögzíts új készletmozgást.",
+    "noStockData": "Nincs elérhető készletadat",
+    "noAlerts": "Nincsenek elérhető riasztások",
+    "noStockRecorded": "Nincs rögzített készlet.",
+    "loadingUsers": "Felhasználók betöltése...",
+    "failedLoadUsers": "Nem sikerült betölteni a felhasználókat.",
+    "close": "Bezárás",
+    "confirmDelete": "Biztosan törölni szeretnéd ezt a terméket?",
+    "confirmDeleteWh": "Törlöd ezt a raktárat? A művelet nem vonható vissza."
+  },
+  "dashboard": {
+    "title": "Műszerfal",
+    "subtitle": "Készlet és tevékenységek áttekintése.",
+    "totalProducts": "Összes Termék",
+    "totalWarehouses": "Összes Raktár",
+    "totalItemsInStock": "Összes Készleten Lévő Cikk",
+    "stockByWarehouse": "Készlet Raktáranként",
+    "stockByWarehouseDesc": "A készleteloszlás áttekintése",
+    "warehouse": "Raktár",
+    "location": "Helyszín",
+    "totalItems": "Összes Cikk",
+    "lowStock": "Alacsony Készlet Riasztások",
+    "lowStockDesc": "A 10 legalacsonyabb készlettel rendelkező termék",
+    "product": "Termék",
+    "qty": "Mennyiség",
+    "noLowStock": "Minden termék megfelelő készlettel rendelkezik!"
+  },
+  "products": {
+    "title": "Termékek",
+    "subtitle": "Termékkatalógus és készlet kezelése.",
+    "add": "Új Termék",
+    "addTitle": "Új Termék Felvétele",
+    "editTitle": "Termék Szerkesztése",
+    "detailsTitle": "Termék Készlet Részletei",
+    "searchPlaceholder": "Keresés cikkszám vagy név alapján...",
+    "sku": "Cikkszám (SKU)",
+    "name": "Termék Név",
+    "tableName": "Név",
+    "price": "Ár",
+    "description": "Leírás (Opcionális)",
+    "descriptionPlaceholder": "Részletek megadása...",
+    "saveProduct": "Termék Mentése",
+    "saving": "Mentés...",
+    "skuPlaceholder": "pl. WH-123",
+    "namePlaceholder": "Add meg a termék nevét...",
+    "pricePlaceholder": "0.00",
+    "stockLevel": "Készlet Szint",
+    "validation": {
+      "skuMin": "A cikkszámnak legalább 3 karakternek kell lennie",
+      "nameMin": "A névnek legalább 2 karakternek kell lennie",
+      "priceMin": "Az árnak pozitívnak kell lennie"
+    },
+    "toast": {
+      "created": "Termék sikeresen létrehozva",
+      "updated": "Termék sikeresen frissítve",
+      "failedSave": "A termék mentése sikertelen",
+      "deleted": "Termék törölve",
+      "failedDelete": "A termék törlése sikertelen"
+    }
+  },
+  "warehouses": {
+    "title": "Raktárak",
+    "subtitle": "Tárolási helyek és létesítmények kezelése.",
+    "detailsTitle": "Raktár részletei",
+    "noStock": "Nincsenek tételek készleten ebben a raktárban",
+    "add": "Új Raktár",
+    "addTitle": "Raktár Regisztrálása",
+    "editTitle": "Raktár Szerkesztése",
+    "name": "Raktár Név",
+    "namePlaceholder": "pl. Fő Raktár",
+    "location": "Fizikai Helyszín (Opcionális)",
+    "locationPlaceholder": "pl. Budapest, Raktár utca 1.",
+    "locationDetails": "Helyszín Részletei",
+    "saveWarehouse": "Raktár Mentése",
+    "noLocation": "Nincs helyszín megadva",
+    "validation": {
+      "nameMin": "A névnek legalább 2 karakternek kell lennie"
+    },
+    "toast": {
+      "created": "Raktár sikeresen létrehozva",
+      "updated": "Raktár sikeresen frissítve",
+      "failedSave": "A raktár mentése sikertelen",
+      "deleted": "Raktár törölve",
+      "failedDelete": "A raktár törlése sikertelen"
+    }
+  },
+  "movements": {
+    "title": "Készletmozgások",
+    "subtitle": "A raktárak közötti készletáramlás nyomon követése.",
+    "record": "Mozgás Rögzítése",
+    "recordTitle": "Készletmozgás Rögzítése",
+    "type": "Típus",
+    "transactionType": "Tranzakció Típusa",
+    "date": "Dátum",
+    "product": "Termék",
+    "quantity": "Mennyiség",
+    "source": "Forrás",
+    "destination": "Célállomás",
+    "user": "Felhasználó",
+    "allTypes": "Összes Típus",
+    "allWarehouses": "Összes Raktár",
+    "allProducts": "Összes Termék",
+    "in": "BE (Bevételezés)",
+    "out": "KI (Kiadás/Felhasználás)",
+    "transfer": "ÁTHELYEZÉS",
+    "receivingIn": "Bevételezés (IN)",
+    "shippingUsage": "Kiadás/Felhasználás (OUT)",
+    "interWarehouse": "Raktárközi áthelyezés (TRANSFER)",
+    "fromWarehouse": "Forrás Raktár",
+    "toWarehouse": "Cél Raktár",
+    "selectProduct": "Válassz egy terméket...",
+    "selectSource": "Válassz forrást...",
+    "selectDestination": "Válassz célt...",
+    "confirmMovement": "Mozgás Megerősítése",
+    "processing": "Feldolgozás...",
+    "validation": {
+      "productRequired": "Termék megadása kötelező",
+      "qtyMin": "A mennyiségnek nagyobbnak kell lennie 0-nál",
+      "destRequired": "Cél raktár megadása kötelező",
+      "sourceRequired": "Forrás raktár megadása kötelező",
+      "differentRequired": "Különböző raktáraknak kell lenniük",
+      "sourceValid": "Forrás kötelező",
+      "destValid": "Célállomás kötelező"
+    },
+    "toast": {
+      "recorded": "Mozgás sikeresen rögzítve",
+      "failedRecord": "A mozgás rögzítése sikertelen"
+    }
+  },
+  "login": {
+    "welcome": "Üdvözlünk újra",
+    "subtitle": "Jelentkezz be a fiókodba",
+    "emailLabel": "E-mail Cím",
+    "emailPlaceholder": "nev@ceg.hu",
+    "passwordLabel": "Jelszó",
+    "passwordPlaceholder": "Add meg a jelszavad",
+    "submit": "Bejelentkezés",
+    "submitting": "Bejelentkezés...",
+    "orContinue": "Vagy folytasd ezzel",
+    "invalidEmail": "Érvénytelen e-mail cím",
+    "passwordRequired": "A jelszó megadása kötelező",
+    "toast": {
+      "success": "Sikeres bejelentkezés",
+      "invalid": "Érvénytelen hitelesítő adatok",
+      "failed": "A bejelentkezés sikertelen. Kérjük, próbáld újra."
+    },
+    "noAccount": "Nincs még fiókod?",
+    "createAccount": "Fiók létrehozása"
+  },
+  "register": {
+    "title": "Fiók létrehozása",
+    "subtitle": "Add meg az adataidat a regisztrációhoz",
+    "nameLabel": "Teljes Név",
+    "namePlaceholder": "Kovács János",
+    "passwordPlaceholder": "Hozzon létre egy jelszót (min. 6 db karakter)",
+    "confirmPasswordLabel": "Jelszó Megerősítése",
+    "confirmPasswordPlaceholder": "Add meg újra a jelszavad",
+    "submit": "Fiók Létrehozása",
+    "submitting": "Fiók Létrehozása...",
+    "haveAccount": "Már van fiókod?",
+    "loginLink": "Bejelentkezés",
+    "validation": {
+      "name": "A névnek legalább 2 karakterből kell állnia",
+      "email": "Érvénytelen e-mail cím",
+      "password": "A jelszónak legalább 6 karakterből kell állnia",
+      "passwordsMatch": "A jelszavak nem egyeznek"
+    },
+    "toast": {
+      "success": "A fiók sikeresen létrehozva",
+      "failed": "A regisztráció sikertelen. Kérjük, ellenőrizd az adataidat."
+    }
+  },
+  "auth": {
+    "toast": {
+      "success": "Sikeres bejelentkezés",
+      "failed": "A bejelentkezés sikertelen",
+      "invalid": "Érvénytelen e-mail vagy jelszó",
+      "githubSuccess": "Sikeres bejelentkezés GitHub-bal",
+      "githubFailed": "A GitHub hitelesítés sikertelen"
+    },
+    "completing": "Hitelesítés befejezése..."
+  },
+  "users": {
+    "title": "Felhasználók Kezelése",
+    "subtitle": "Munkatársak hozzáférésének és szerepköreinek kezelése",
+    "noUsersFound": "Nem található felhasználó",
+    "name": "Név",
+    "email": "E-mail",
+    "role": "Szerepkör",
+    "you": "Te",
+    "changeRole": "Szerepkör Módosítása",
+    "editRoleTitle": "Felhasználó Szerepkörének Szerkesztése",
+    "selectRole": "Szerepkör Kiválasztása",
+    "adminWarning": "Figyelem: Az ADMIN szerepkör hozzárendelése teljes hozzáférést ad a rendszerhez, beleértve az adatok törlését és más felhasználók szerepkörének megváltoztatását.",
+    "toast": {
+      "roleUpdated": "Felhasználói szerepkör sikeresen frissítve",
+      "failedUpdate": "A felhasználói szerepkör frissítése sikertelen"
+    }
+  }
+}
