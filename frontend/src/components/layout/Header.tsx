@@ -1,15 +1,23 @@
 import React from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, Menu, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { ModeToggle } from '../mode-toggle';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { logger } from '../../utils/logger';
 
-interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  onMobileMenuToggle?: () => void;
+  mobileMenuOpen?: boolean;
+}
 
-export const Header: React.FC<HeaderProps> = ({ className, ...props }) => {
+export const Header: React.FC<HeaderProps> = ({
+  className,
+  onMobileMenuToggle,
+  mobileMenuOpen,
+  ...props
+}) => {
   const { user, logout } = useAuthStore();
   const { t } = useTranslation();
 
@@ -23,7 +31,24 @@ export const Header: React.FC<HeaderProps> = ({ className, ...props }) => {
 
   return (
     <header className={className} {...props}>
-      <div className="flex h-full items-center justify-end px-4 sm:px-6 lg:px-8">
+      <div className="flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Left side: hamburger menu for mobile */}
+        <div className="flex items-center md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onMobileMenuToggle}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
+
+        {/* Spacer for desktop (no hamburger shown) */}
+        <div className="hidden md:block" />
+
+        {/* Right side */}
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex flex-col items-end">
             <span className="text-sm font-medium text-foreground leading-none mb-1">
