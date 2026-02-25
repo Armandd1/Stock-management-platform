@@ -11,7 +11,14 @@ import { cn } from '../utils/cn';
 
 import { api } from '../services/api';
 import { Card, CardContent, CardHeader } from '../components/ui/Card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui/Table';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Label } from '../components/ui/Label';
@@ -19,45 +26,82 @@ import { Select } from '../components/ui/Select';
 import { Modal } from '../components/ui/Modal';
 import { RoleGuard } from '../components/layout/RoleGuard';
 
-interface Product { id: number; name: string; sku: string; }
-interface Warehouse { id: number; name: string; }
-interface User { id: number; name: string | null; email: string; }
+interface Product {
+  id: number;
+  name: string;
+  sku: string;
+}
+interface Warehouse {
+  id: number;
+  name: string;
+}
+interface User {
+  id: number;
+  name: string | null;
+  email: string;
+}
 interface Movement {
   id: number;
   type: 'IN' | 'OUT' | 'TRANSFER';
   quantity: number;
-  createdAt: string;
+  date: string;
   Product: Product;
   FromWarehouse: Warehouse | null;
   ToWarehouse: Warehouse | null;
   CreatedBy: User;
 }
 
-const movementSchema = z.object({
-  type: z.enum(['IN', 'OUT', 'TRANSFER']),
-  productId: z.coerce.number().min(1, 'Product is required'),
-  quantity: z.coerce.number().min(1, 'Quantity must be greater than 0'),
-  fromWarehouseId: z.coerce.number().optional(),
-  toWarehouseId: z.coerce.number().optional(),
-}).superRefine((data, ctx) => {
-  if (data.type === 'IN' && (!data.toWarehouseId || data.toWarehouseId < 1)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Destination warehouse required", path: ["toWarehouseId"] });
-  }
-  if (data.type === 'OUT' && (!data.fromWarehouseId || data.fromWarehouseId < 1)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Source warehouse required", path: ["fromWarehouseId"] });
-  }
-  if (data.type === 'TRANSFER') {
-    if (!data.fromWarehouseId || data.fromWarehouseId < 1) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Source required", path: ["fromWarehouseId"] });
+const movementSchema = z
+  .object({
+    type: z.enum(['IN', 'OUT', 'TRANSFER']),
+    productId: z.coerce.number().min(1, 'Product is required'),
+    quantity: z.coerce.number().min(1, 'Quantity must be greater than 0'),
+    fromWarehouseId: z.coerce.number().optional(),
+    toWarehouseId: z.coerce.number().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === 'IN' && (!data.toWarehouseId || data.toWarehouseId < 1)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Destination warehouse required',
+        path: ['toWarehouseId'],
+      });
     }
-    if (!data.toWarehouseId || data.toWarehouseId < 1) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Destination required", path: ["toWarehouseId"] });
+    if (data.type === 'OUT' && (!data.fromWarehouseId || data.fromWarehouseId < 1)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Source warehouse required',
+        path: ['fromWarehouseId'],
+      });
     }
-    if (data.fromWarehouseId && data.toWarehouseId && data.fromWarehouseId === data.toWarehouseId) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Must be different warehouses", path: ["toWarehouseId"] });
+    if (data.type === 'TRANSFER') {
+      if (!data.fromWarehouseId || data.fromWarehouseId < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Source required',
+          path: ['fromWarehouseId'],
+        });
+      }
+      if (!data.toWarehouseId || data.toWarehouseId < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Destination required',
+          path: ['toWarehouseId'],
+        });
+      }
+      if (
+        data.fromWarehouseId &&
+        data.toWarehouseId &&
+        data.fromWarehouseId === data.toWarehouseId
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Must be different warehouses',
+          path: ['toWarehouseId'],
+        });
+      }
     }
-  }
-});
+  });
 
 type MovementFormValues = z.infer<typeof movementSchema>;
 
@@ -78,22 +122,28 @@ export const Movements: React.FC = () => {
       if (filterWarehouse !== 'ALL') params.warehouseId = filterWarehouse;
       if (filterProduct !== 'ALL') params.productId = filterProduct;
       return (await api.get<Movement[]>('/movements', { params })).data;
-    }
+    },
   });
 
   const { data: products } = useQuery({
     queryKey: ['products'],
-    queryFn: async () => (await api.get<Product[]>('/products')).data
+    queryFn: async () => (await api.get<Product[]>('/products')).data,
   });
 
   const { data: warehouses } = useQuery({
     queryKey: ['warehouses'],
-    queryFn: async () => (await api.get<Warehouse[]>('/warehouses')).data
+    queryFn: async () => (await api.get<Warehouse[]>('/warehouses')).data,
   });
 
-  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<MovementFormValues>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<MovementFormValues>({
     resolver: zodResolver(movementSchema) as any,
-    defaultValues: { type: 'IN', quantity: 1 }
+    defaultValues: { type: 'IN', quantity: 1 },
   });
 
   const selectedType = watch('type');
@@ -113,13 +163,13 @@ export const Movements: React.FC = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || t('movements.toast.failedRecord'));
-    }
+    },
   });
 
   const onSubmit = (data: MovementFormValues) => createMutation.mutate(data);
 
-  const filteredMovements = movements?.filter(m => {
-    if (filterDate && !m.createdAt.startsWith(filterDate)) return false;
+  const filteredMovements = movements?.filter((m) => {
+    if (filterDate && !m.date.startsWith(filterDate)) return false;
     return true;
   });
 
@@ -130,8 +180,10 @@ export const Movements: React.FC = () => {
   };
 
   const getMovementBadgeColor = (type: string) => {
-    if (type === 'IN') return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800';
-    if (type === 'OUT') return 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800';
+    if (type === 'IN')
+      return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800';
+    if (type === 'OUT')
+      return 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800';
     return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800';
   };
 
@@ -139,7 +191,9 @@ export const Movements: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('movements.title')}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            {t('movements.title')}
+          </h1>
           <p className="text-muted-foreground">{t('movements.subtitle')}</p>
         </div>
         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
@@ -162,33 +216,37 @@ export const Movements: React.FC = () => {
                 <option value="TRANSFER">{t('movements.transfer')}</option>
               </Select>
             </div>
-            
+
             <div className="space-y-1">
               <Label className="text-xs text-muted-foreground">{t('dashboard.warehouse')}</Label>
               <Select value={filterWarehouse} onChange={(e) => setFilterWarehouse(e.target.value)}>
                 <option value="ALL">{t('movements.allWarehouses')}</option>
-                {warehouses?.map(w => (
-                  <option key={w.id} value={w.id}>{w.name}</option>
+                {warehouses?.map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.name}
+                  </option>
                 ))}
               </Select>
             </div>
-            
+
             <div className="space-y-1">
               <Label className="text-xs text-muted-foreground">{t('movements.product')}</Label>
               <Select value={filterProduct} onChange={(e) => setFilterProduct(e.target.value)}>
                 <option value="ALL">{t('movements.allProducts')}</option>
-                {products?.map(p => (
-                  <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
+                {products?.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({p.sku})
+                  </option>
                 ))}
               </Select>
             </div>
-            
+
             <div className="space-y-1">
               <Label className="text-xs text-muted-foreground">{t('movements.date')}</Label>
-              <Input 
-                type="date" 
-                value={filterDate} 
-                onChange={(e) => setFilterDate(e.target.value)} 
+              <Input
+                type="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
                 className="w-full text-sm h-10"
               />
             </div>
@@ -196,7 +254,9 @@ export const Movements: React.FC = () => {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-             <div className="py-12 flex justify-center text-muted-foreground">{t('common.loadingRecords')}</div>
+            <div className="py-12 flex justify-center text-muted-foreground">
+              {t('common.loadingRecords')}
+            </div>
           ) : !filteredMovements?.length ? (
             <div className="py-16 flex flex-col items-center justify-center text-muted-foreground text-center">
               <Inbox className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
@@ -220,22 +280,33 @@ export const Movements: React.FC = () => {
                 {filteredMovements.map((m) => (
                   <TableRow key={m.id}>
                     <TableCell>
-                      <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border", getMovementBadgeColor(m.type))}>
+                      <span
+                        className={cn(
+                          'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
+                          getMovementBadgeColor(m.type),
+                        )}
+                      >
                         {getMovementIcon(m.type)}
                         {m.type}
                       </span>
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-muted-foreground text-sm">
-                      {format(new Date(m.createdAt), 'MMM d, yyyy HH:mm')}
+                      {format(new Date(m.date), 'MMM d, yyyy HH:mm')}
                     </TableCell>
                     <TableCell>
                       <div className="font-medium text-foreground">{m.Product?.name}</div>
                       <div className="text-xs text-muted-foreground">{m.Product?.sku}</div>
                     </TableCell>
                     <TableCell className="font-bold text-foreground">{m.quantity}</TableCell>
-                    <TableCell className="text-muted-foreground">{m.FromWarehouse?.name || '-'}</TableCell>
-                    <TableCell className="text-muted-foreground">{m.ToWarehouse?.name || '-'}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{m.CreatedBy?.name || m.CreatedBy?.email}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {m.FromWarehouse?.name || '-'}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {m.ToWarehouse?.name || '-'}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {m.CreatedBy?.name || m.CreatedBy?.email}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -244,7 +315,11 @@ export const Movements: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={t('movements.recordTitle')}>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={t('movements.recordTitle')}
+      >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 col-span-2">
@@ -255,20 +330,30 @@ export const Movements: React.FC = () => {
                 <option value="TRANSFER">{t('movements.interWarehouse')}</option>
               </Select>
             </div>
-            
+
             <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label htmlFor="productId">{t('movements.product')}</Label>
               <Select id="productId" {...register('productId')}>
                 <option value={0}>{t('movements.selectProduct')}</option>
-                {products?.map(p => <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>)}
+                {products?.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({p.sku})
+                  </option>
+                ))}
               </Select>
-              {errors.productId && <p className="text-sm text-destructive">{t('movements.validation.productRequired')}</p>}
+              {errors.productId && (
+                <p className="text-sm text-destructive">
+                  {t('movements.validation.productRequired')}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label htmlFor="quantity">{t('movements.quantity')}</Label>
               <Input id="quantity" type="number" min="1" {...register('quantity')} />
-              {errors.quantity && <p className="text-sm text-destructive">{t('movements.validation.qtyMin')}</p>}
+              {errors.quantity && (
+                <p className="text-sm text-destructive">{t('movements.validation.qtyMin')}</p>
+              )}
             </div>
 
             {(selectedType === 'OUT' || selectedType === 'TRANSFER') && (
@@ -276,9 +361,17 @@ export const Movements: React.FC = () => {
                 <Label htmlFor="fromWarehouseId">{t('movements.fromWarehouse')}</Label>
                 <Select id="fromWarehouseId" {...register('fromWarehouseId')}>
                   <option value={0}>{t('movements.selectSource')}</option>
-                  {warehouses?.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+                  {warehouses?.map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.name}
+                    </option>
+                  ))}
                 </Select>
-                {errors.fromWarehouseId && <p className="text-sm text-destructive">{t('movements.validation.sourceValid')}</p>}
+                {errors.fromWarehouseId && (
+                  <p className="text-sm text-destructive">
+                    {t('movements.validation.sourceValid')}
+                  </p>
+                )}
               </div>
             )}
 
@@ -287,17 +380,27 @@ export const Movements: React.FC = () => {
                 <Label htmlFor="toWarehouseId">{t('movements.toWarehouse')}</Label>
                 <Select id="toWarehouseId" {...register('toWarehouseId')}>
                   <option value={0}>{t('movements.selectDestination')}</option>
-                  {warehouses?.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+                  {warehouses?.map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.name}
+                    </option>
+                  ))}
                 </Select>
-                {errors.toWarehouseId && <p className="text-sm text-destructive">{t('movements.validation.destValid')}</p>}
+                {errors.toWarehouseId && (
+                  <p className="text-sm text-destructive">{t('movements.validation.destValid')}</p>
+                )}
               </div>
             )}
           </div>
-          
+
           <div className="flex justify-end gap-2 pt-6">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('common.cancel')}</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+              {t('common.cancel')}
+            </Button>
             <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? t('movements.processing') : t('movements.confirmMovement')}
+              {createMutation.isPending
+                ? t('movements.processing')
+                : t('movements.confirmMovement')}
             </Button>
           </div>
         </form>

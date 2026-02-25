@@ -7,7 +7,14 @@ import { Users as UsersIcon, ShieldAlert } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuthStore } from '../store/useAuthStore';
 import { Card, CardContent } from '../components/ui/Card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui/Table';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Select } from '../components/ui/Select';
@@ -24,19 +31,23 @@ interface User {
 export const Users: React.FC = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const currentUser = useAuthStore(state => state.user);
-  
+  const currentUser = useAuthStore((state) => state.user);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'MANAGER' | 'VIEWER'>('VIEWER');
 
-  const { data: users, isLoading, isError } = useQuery({
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['users'],
-    queryFn: async () => (await api.get<User[]>('/users')).data
+    queryFn: async () => (await api.get<User[]>('/users')).data,
   });
 
   const roleMutation = useMutation({
-    mutationFn: async ({ id, role }: { id: number, role: string }) => {
+    mutationFn: async ({ id, role }: { id: number; role: string }) => {
       return api.patch(`/users/${id}/role`, { role });
     },
     onSuccess: () => {
@@ -46,7 +57,7 @@ export const Users: React.FC = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || t('users.toast.failedUpdate'));
-    }
+    },
   });
 
   const openEditModal = (user: User) => {
@@ -73,9 +84,13 @@ export const Users: React.FC = () => {
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="py-12 flex justify-center text-muted-foreground">{t('common.loadingUsers')}</div>
+            <div className="py-12 flex justify-center text-muted-foreground">
+              {t('common.loadingUsers')}
+            </div>
           ) : isError ? (
-            <div className="py-12 flex justify-center text-destructive">{t('common.failedLoadUsers')}</div>
+            <div className="py-12 flex justify-center text-destructive">
+              {t('common.failedLoadUsers')}
+            </div>
           ) : !users?.length ? (
             <div className="py-16 flex flex-col items-center justify-center text-muted-foreground text-center">
               <UsersIcon className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
@@ -96,24 +111,32 @@ export const Users: React.FC = () => {
                   <TableRow key={user.id}>
                     <TableCell className="font-medium text-foreground">
                       {user.name || '-'}
-                      {currentUser?.id === user.id && <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{t('users.you')}</span>}
+                      {currentUser?.id === user.id && (
+                        <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                          {t('users.you')}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="text-muted-foreground">{user.email}</TableCell>
                     <TableCell>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ring-1 ring-inset ${
-                        user.role === 'ADMIN' ? 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-900/10 dark:text-red-400 dark:ring-red-500/20' :
-                        user.role === 'MANAGER' ? 'bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-900/10 dark:text-blue-400 dark:ring-blue-500/20' :
-                        'bg-slate-50 text-slate-700 ring-slate-600/20 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600/50'
-                      }`}>
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ring-1 ring-inset ${
+                          user.role === 'ADMIN'
+                            ? 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-900/10 dark:text-red-400 dark:ring-red-500/20'
+                            : user.role === 'MANAGER'
+                              ? 'bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-900/10 dark:text-blue-400 dark:ring-blue-500/20'
+                              : 'bg-slate-50 text-slate-700 ring-slate-600/20 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600/50'
+                        }`}
+                      >
                         {user.role}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
                       {currentUser?.id !== user.id && (
                         <RoleGuard allowedRoles={['ADMIN']}>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => openEditModal(user)}
                             className="text-xs"
                           >
@@ -142,7 +165,7 @@ export const Users: React.FC = () => {
               <p className="text-muted-foreground text-xs">{editingUser.email}</p>
             </div>
           )}
-          
+
           <div className="space-y-2">
             <Label htmlFor="role">{t('users.selectRole')}</Label>
             <Select
@@ -156,7 +179,7 @@ export const Users: React.FC = () => {
               <option value="ADMIN">ADMIN</option>
             </Select>
           </div>
-          
+
           {selectedRole === 'ADMIN' && (
             <div className="p-3 bg-amber-50 text-amber-700 text-sm rounded-md border border-amber-200 mt-2 flex gap-2 items-start dark:bg-amber-900/20 dark:border-amber-900/30 dark:text-amber-400">
               <ShieldAlert className="h-5 w-5 shrink-0" />
@@ -165,8 +188,14 @@ export const Users: React.FC = () => {
           )}
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('common.cancel')}</Button>
-            <Button type="button" onClick={handleSaveRole} disabled={roleMutation.isPending || selectedRole === editingUser?.role}>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSaveRole}
+              disabled={roleMutation.isPending || selectedRole === editingUser?.role}
+            >
               {roleMutation.isPending ? t('common.loading') : t('common.save')}
             </Button>
           </div>

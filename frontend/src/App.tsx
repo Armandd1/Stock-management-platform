@@ -38,19 +38,19 @@ export const App: React.FC = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
-            
+
             <Route element={<AuthGuard />}>
               <Route element={<AppLayout />}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/warehouses" element={<Warehouses />} />
-                <Route 
-                  path="/movements" 
+                <Route
+                  path="/movements"
                   element={
                     <RoleGuard allowedRoles={['ADMIN', 'MANAGER']} isRoute>
                       <Movements />
                     </RoleGuard>
-                  } 
+                  }
                 />
                 <Route
                   path="/users"

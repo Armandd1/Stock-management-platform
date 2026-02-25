@@ -10,7 +10,14 @@ import { useLocation } from 'react-router-dom';
 
 import { api } from '../services/api';
 import { Card, CardContent } from '../components/ui/Card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui/Table';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Label } from '../components/ui/Label';
@@ -52,9 +59,13 @@ export const Warehouses: React.FC = () => {
     }
   }, [location.state]);
 
-  const { data: warehouses, isLoading, isError } = useQuery({
+  const {
+    data: warehouses,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['warehouses'],
-    queryFn: async () => (await api.get<Warehouse[]>('/warehouses')).data
+    queryFn: async () => (await api.get<Warehouse[]>('/warehouses')).data,
   });
 
   const { data: warehouseDetails, isLoading: isLoadingDetails } = useQuery({
@@ -66,7 +77,12 @@ export const Warehouses: React.FC = () => {
     enabled: !!viewingWarehouseId,
   });
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<WarehouseFormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<WarehouseFormValues>({
     resolver: zodResolver(warehouseSchema),
   });
 
@@ -94,12 +110,14 @@ export const Warehouses: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['warehouses'] });
-      toast.success(editingWarehouse ? t('warehouses.toast.updated') : t('warehouses.toast.created'));
+      toast.success(
+        editingWarehouse ? t('warehouses.toast.updated') : t('warehouses.toast.created'),
+      );
       setIsModalOpen(false);
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || t('warehouses.toast.failedSave'));
-    }
+    },
   });
 
   const deleteMutation = useMutation({
@@ -108,7 +126,7 @@ export const Warehouses: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['warehouses'] });
       toast.success(t('warehouses.toast.deleted'));
     },
-    onError: () => toast.error(t('warehouses.toast.failedDelete'))
+    onError: () => toast.error(t('warehouses.toast.failedDelete')),
   });
 
   const onSubmit = (data: WarehouseFormValues) => saveMutation.mutate(data);
@@ -117,7 +135,9 @@ export const Warehouses: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('warehouses.title')}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            {t('warehouses.title')}
+          </h1>
           <p className="text-muted-foreground">{t('warehouses.subtitle')}</p>
         </div>
         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
@@ -131,9 +151,13 @@ export const Warehouses: React.FC = () => {
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="py-12 flex justify-center text-muted-foreground">{t('common.loadingWarehouses')}</div>
+            <div className="py-12 flex justify-center text-muted-foreground">
+              {t('common.loadingWarehouses')}
+            </div>
           ) : isError ? (
-            <div className="py-12 flex justify-center text-destructive">{t('common.failedLoadWarehouses')}</div>
+            <div className="py-12 flex justify-center text-destructive">
+              {t('common.failedLoadWarehouses')}
+            </div>
           ) : !warehouses?.length ? (
             <div className="py-16 flex flex-col items-center justify-center text-muted-foreground text-center">
               <WarehouseIcon className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
@@ -150,43 +174,52 @@ export const Warehouses: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {warehouses.map((warehouse) => (
-                  <TableRow 
+                  <TableRow
                     key={warehouse.id}
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => setViewingWarehouseId(warehouse.id)}
                   >
                     <TableCell>
                       <div className="font-medium text-foreground text-base">{warehouse.name}</div>
-                      <div className="text-sm text-muted-foreground mt-1">{warehouse.location || t('warehouses.noLocation')}</div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {warehouse.location || t('warehouses.noLocation')}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right align-top pt-4">
                       <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={(e) => { e.stopPropagation(); setViewingWarehouseId(warehouse.id); }} 
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewingWarehouseId(warehouse.id);
+                          }}
                           className="h-8 w-8 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={(e) => { e.stopPropagation(); openEditModal(warehouse); }} 
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEditModal(warehouse);
+                            }}
                             className="h-8 w-8 text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
                         </RoleGuard>
                         <RoleGuard allowedRoles={['ADMIN']}>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={(e) => { 
-                              e.stopPropagation(); 
-                              if(confirm(t('common.confirmDeleteWh'))) deleteMutation.mutate(warehouse.id); 
-                            }} 
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm(t('common.confirmDeleteWh')))
+                                deleteMutation.mutate(warehouse.id);
+                            }}
                             className="h-8 w-8 text-muted-foreground hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -211,14 +244,22 @@ export const Warehouses: React.FC = () => {
           <div className="space-y-2">
             <Label htmlFor="name">{t('warehouses.name')}</Label>
             <Input id="name" {...register('name')} placeholder={t('warehouses.namePlaceholder')} />
-            {errors.name && <p className="text-sm text-destructive">{t('warehouses.validation.nameMin')}</p>}
+            {errors.name && (
+              <p className="text-sm text-destructive">{t('warehouses.validation.nameMin')}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="location">{t('warehouses.location')}</Label>
-            <Input id="location" {...register('location')} placeholder={t('warehouses.locationPlaceholder')} />
+            <Input
+              id="location"
+              {...register('location')}
+              placeholder={t('warehouses.locationPlaceholder')}
+            />
           </div>
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('common.cancel')}</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+              {t('common.cancel')}
+            </Button>
             <Button type="submit" disabled={saveMutation.isPending}>
               {saveMutation.isPending ? t('common.loading') : t('warehouses.saveWarehouse')}
             </Button>
@@ -233,14 +274,19 @@ export const Warehouses: React.FC = () => {
       >
         <div className="space-y-4">
           {isLoadingDetails ? (
-            <div className="py-8 flex justify-center text-muted-foreground">{t('common.loadingDetails')}</div>
+            <div className="py-8 flex justify-center text-muted-foreground">
+              {t('common.loadingDetails')}
+            </div>
           ) : warehouseDetails ? (
             <>
               <div>
                 <h3 className="font-semibold text-foreground text-lg">{warehouseDetails.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{t('warehouses.location')}: {warehouseDetails.location || t('warehouses.noLocation')}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {t('warehouses.location')}:{' '}
+                  {warehouseDetails.location || t('warehouses.noLocation')}
+                </p>
               </div>
-              
+
               <div className="border rounded-md overflow-hidden">
                 <Table>
                   <TableHeader>
@@ -274,9 +320,11 @@ export const Warehouses: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="py-8 flex justify-center text-destructive">{t('common.failedLoadDetails')}</div>
+            <div className="py-8 flex justify-center text-destructive">
+              {t('common.failedLoadDetails')}
+            </div>
           )}
-          
+
           <div className="flex justify-end pt-4">
             <Button onClick={() => setViewingWarehouseId(null)}>{t('common.close')}</Button>
           </div>

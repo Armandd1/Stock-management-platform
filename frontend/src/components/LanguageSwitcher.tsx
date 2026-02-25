@@ -16,7 +16,8 @@ export const LanguageSwitcher: React.FC = () => {
 
   const currentLangCode = i18n.language || 'en';
   // Sometimes i18n returns 'en-US', handle this by taking first 2 chars
-  const currentLang = languages.find(l => l.code === currentLangCode.substring(0, 2)) || languages[0];
+  const currentLang =
+    languages.find((l) => l.code === currentLangCode.substring(0, 2)) || languages[0];
 
   const changeLanguage = (code: string) => {
     i18n.changeLanguage(code);
@@ -35,14 +36,18 @@ export const LanguageSwitcher: React.FC = () => {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <Button 
-        variant="ghost" 
-        size="icon" 
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={() => setIsOpen(!isOpen)}
         className="h-9 w-9 overflow-hidden rounded-full p-1"
         title="Change Language"
       >
-        <img src={currentLang.flag} alt={currentLang.name} className="h-full w-full object-cover rounded-full" />
+        <img
+          src={currentLang.flag}
+          alt={currentLang.name}
+          className="h-full w-full object-cover rounded-full"
+        />
       </Button>
 
       {isOpen && (
@@ -53,12 +58,18 @@ export const LanguageSwitcher: React.FC = () => {
                 key={lang.code}
                 onClick={() => changeLanguage(lang.code)}
                 className={cn(
-                  "w-full text-left flex items-center px-4 py-2 text-sm transition-colors",
-                  currentLang.code === lang.code ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  'w-full text-left flex items-center px-4 py-2 text-sm transition-colors',
+                  currentLang.code === lang.code
+                    ? 'bg-muted font-medium text-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                 )}
                 role="menuitem"
               >
-                <img src={lang.flag} alt={lang.name} className="h-4 w-4 mr-3 object-cover rounded-sm border border-border" />
+                <img
+                  src={lang.flag}
+                  alt={lang.name}
+                  className="h-4 w-4 mr-3 object-cover rounded-sm border border-border"
+                />
                 {lang.name}
               </button>
             ))}

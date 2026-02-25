@@ -30,7 +30,7 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 requests per minute
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // 20 requests per minute
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email and password' })
   @ApiResponse({ status: 200, description: 'Successful login. Returns access token.' })
@@ -76,6 +76,15 @@ export class AuthController {
     });
 
     return result;
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Logout and clear authentication cookie' })
+  @ApiResponse({ status: 200, description: 'Successful logout.' })
+  logout(@Res({ passthrough: true }) res: FastifyReply) {
+    res.clearCookie('auth_token', { path: '/' });
+    return { message: 'Logged out successfully' };
   }
 
   @Get('me')

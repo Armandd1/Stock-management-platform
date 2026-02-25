@@ -10,22 +10,33 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 export const Sidebar: React.FC<SidebarProps> = ({ className, ...props }) => {
   const { user } = useAuthStore();
   const { t } = useTranslation();
-  
+
   const navigation: { name: string; href: string; icon: any; allowedRoles?: Role[] }[] = [
     { name: t('nav.dashboard'), href: '/', icon: LayoutDashboard },
     { name: t('nav.products'), href: '/products', icon: Package },
     { name: t('nav.warehouses'), href: '/warehouses', icon: Warehouse },
-    { name: t('nav.movements'), href: '/movements', icon: ArrowRightLeft, allowedRoles: ['ADMIN', 'MANAGER'] },
+    {
+      name: t('nav.movements'),
+      href: '/movements',
+      icon: ArrowRightLeft,
+      allowedRoles: ['ADMIN', 'MANAGER'],
+    },
     { name: t('nav.users'), href: '/users', icon: Users, allowedRoles: ['ADMIN'] },
   ];
 
-  const filteredNavigation = navigation.filter(item => {
+  const filteredNavigation = navigation.filter((item) => {
     if (!item.allowedRoles) return true;
     return user && item.allowedRoles.includes(user.role);
   });
 
   return (
-    <div className={cn('flex h-full flex-col bg-card/50 backdrop-blur-xl border-r border-border text-foreground', className)} {...props}>
+    <div
+      className={cn(
+        'flex h-full flex-col bg-card/50 backdrop-blur-xl border-r border-border text-foreground',
+        className,
+      )}
+      {...props}
+    >
       <div className="flex h-16 shrink-0 items-center px-6 border-b border-border">
         <Boxes className="h-6 w-6 text-primary flex-shrink-0" />
         <span className="ml-3 text-lg font-bold tracking-tight text-foreground">Stockify</span>
@@ -41,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, ...props }) => {
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-                  'group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors'
+                  'group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors',
                 )
               }
             >
@@ -49,8 +60,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, ...props }) => {
                 <>
                   <item.icon
                     className={cn(
-                      isActive ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-accent-foreground',
-                      'mr-3 h-5 w-5 flex-shrink-0 transition-colors'
+                      isActive
+                        ? 'text-primary-foreground'
+                        : 'text-muted-foreground group-hover:text-accent-foreground',
+                      'mr-3 h-5 w-5 flex-shrink-0 transition-colors',
                     )}
                     aria-hidden="true"
                   />

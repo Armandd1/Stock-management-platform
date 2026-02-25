@@ -9,7 +9,12 @@ interface RoleGuardProps {
   isRoute?: boolean;
 }
 
-export const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles, children, fallback = null, isRoute = false }) => {
+export const RoleGuard: React.FC<RoleGuardProps> = ({
+  allowedRoles,
+  children,
+  fallback = null,
+  isRoute = false,
+}) => {
   const { user } = useAuthStore();
 
   if (!user || !allowedRoles.includes(user.role)) {

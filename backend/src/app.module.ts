@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -18,6 +19,10 @@ import { ReportsModule } from './reports/reports.module';
     PrismaModule,
     LoggerModule.forRoot({
       pinoHttp: {
+        genReqId: (req) => req.headers['x-request-id'] || crypto.randomUUID(),
+        customProps: (req, _res) => ({
+          reqId: req.id,
+        }),
         transport: {
           target: 'pino-pretty',
           options: {

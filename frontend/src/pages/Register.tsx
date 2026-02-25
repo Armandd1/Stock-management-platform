@@ -20,15 +20,17 @@ export const Register: React.FC = () => {
   const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
 
-  const registerSchema = z.object({
-    name: z.string().min(2, { message: t('register.validation.name') }),
-    email: z.string().email({ message: t('register.validation.email') }),
-    password: z.string().min(6, { message: t('register.validation.password') }),
-    confirmPassword: z.string(),
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: t('register.validation.passwordsMatch'),
-    path: ["confirmPassword"],
-  });
+  const registerSchema = z
+    .object({
+      name: z.string().min(2, { message: t('register.validation.name') }),
+      email: z.string().email({ message: t('register.validation.email') }),
+      password: z.string().min(6, { message: t('register.validation.password') }),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('register.validation.passwordsMatch'),
+      path: ['confirmPassword'],
+    });
 
   type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -46,7 +48,7 @@ export const Register: React.FC = () => {
       await api.post('/auth/register', {
         name: data.name,
         email: data.email,
-        password: data.password
+        password: data.password,
       });
       await checkAuth(); // Hydrates user state from API
       toast.success(t('register.toast.success'));
@@ -68,7 +70,7 @@ export const Register: React.FC = () => {
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Stockify</h1>
       </div>
-      
+
       <Card className="w-full max-w-md shadow-xl border-border">
         <CardHeader className="space-y-2 text-center pb-6 border-b border-border">
           <CardTitle className="text-2xl">{t('register.title')}</CardTitle>
@@ -106,9 +108,13 @@ export const Register: React.FC = () => {
                 type="password"
                 placeholder={t('register.passwordPlaceholder')}
                 {...register('password')}
-                className={errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}
+                className={
+                  errors.password ? 'border-destructive focus-visible:ring-destructive' : ''
+                }
               />
-              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-sm text-destructive">{errors.password.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -118,17 +124,21 @@ export const Register: React.FC = () => {
                 type="password"
                 placeholder={t('register.confirmPasswordPlaceholder')}
                 {...register('confirmPassword')}
-                className={errors.confirmPassword ? 'border-destructive focus-visible:ring-destructive' : ''}
+                className={
+                  errors.confirmPassword ? 'border-destructive focus-visible:ring-destructive' : ''
+                }
               />
-              {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>}
+              {errors.confirmPassword && (
+                <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+              )}
             </div>
-            
+
             {error && (
               <div className="p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200 font-medium">
                 {error}
               </div>
             )}
-            
+
             <Button type="submit" className="w-full mt-2" size="lg" disabled={isSubmitting}>
               {isSubmitting ? t('register.submitting') : t('register.submit')}
             </Button>

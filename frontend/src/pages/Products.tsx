@@ -11,7 +11,14 @@ import { useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 
 import { Card, CardContent, CardHeader } from '../components/ui/Card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui/Table';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Label } from '../components/ui/Label';
@@ -58,12 +65,16 @@ export const Products: React.FC = () => {
     }
   }, [location.state]);
 
-  const { data: products, isLoading, isError } = useQuery({
+  const {
+    data: products,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['products', search],
     queryFn: async () => {
       const res = await api.get<Product[]>('/products', { params: { search } });
       return res.data;
-    }
+    },
   });
 
   const { data: productDetails, isLoading: isLoadingDetails } = useQuery({
@@ -75,7 +86,12 @@ export const Products: React.FC = () => {
     enabled: !!viewingProductId,
   });
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProductFormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as any,
   });
 
@@ -110,7 +126,7 @@ export const Products: React.FC = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || t('products.toast.failedSave'));
-    }
+    },
   });
 
   const deleteMutation = useMutation({
@@ -119,7 +135,7 @@ export const Products: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success(t('products.toast.deleted'));
     },
-    onError: () => toast.error(t('products.toast.failedDelete'))
+    onError: () => toast.error(t('products.toast.failedDelete')),
   });
 
   const onSubmit = (data: ProductFormValues) => saveMutation.mutate(data);
@@ -128,7 +144,9 @@ export const Products: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('products.title')}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            {t('products.title')}
+          </h1>
           <p className="text-muted-foreground">{t('products.subtitle')}</p>
         </div>
         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
@@ -156,9 +174,13 @@ export const Products: React.FC = () => {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="py-8 flex justify-center text-muted-foreground">{t('common.loadingProducts')}</div>
+            <div className="py-8 flex justify-center text-muted-foreground">
+              {t('common.loadingProducts')}
+            </div>
           ) : isError ? (
-            <div className="py-8 flex justify-center text-destructive">{t('common.failedLoadProducts')}</div>
+            <div className="py-8 flex justify-center text-destructive">
+              {t('common.failedLoadProducts')}
+            </div>
           ) : !products?.length ? (
             <div className="py-12 flex flex-col items-center justify-center text-muted-foreground text-center">
               <Package className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
@@ -177,7 +199,7 @@ export const Products: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {products.map((product) => (
-                  <TableRow 
+                  <TableRow
                     key={product.id}
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => setViewingProductId(product.id)}
@@ -185,37 +207,48 @@ export const Products: React.FC = () => {
                     <TableCell className="font-mono text-sm">{product.sku}</TableCell>
                     <TableCell>
                       <div className="font-medium text-foreground">{product.name}</div>
-                      {product.description && <div className="text-xs text-muted-foreground truncate max-w-xs">{product.description}</div>}
+                      {product.description && (
+                        <div className="text-xs text-muted-foreground truncate max-w-xs">
+                          {product.description}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>${product.price.toFixed(2)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={(e) => { e.stopPropagation(); setViewingProductId(product.id); }} 
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewingProductId(product.id);
+                          }}
                           className="h-8 w-8 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <RoleGuard allowedRoles={['ADMIN', 'MANAGER']}>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={(e) => { e.stopPropagation(); openEditModal(product); }} 
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEditModal(product);
+                            }}
                             className="h-8 w-8 text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
                         </RoleGuard>
                         <RoleGuard allowedRoles={['ADMIN']}>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={(e) => { 
-                              e.stopPropagation(); 
-                              if(confirm(t('common.confirmDelete'))) deleteMutation.mutate(product.id); 
-                            }} 
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm(t('common.confirmDelete')))
+                                deleteMutation.mutate(product.id);
+                            }}
                             className="h-8 w-8 text-muted-foreground hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -241,25 +274,43 @@ export const Products: React.FC = () => {
             <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label htmlFor="sku">{t('products.sku')}</Label>
               <Input id="sku" {...register('sku')} placeholder={t('products.skuPlaceholder')} />
-              {errors.sku && <p className="text-sm text-destructive">{t('products.validation.skuMin')}</p>}
+              {errors.sku && (
+                <p className="text-sm text-destructive">{t('products.validation.skuMin')}</p>
+              )}
             </div>
             <div className="space-y-2 col-span-2 sm:col-span-1">
               <Label htmlFor="price">{t('products.price')}</Label>
-              <Input id="price" type="number" step="0.01" {...register('price')} placeholder={t('products.pricePlaceholder')} />
-              {errors.price && <p className="text-sm text-destructive">{t('products.validation.priceMin')}</p>}
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                {...register('price')}
+                placeholder={t('products.pricePlaceholder')}
+              />
+              {errors.price && (
+                <p className="text-sm text-destructive">{t('products.validation.priceMin')}</p>
+              )}
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="name">{t('products.name')}</Label>
             <Input id="name" {...register('name')} placeholder={t('products.namePlaceholder')} />
-            {errors.name && <p className="text-sm text-destructive">{t('products.validation.nameMin')}</p>}
+            {errors.name && (
+              <p className="text-sm text-destructive">{t('products.validation.nameMin')}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">{t('products.description')}</Label>
-            <Input id="description" {...register('description')} placeholder={t('products.descriptionPlaceholder')} />
+            <Input
+              id="description"
+              {...register('description')}
+              placeholder={t('products.descriptionPlaceholder')}
+            />
           </div>
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>{t('common.cancel')}</Button>
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+              {t('common.cancel')}
+            </Button>
             <Button type="submit" disabled={saveMutation.isPending}>
               {saveMutation.isPending ? t('products.saving') : t('products.saveProduct')}
             </Button>
@@ -274,14 +325,16 @@ export const Products: React.FC = () => {
       >
         <div className="space-y-4">
           {isLoadingDetails ? (
-            <div className="py-8 flex justify-center text-muted-foreground">{t('common.loadingDetails')}</div>
+            <div className="py-8 flex justify-center text-muted-foreground">
+              {t('common.loadingDetails')}
+            </div>
           ) : productDetails ? (
             <>
               <div>
                 <h3 className="font-semibold text-foreground text-lg">{productDetails.name}</h3>
                 <p className="text-sm text-muted-foreground mt-1">SKU: {productDetails.sku}</p>
               </div>
-              
+
               <div className="border rounded-md overflow-hidden">
                 <Table>
                   <TableHeader>
@@ -314,9 +367,11 @@ export const Products: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="py-8 flex justify-center text-destructive">{t('common.failedLoadDetails')}</div>
+            <div className="py-8 flex justify-center text-destructive">
+              {t('common.failedLoadDetails')}
+            </div>
           )}
-          
+
           <div className="flex justify-end pt-4">
             <Button onClick={() => setViewingProductId(null)}>{t('common.close')}</Button>
           </div>

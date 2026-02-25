@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import { UnauthorizedException, InternalServerErrorException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../src/auth/auth.service';
@@ -195,6 +195,49 @@ describe('AuthService', () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
       await expect(service.getProfile(999)).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  // --- register ---
+
+  describe('register', () => {
+    const newUser = {
+      id: 10,
+      email: 'newuser@example.com',
+      password: '$2a$10$hashedpassword',
+      name: 'New User',
+      provider: 'local',
+      role: 'VIEWER',
+    };
+
+    it('should create a new user and return access_token', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      (bcrypt.hash as jest.Mock).mockResolvedValue('$2a$10$hashedpassword');
+      mockPrismaService.user.create.mockResolvedValue(newUser);
+
+      const result = await service.register('newuser@example.com', 'Password123!', 'New User');
+
+      expect(result).toEqual({
+        access_token: 'mock-jwt-token',
+        user: { id: 10, email: 'newuser@example.com', role: 'VIEWER' },
+      });
+      expect(mockPrismaService.user.create).toHaveBeenCalledWith({
+        data: {
+          email: 'newuser@example.com',
+          password: '$2a$10$hashedpassword',
+          name: 'New User',
+          provider: 'local',
+          role: 'VIEWER',
+        },
+      });
+    });
+
+    it('should throw ConflictException if email already exists', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(newUser);
+
+      await expect(
+        service.register('newuser@example.com', 'Password123!', 'New User'),
+      ).rejects.toThrow(ConflictException);
     });
   });
 });

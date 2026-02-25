@@ -59,7 +59,7 @@ export const Login: React.FC = () => {
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Stockify</h1>
       </div>
-      
+
       <Card className="w-full max-w-md shadow-xl border-border">
         <CardHeader className="space-y-2 text-center pb-8 border-b border-border">
           <CardTitle className="text-2xl">{t('login.welcome')}</CardTitle>
@@ -76,7 +76,9 @@ export const Login: React.FC = () => {
                 {...register('email')}
                 className={errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}
               />
-              {errors.email && <p className="text-sm text-destructive">{t('login.invalidEmail')}</p>}
+              {errors.email && (
+                <p className="text-sm text-destructive">{t('login.invalidEmail')}</p>
+              )}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -87,17 +89,21 @@ export const Login: React.FC = () => {
                 type="password"
                 placeholder={t('login.passwordPlaceholder')}
                 {...register('password')}
-                className={errors.password ? 'border-destructive focus-visible:ring-destructive' : ''}
+                className={
+                  errors.password ? 'border-destructive focus-visible:ring-destructive' : ''
+                }
               />
-              {errors.password && <p className="text-sm text-destructive">{t('login.passwordRequired')}</p>}
+              {errors.password && (
+                <p className="text-sm text-destructive">{t('login.passwordRequired')}</p>
+              )}
             </div>
-            
+
             {error && (
               <div className="p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200 font-medium">
                 {error}
               </div>
             )}
-            
+
             <Button type="submit" className="w-full mt-2" size="lg" disabled={isSubmitting}>
               {isSubmitting ? t('login.submitting') : t('login.submit')}
             </Button>
@@ -117,7 +123,7 @@ export const Login: React.FC = () => {
               size="lg"
               className="w-full flex items-center justify-center gap-2"
               onClick={() => {
-                window.location.href = import.meta.env.VITE_API_URL 
+                window.location.href = import.meta.env.VITE_API_URL
                   ? `${import.meta.env.VITE_API_URL}/auth/github`
                   : 'http://localhost:3000/api/v1/auth/github';
               }}

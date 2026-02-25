@@ -11,32 +11,34 @@ export const AuthCallback: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const processCallback = async () => {
       try {
         await checkAuth(); // Reads the http-only cookie set by backend
         if (isMounted) {
-          toast.success(t('login.toast.githubSuccess'));
+          toast.success(t('auth.toast.githubSuccess'));
           navigate('/');
         }
       } catch (err) {
         if (isMounted) {
-          toast.error(t('login.toast.githubFailed'));
+          toast.error(t('auth.toast.githubFailed'));
           navigate('/login');
         }
       }
     };
-    
+
     processCallback();
-    
-    return () => { isMounted = false; };
-  }, [checkAuth, navigate]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [checkAuth, navigate, t]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="flex flex-col items-center space-y-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        <p className="text-gray-500 font-medium">{t('login.completing')}</p>
+        <p className="text-gray-500 font-medium">{t('auth.completing')}</p>
       </div>
     </div>
   );
