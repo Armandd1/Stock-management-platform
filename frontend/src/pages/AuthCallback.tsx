@@ -19,7 +19,7 @@ export const AuthCallback: React.FC = () => {
           toast.success(t('auth.toast.githubSuccess'));
           navigate('/');
         }
-      } catch (err) {
+      } catch {
         if (isMounted) {
           toast.error(t('auth.toast.githubFailed'));
           navigate('/login');

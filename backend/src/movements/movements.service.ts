@@ -35,7 +35,9 @@ export class MovementsService {
   // --- IN: Add stock to a warehouse ---
   private async handleIn(dto: CreateMovementDto, userId: number) {
     if (!dto.toWarehouseId) {
-      throw new BadRequestException('toWarehouseId is required for IN movements');
+      throw new BadRequestException(
+        'toWarehouseId is required for IN movements',
+      );
     }
 
     // Validate warehouse exists
@@ -78,7 +80,9 @@ export class MovementsService {
   // --- OUT: Remove stock from a warehouse ---
   private async handleOut(dto: CreateMovementDto, userId: number) {
     if (!dto.fromWarehouseId) {
-      throw new BadRequestException('fromWarehouseId is required for OUT movements');
+      throw new BadRequestException(
+        'fromWarehouseId is required for OUT movements',
+      );
     }
 
     await this.validateWarehouse(dto.fromWarehouseId);

@@ -11,7 +11,10 @@ describe('RolesGuard', () => {
     guard = new RolesGuard(reflector);
   });
 
-  const createMockContext = (user?: any, roles?: string[]): ExecutionContext => {
+  const createMockContext = (
+    user?: any,
+    roles?: string[],
+  ): ExecutionContext => {
     const mockHandler = jest.fn();
     const mockClass = jest.fn();
 
@@ -42,31 +45,42 @@ describe('RolesGuard', () => {
   });
 
   it('should allow access when user has one of many required roles', () => {
-    const context = createMockContext({ role: 'MANAGER' }, ['ADMIN', 'MANAGER']);
+    const context = createMockContext({ role: 'MANAGER' }, [
+      'ADMIN',
+      'MANAGER',
+    ]);
     expect(guard.canActivate(context)).toBe(true);
   });
 
   it('should throw ForbiddenException when user is missing from request', () => {
     const context = createMockContext(undefined, ['ADMIN']);
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
-    expect(() => guard.canActivate(context)).toThrow('User information is missing');
+    expect(() => guard.canActivate(context)).toThrow(
+      'User information is missing',
+    );
   });
 
   it('should throw ForbiddenException when user role is not a string', () => {
     const context = createMockContext({ role: 123 }, ['ADMIN']);
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
-    expect(() => guard.canActivate(context)).toThrow('User role is missing or invalid');
+    expect(() => guard.canActivate(context)).toThrow(
+      'User role is missing or invalid',
+    );
   });
 
   it('should throw ForbiddenException when user role is undefined', () => {
     const context = createMockContext({}, ['ADMIN']);
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
-    expect(() => guard.canActivate(context)).toThrow('User role is missing or invalid');
+    expect(() => guard.canActivate(context)).toThrow(
+      'User role is missing or invalid',
+    );
   });
 
   it('should throw ForbiddenException when user does not have the required role', () => {
     const context = createMockContext({ role: 'VIEWER' }, ['ADMIN']);
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
-    expect(() => guard.canActivate(context)).toThrow('You do not have permission');
+    expect(() => guard.canActivate(context)).toThrow(
+      'You do not have permission',
+    );
   });
 });

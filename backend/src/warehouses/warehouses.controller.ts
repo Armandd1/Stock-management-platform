@@ -38,7 +38,10 @@ export class WarehousesController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a warehouse by ID' })
-  @ApiResponse({ status: 200, description: 'Returns the warehouse with stock details.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the warehouse with stock details.',
+  })
   @ApiResponse({ status: 404, description: 'Warehouse not found.' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.warehousesService.findOne(id);

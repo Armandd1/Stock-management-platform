@@ -33,7 +33,11 @@ export class ProductsController {
 
   @Get()
   @ApiOperation({ summary: 'List all products (searchable by SKU or name)' })
-  @ApiQuery({ name: 'search', required: false, description: 'Search by SKU or name' })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Search by SKU or name',
+  })
   @ApiResponse({ status: 200, description: 'Returns all matching products.' })
   async findAll(@Query('search') search?: string) {
     return this.productsService.findAll(search);
@@ -41,7 +45,10 @@ export class ProductsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a product by ID' })
-  @ApiResponse({ status: 200, description: 'Returns the product with stock details.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the product with stock details.',
+  })
   @ApiResponse({ status: 404, description: 'Product not found.' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.findOne(id);

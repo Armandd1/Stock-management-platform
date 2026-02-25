@@ -5,13 +5,18 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useAuthStore, type Role } from '../../store/useAuthStore';
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
+type SidebarProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const Sidebar: React.FC<SidebarProps> = ({ className, ...props }) => {
   const { user } = useAuthStore();
   const { t } = useTranslation();
 
-  const navigation: { name: string; href: string; icon: any; allowedRoles?: Role[] }[] = [
+  const navigation: {
+    name: string;
+    href: string;
+    icon: React.ElementType;
+    allowedRoles?: Role[];
+  }[] = [
     { name: t('nav.dashboard'), href: '/', icon: LayoutDashboard },
     { name: t('nav.products'), href: '/products', icon: Package },
     { name: t('nav.warehouses'), href: '/warehouses', icon: Warehouse },

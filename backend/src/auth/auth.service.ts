@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, InternalServerErrorException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  InternalServerErrorException,
+  ConflictException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -87,9 +92,11 @@ export class AuthService {
 
   getGithubAuthUrl(): { url: string; state: string } {
     const clientId = this.configService.get<string>('GITHUB_CLIENT_ID');
-    
+
     if (!clientId) {
-      throw new InternalServerErrorException('GitHub OAuth is not properly configured on the server (Missing GITHUB_CLIENT_ID)');
+      throw new InternalServerErrorException(
+        'GitHub OAuth is not properly configured on the server (Missing GITHUB_CLIENT_ID)',
+      );
     }
 
     const callbackUrl =
@@ -99,7 +106,7 @@ export class AuthService {
     const state = crypto.randomBytes(16).toString('hex');
 
     const url = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=${scope}&state=${state}`;
-    
+
     return { url, state };
   }
 
@@ -108,7 +115,9 @@ export class AuthService {
     const clientSecret = this.configService.get<string>('GITHUB_CLIENT_SECRET');
 
     if (!clientId || !clientSecret) {
-      throw new InternalServerErrorException('GitHub OAuth is not properly configured on the server (Missing credentials)');
+      throw new InternalServerErrorException(
+        'GitHub OAuth is not properly configured on the server (Missing credentials)',
+      );
     }
 
     try {
@@ -174,7 +183,7 @@ export class AuthService {
 
       // 4. Find or create user
       let user = await this.prisma.user.findUnique({ where: { email } });
-      
+
       if (user && user.provider !== 'github') {
         throw new UnauthorizedException(
           'An account with this email already exists using password login. Please sign in with your email and password.',
@@ -243,4 +252,3 @@ export class AuthService {
     };
   }
 }
-

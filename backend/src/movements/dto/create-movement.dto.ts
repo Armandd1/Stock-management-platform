@@ -1,10 +1,4 @@
-import {
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  Min,
-} from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum MovementTypeEnum {
@@ -19,7 +13,10 @@ export class CreateMovementDto {
   @IsEnum(MovementTypeEnum)
   type: MovementTypeEnum;
 
-  @ApiProperty({ example: 10, description: 'Quantity to move (must be positive)' })
+  @ApiProperty({
+    example: 10,
+    description: 'Quantity to move (must be positive)',
+  })
   @IsNotEmpty()
   @IsInt()
   @Min(1)
@@ -30,12 +27,18 @@ export class CreateMovementDto {
   @IsInt()
   productId: number;
 
-  @ApiPropertyOptional({ example: 1, description: 'Source warehouse ID (required for OUT and TRANSFER)' })
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'Source warehouse ID (required for OUT and TRANSFER)',
+  })
   @IsOptional()
   @IsInt()
   fromWarehouseId?: number;
 
-  @ApiPropertyOptional({ example: 2, description: 'Destination warehouse ID (required for IN and TRANSFER)' })
+  @ApiPropertyOptional({
+    example: 2,
+    description: 'Destination warehouse ID (required for IN and TRANSFER)',
+  })
   @IsOptional()
   @IsInt()
   toWarehouseId?: number;

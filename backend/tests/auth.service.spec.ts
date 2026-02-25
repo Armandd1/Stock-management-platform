@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UnauthorizedException, InternalServerErrorException, ConflictException } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  InternalServerErrorException,
+  ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../src/auth/auth.service';
@@ -68,7 +72,10 @@ describe('AuthService', () => {
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await service.validateUser('admin@example.com', 'Admin123!');
+      const result = await service.validateUser(
+        'admin@example.com',
+        'Admin123!',
+      );
       expect(result).toEqual(mockUser);
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
         where: { email: 'admin@example.com' },
@@ -151,7 +158,8 @@ describe('AuthService', () => {
     it('should return url and state when GITHUB_CLIENT_ID is configured', () => {
       mockConfigService.get.mockImplementation((key: string) => {
         if (key === 'GITHUB_CLIENT_ID') return 'test-client-id';
-        if (key === 'GITHUB_CALLBACK_URL') return 'http://localhost:3000/api/v1/auth/github/callback';
+        if (key === 'GITHUB_CALLBACK_URL')
+          return 'http://localhost:3000/api/v1/auth/github/callback';
         return undefined;
       });
 
@@ -167,8 +175,12 @@ describe('AuthService', () => {
     it('should throw InternalServerErrorException when GITHUB_CLIENT_ID is missing', () => {
       mockConfigService.get.mockReturnValue(undefined);
 
-      expect(() => service.getGithubAuthUrl()).toThrow(InternalServerErrorException);
-      expect(() => service.getGithubAuthUrl()).toThrow('Missing GITHUB_CLIENT_ID');
+      expect(() => service.getGithubAuthUrl()).toThrow(
+        InternalServerErrorException,
+      );
+      expect(() => service.getGithubAuthUrl()).toThrow(
+        'Missing GITHUB_CLIENT_ID',
+      );
     });
   });
 
@@ -194,7 +206,9 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException if user not found', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.getProfile(999)).rejects.toThrow(UnauthorizedException);
+      await expect(service.getProfile(999)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -215,7 +229,11 @@ describe('AuthService', () => {
       (bcrypt.hash as jest.Mock).mockResolvedValue('$2a$10$hashedpassword');
       mockPrismaService.user.create.mockResolvedValue(newUser);
 
-      const result = await service.register('newuser@example.com', 'Password123!', 'New User');
+      const result = await service.register(
+        'newuser@example.com',
+        'Password123!',
+        'New User',
+      );
 
       expect(result).toEqual({
         access_token: 'mock-jwt-token',

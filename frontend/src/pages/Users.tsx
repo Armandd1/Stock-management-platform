@@ -55,8 +55,9 @@ export const Users: React.FC = () => {
       toast.success(t('users.toast.roleUpdated'));
       setIsModalOpen(false);
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || t('users.toast.failedUpdate'));
+    onError: (error) => {
+      const e = error as { response?: { data?: { message?: string } } };
+      toast.error(e.response?.data?.message || t('users.toast.failedUpdate'));
     },
   });
 
@@ -171,7 +172,7 @@ export const Users: React.FC = () => {
             <Select
               id="role"
               value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value as any)}
+              onChange={(e) => setSelectedRole(e.target.value as 'ADMIN' | 'MANAGER' | 'VIEWER')}
               className="w-full"
             >
               <option value="VIEWER">VIEWER</option>

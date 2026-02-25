@@ -9,6 +9,7 @@ export const AppLayout: React.FC = () => {
 
   // Close mobile menu on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
@@ -46,9 +47,8 @@ export const AppLayout: React.FC = () => {
             aria-hidden="true"
           />
           {/* Sidebar panel */}
-          <div
-            className="fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-200 ease-out"
-          >            <Sidebar className="h-full w-full" />
+          <div className="fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-200 ease-out">
+            <Sidebar className="h-full w-full" />
           </div>
         </div>
       )}

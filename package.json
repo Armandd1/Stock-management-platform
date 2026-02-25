@@ -1,0 +1,14 @@
+{
+  "name": "stock-management-platform",
+  "private": true,
+  "scripts": {
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && npx eslint \"{src,test}/**/*.ts\" --fix",
+    "lint:frontend": "cd frontend && npx eslint . --fix",
+    "format": "npx prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md,yml,yaml}\"",
+    "format:check": "npx prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md,yml,yaml}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  }
+}
