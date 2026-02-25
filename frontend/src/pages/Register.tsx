@@ -55,9 +55,13 @@ export const Register: React.FC = () => {
       toast.success(t('register.toast.success'));
       navigate('/');
     } catch (err) {
-      const e = err as { response?: { data?: { message?: string } } };
-      setError(e.response?.data?.message || t('register.toast.failed'));
-      toast.error(t('register.toast.failed'));
+      const e = err as { response?: { status?: number; data?: { message?: string } } };
+      const isConflict = e.response?.status === 409;
+      const fallback = isConflict ? t('register.toast.emailExists') : t('register.toast.failed');
+      const message = e.response?.data?.message || fallback;
+
+      setError(message);
+      toast.error(message);
     }
   };
 

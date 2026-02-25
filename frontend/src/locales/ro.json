@@ -227,6 +227,7 @@
     },
     "toast": {
       "success": "Cont creat cu succes",
+      "emailExists": "Această adresă de email este deja înregistrată.",
       "failed": "Înregistrarea a eșuat. Vă rugăm să verificați detaliile."
     }
   },

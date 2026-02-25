@@ -230,6 +230,7 @@
     },
     "toast": {
       "success": "Account created successfully",
+      "emailExists": "This email address is already registered.",
       "failed": "Registration failed. Please check your details."
     }
   },

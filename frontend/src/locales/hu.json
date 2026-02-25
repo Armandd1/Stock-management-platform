@@ -229,6 +229,7 @@
     },
     "toast": {
       "success": "A fiók sikeresen létrehozva",
+      "emailExists": "Ez az e-mail cím már regisztrálva van.",
       "failed": "A regisztráció sikertelen. Kérjük, ellenőrizd az adataidat."
     }
   },
