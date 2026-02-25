@@ -31,7 +31,7 @@ A full-stack inventory management system for tracking products, warehouses, and 
 │  ┌──────────────┐   ┌──────────────┐   ┌─────────────┐  │
 │  │   Frontend    │   │   Backend    │   │  PostgreSQL  │  │
 │  │  (React/Vite) │──▶│  (NestJS/   │──▶│   15-alpine  │  │
-│  │  :5173        │   │   Fastify)   │   │   :5432      │  │
+│  │  :5173        │   │   Fastify)   │   │   :5433      │  │
 │  │              │   │  :3000       │   │              │  │
 │  └──────────────┘   └──────────────┘   └─────────────┘  │
 │       SPA               REST API          Data Store     │
@@ -194,7 +194,7 @@ docker compose up --build
 
 This will:
 
-1. Start **PostgreSQL** (port `5432`) with a health check
+1. Start **PostgreSQL** (host port `5433`, container port `5432`) with a health check
 2. Build and start the **Backend** (port `3000`), running Prisma migrations and seeding the database automatically
 3. Build and start the **Frontend** (port `5173`)
 
@@ -235,7 +235,7 @@ Run all test commands from the **root directory**:
 Before running any **e2e** test command, start Docker services manually:
 
 ```bash
-docker compose up -d
+docker compose up --build
 ```
 
 ```bash
@@ -259,6 +259,7 @@ Notes:
 - Backend unit tests execute the `backend/tests/unit` suite.
 - `npm run test:e2e:backend` executes the `backend/tests/e2e` suite.
 - `npm run test:all` chains backend unit + backend e2e + frontend e2e; Docker must already be running for e2e steps.
+- Latest backend coverage summary is tracked in `backend/test-coverage.md`.
 
 ---
 

@@ -8,3 +8,4 @@ coverage
 pnpm-lock.yaml
 package-lock.json
 prisma/migrations
+backend/test_results.json

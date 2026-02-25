@@ -280,6 +280,11 @@
     "movementCount": "Műveletek száma",
     "product": "Termék",
     "volume": "Volumen",
-    "allTime": "Összes időszak"
+    "allTime": "Összes időszak",
+    "expandAll": "Összes kinyitása",
+    "collapseAll": "Összes összecsukása",
+    "warehousesCount": "raktár",
+    "skuRows": "SKU sor",
+    "productsCount": "termék"
   }
 }

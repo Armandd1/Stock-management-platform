@@ -281,6 +281,11 @@
     "movementCount": "Operations",
     "product": "Product",
     "volume": "Volume",
-    "allTime": "All Time"
+    "allTime": "All Time",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "warehousesCount": "warehouses",
+    "skuRows": "SKU rows",
+    "productsCount": "products"
   }
 }

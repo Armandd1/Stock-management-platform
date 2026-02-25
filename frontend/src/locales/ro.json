@@ -278,6 +278,11 @@
     "movementCount": "Operațiuni",
     "product": "Produs",
     "volume": "Volum",
-    "allTime": "Toate timpurile"
+    "allTime": "Toate timpurile",
+    "expandAll": "Extinde tot",
+    "collapseAll": "Restrânge tot",
+    "warehousesCount": "depozite",
+    "skuRows": "rânduri SKU",
+    "productsCount": "produse"
   }
 }

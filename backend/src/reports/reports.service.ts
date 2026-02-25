@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -61,11 +62,12 @@ export class ReportsService {
   }
 
   async getMovementSummary(startDate?: string, endDate?: string) {
-    const where: any = {};
+    const where: Prisma.StockMovementWhereInput = {};
     if (startDate || endDate) {
-      where.date = {};
-      if (startDate) where.date.gte = new Date(startDate);
-      if (endDate) where.date.lte = new Date(endDate);
+      const date: Prisma.DateTimeFilter = {};
+      if (startDate) date.gte = new Date(startDate);
+      if (endDate) date.lte = new Date(endDate);
+      where.date = date;
     }
 
     const movements = await this.prisma.stockMovement.groupBy({
@@ -87,11 +89,12 @@ export class ReportsService {
   }
 
   async getTopMovedProducts(limit = 10, startDate?: string, endDate?: string) {
-    const where: any = {};
+    const where: Prisma.StockMovementWhereInput = {};
     if (startDate || endDate) {
-      where.date = {};
-      if (startDate) where.date.gte = new Date(startDate);
-      if (endDate) where.date.lte = new Date(endDate);
+      const date: Prisma.DateTimeFilter = {};
+      if (startDate) date.gte = new Date(startDate);
+      if (endDate) date.lte = new Date(endDate);
+      where.date = date;
     }
 
     const movements = await this.prisma.stockMovement.groupBy({

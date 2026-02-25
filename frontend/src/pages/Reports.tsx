@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { BarChart3, TrendingUp, Calendar as CalendarIcon, Filter, Warehouse } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  BarChart3,
+  TrendingUp,
+  Calendar as CalendarIcon,
+  Filter,
+  Warehouse,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react';
 import { api } from '../services/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import {
@@ -39,8 +48,10 @@ interface TopMovedProduct {
 
 export const Reports: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [expandedWarehouseIds, setExpandedWarehouseIds] = useState<number[]>([]);
 
   const { data: stockOnHand, isLoading: loadingStock } = useQuery({
     queryKey: ['reports', 'stock-on-hand'],
@@ -79,6 +90,23 @@ export const Reports: React.FC = () => {
     refetchMovement();
     refetchTop();
   };
+
+  const toggleWarehouse = (warehouseId: number) => {
+    setExpandedWarehouseIds((prev) =>
+      prev.includes(warehouseId) ? prev.filter((id) => id !== warehouseId) : [...prev, warehouseId],
+    );
+  };
+
+  const expandAll = () => {
+    setExpandedWarehouseIds(stockOnHand?.map((group) => group.warehouse.id) || []);
+  };
+
+  const collapseAll = () => {
+    setExpandedWarehouseIds([]);
+  };
+
+  const totalWarehouses = stockOnHand?.length ?? 0;
+  const totalSkuRows = stockOnHand?.reduce((sum, group) => sum + group.items.length, 0) ?? 0;
 
   return (
     <div className="space-y-6 pb-12">
@@ -218,13 +246,41 @@ export const Reports: React.FC = () => {
               </div>
             ) : stockOnHand && stockOnHand.length > 0 ? (
               <div className="space-y-6">
+                <div className="flex flex-col gap-3 rounded-lg border border-border/70 bg-muted/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="rounded-full border border-border bg-background px-3 py-1 font-medium text-foreground">
+                      {totalWarehouses} {t('reports.warehousesCount')}
+                    </span>
+                    <span className="rounded-full border border-border bg-background px-3 py-1 font-medium text-foreground">
+                      {totalSkuRows} {t('reports.skuRows')}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={expandAll}>
+                      {t('reports.expandAll')}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={collapseAll}>
+                      {t('reports.collapseAll')}
+                    </Button>
+                  </div>
+                </div>
+
                 {stockOnHand.map((group) => (
                   <div
                     key={group.warehouse.id}
                     className="border rounded-lg overflow-hidden border-border/80"
                   >
-                    <div className="bg-muted/80 px-4 py-3 flex justify-between items-center border-b border-border/80">
-                      <div>
+                    <button
+                      type="button"
+                      className="w-full bg-muted/80 px-4 py-3 flex justify-between items-center border-b border-border/80 text-left hover:bg-muted"
+                      onClick={() => toggleWarehouse(group.warehouse.id)}
+                    >
+                      <div className="flex items-center gap-3">
+                        {expandedWarehouseIds.includes(group.warehouse.id) ? (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        )}
                         <span className="font-bold text-lg text-foreground">
                           {group.warehouse.name}
                         </span>
@@ -234,30 +290,69 @@ export const Reports: React.FC = () => {
                           </span>
                         )}
                       </div>
-                      <div className="text-sm font-medium text-muted-foreground bg-background px-3 py-1 rounded-md border border-border">
-                        {group.totalItems} {t('dashboard.totalItems')}
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-muted-foreground bg-background px-3 py-1 rounded-md border border-border">
+                          {group.items.length} {t('reports.productsCount')}
+                        </span>
+                        <span className="text-sm font-medium text-muted-foreground bg-background px-3 py-1 rounded-md border border-border">
+                          {group.totalItems} {t('dashboard.totalItems')}
+                        </span>
                       </div>
-                    </div>
-                    <Table>
-                      <TableBody>
-                        {group.items.map((item) => (
-                          <TableRow
-                            key={item.product.id}
-                            className="hover:bg-muted/30 border-b last:border-0"
-                          >
-                            <TableCell className="w-1/3">
-                              <div className="font-medium text-foreground">{item.product.name}</div>
-                              <div className="text-xs font-mono text-muted-foreground">
-                                {item.product.sku}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right font-bold text-foreground">
-                              {item.quantity}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                    </button>
+
+                    {expandedWarehouseIds.includes(group.warehouse.id) ? (
+                      <Table>
+                        <TableBody>
+                          {group.items.map((item) => (
+                            <TableRow
+                              key={item.product.id}
+                              className="hover:bg-muted/30 border-b last:border-0 cursor-pointer"
+                              onClick={() =>
+                                navigate('/products', {
+                                  state: { viewProductId: item.product.id },
+                                })
+                              }
+                            >
+                              <TableCell className="w-1/3">
+                                <div className="font-medium text-foreground">
+                                  {item.product.name}
+                                </div>
+                                <div className="text-xs font-mono text-muted-foreground">
+                                  {item.product.sku}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right font-bold text-foreground">
+                                {item.quantity}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-muted-foreground bg-background">
+                        <div className="flex flex-wrap gap-2">
+                          {group.items.slice(0, 3).map((item) => (
+                            <button
+                              key={item.product.id}
+                              type="button"
+                              className="rounded-full border border-border bg-muted/30 px-2.5 py-1 hover:bg-muted/60"
+                              onClick={() =>
+                                navigate('/products', {
+                                  state: { viewProductId: item.product.id },
+                                })
+                              }
+                            >
+                              {item.product.name} · {item.quantity}
+                            </button>
+                          ))}
+                          {group.items.length > 3 && (
+                            <span className="rounded-full border border-border bg-muted/30 px-2.5 py-1">
+                              +{group.items.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
