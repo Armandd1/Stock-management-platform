@@ -42,8 +42,9 @@ export const Login: React.FC = () => {
       await checkAuth(); // Hydrates user state from API
       toast.success(t('login.toast.success'));
       navigate('/');
-    } catch (err: any) {
-      setError(err.response?.data?.message || t('login.toast.invalid'));
+    } catch (err) {
+      const e = err as { response?: { data?: { message?: string } } };
+      setError(e.response?.data?.message || t('login.toast.invalid'));
       toast.error(t('login.toast.failed'));
     }
   };

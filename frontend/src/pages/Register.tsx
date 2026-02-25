@@ -53,8 +53,9 @@ export const Register: React.FC = () => {
       await checkAuth(); // Hydrates user state from API
       toast.success(t('register.toast.success'));
       navigate('/');
-    } catch (err: any) {
-      setError(err.response?.data?.message || t('register.toast.failed'));
+    } catch (err) {
+      const e = err as { response?: { data?: { message?: string } } };
+      setError(e.response?.data?.message || t('register.toast.failed'));
       toast.error(t('register.toast.failed'));
     }
   };

@@ -93,6 +93,7 @@ export const Products: React.FC = () => {
     reset,
     formState: { errors },
   } = useForm<ProductFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(productSchema) as any,
   });
 
@@ -125,8 +126,9 @@ export const Products: React.FC = () => {
       toast.success(editingProduct ? t('products.toast.updated') : t('products.toast.created'));
       setIsModalOpen(false);
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || t('products.toast.failedSave'));
+    onError: (error) => {
+      const e = error as { response?: { data?: { message?: string } } };
+      toast.error(e.response?.data?.message || t('products.toast.failedSave'));
     },
   });
 

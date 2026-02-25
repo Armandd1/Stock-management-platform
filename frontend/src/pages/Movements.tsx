@@ -117,7 +117,7 @@ export const Movements: React.FC = () => {
   const { data: movements, isLoading } = useQuery({
     queryKey: ['movements', filterType, filterWarehouse, filterProduct],
     queryFn: async () => {
-      const params: any = {};
+      const params: Record<string, string | number> = {};
       if (filterType !== 'ALL') params.type = filterType;
       if (filterWarehouse !== 'ALL') params.warehouseId = filterWarehouse;
       if (filterProduct !== 'ALL') params.productId = filterProduct;
@@ -142,10 +142,14 @@ export const Movements: React.FC = () => {
     reset,
     formState: { errors },
   } = useForm<MovementFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(movementSchema) as any,
     defaultValues: { type: 'IN', quantity: 1 },
   });
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore react compiler hook behavior
+  // eslint-disable-next-line react-hooks/incompatible-library
   const selectedType = watch('type');
 
   const openCreateModal = () => {
@@ -161,8 +165,9 @@ export const Movements: React.FC = () => {
       toast.success(t('movements.toast.recorded'));
       setIsModalOpen(false);
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || t('movements.toast.failedRecord'));
+    onError: (error) => {
+      const e = error as { response?: { data?: { message?: string } } };
+      toast.error(e.response?.data?.message || t('movements.toast.failedRecord'));
     },
   });
 

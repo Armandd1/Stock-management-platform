@@ -116,8 +116,9 @@ export const Warehouses: React.FC = () => {
       );
       setIsModalOpen(false);
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || t('warehouses.toast.failedSave'));
+    onError: (error) => {
+      const e = error as { response?: { data?: { message?: string } } };
+      toast.error(e.response?.data?.message || t('warehouses.toast.failedSave'));
     },
   });
 
