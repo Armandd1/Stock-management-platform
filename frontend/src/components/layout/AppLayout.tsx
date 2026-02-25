@@ -48,7 +48,6 @@ export const AppLayout: React.FC = () => {
           />
           {/* Sidebar panel */}
           <div className="fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-200 ease-out">
-            {' '}
             <Sidebar className="h-full w-full" />
           </div>
         </div>
