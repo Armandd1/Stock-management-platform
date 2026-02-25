@@ -1,0 +1,226 @@
+{
+  "nav": {
+    "dashboard": "Tablou de bord",
+    "products": "Produse",
+    "warehouses": "Depozite",
+    "movements": "Mișcări stoc",
+    "users": "Utilizatori",
+    "logout": "Deconectare"
+  },
+  "common": {
+    "loading": "Se încarcă...",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "actions": "Acțiuni",
+    "search": "Căutare...",
+    "loadingProducts": "Se încarcă produsele...",
+    "loadingWarehouses": "Se încarcă depozitele...",
+    "loadingRecords": "Se încarcă înregistrările...",
+    "loadingDetails": "Se încarcă detaliile...",
+    "failedLoadProducts": "Încărcarea produselor a eșuat.",
+    "failedLoadWarehouses": "Încărcarea depozitelor a eșuat.",
+    "failedLoadRecords": "Încărcarea înregistrărilor a eșuat.",
+    "failedLoadDetails": "Încărcarea detaliilor a eșuat.",
+    "noProductsFound": "Niciun produs găsit",
+    "noProductsDesc": "Ajustați căutarea sau adăugați un produs nou.",
+    "noWarehousesFound": "Niciun depozit configurat",
+    "noWarehousesDesc": "Faceți clic pe 'Adaugă Depozit' pentru a începe.",
+    "noMovementsFound": "Nu s-au găsit mișcări",
+    "noMovementsDesc": "Modificați filtrele sau înregistrați o nouă mișcare de stoc.",
+    "noStockData": "Nu există date de stoc",
+    "noAlerts": "Nu există alerte active",
+    "noStockRecorded": "Niciun stoc înregistrat.",
+    "loadingUsers": "Se încarcă utilizatorii...",
+    "failedLoadUsers": "Încărcarea utilizatorilor a eșuat.",
+    "close": "Închide",
+    "confirmDelete": "Sunteți sigur că doriți să ștergeți acest produs?",
+    "confirmDeleteWh": "Ștergeți acest depozit? Acțiunea este ireversibilă."
+  },
+  "dashboard": {
+    "title": "Tablou de bord",
+    "subtitle": "Prezentare generală a inventarului și activităților.",
+    "totalProducts": "Total Produse",
+    "totalWarehouses": "Total Depozite",
+    "totalItemsInStock": "Total Articole în Stoc",
+    "stockByWarehouse": "Stoc după Depozit",
+    "stockByWarehouseDesc": "Prezentarea generală a distribuției inventarului",
+    "warehouse": "Depozit",
+    "location": "Locație",
+    "totalItems": "Total Articole",
+    "lowStock": "Alerte de Stoc Scăzut",
+    "lowStockDesc": "Primele 10 produse cu cel mai mic inventar",
+    "product": "Produs",
+    "qty": "Cantitate",
+    "noLowStock": "Toate produsele au stoc suficient!"
+  },
+  "products": {
+    "title": "Produse",
+    "subtitle": "Gestionați catalogul de produse și vizualizați inventarul.",
+    "add": "Adaugă Produs",
+    "addTitle": "Înregistrează Produs Nou",
+    "editTitle": "Editează Produsul",
+    "detailsTitle": "Detalii Stoc Produs",
+    "searchPlaceholder": "Căutare după SKU sau nume...",
+    "sku": "SKU",
+    "name": "Nume Produs",
+    "tableName": "Nume",
+    "price": "Preț",
+    "description": "Descriere (Opțional)",
+    "descriptionPlaceholder": "Adăugați detalii...",
+    "saveProduct": "Salvează Produs",
+    "saving": "Așteptați...",
+    "skuPlaceholder": "ex. WH-123",
+    "namePlaceholder": "Introduceți numele produsului...",
+    "pricePlaceholder": "0.00",
+    "stockLevel": "Nivel Stoc",
+    "validation": {
+      "skuMin": "SKU trebuie să aibă cel puțin 3 caractere.",
+      "nameMin": "Numele trebuie să aibă cel puțin 2 caractere.",
+      "priceMin": "Prețul trebuie să fie pozitiv."
+    },
+    "toast": {
+      "created": "Produs creat cu succes",
+      "updated": "Produs actualizat cu succes",
+      "failedSave": "Salvarea produsului a eșuat",
+      "deleted": "Produs șters",
+      "failedDelete": "Ștergerea produsului a eșuat"
+    }
+  },
+  "warehouses": {
+    "title": "Depozite",
+    "subtitle": "Gestionați locațiile de depozitare și facilitățile.",
+    "detailsTitle": "Detalii Depozit",
+    "noStock": "Niciun produs în stoc în acest depozit",
+    "add": "Adaugă Depozit",
+    "addTitle": "Înregistrează Depozit",
+    "editTitle": "Editează Depozit",
+    "name": "Nume Depozit",
+    "namePlaceholder": "ex. Hub Central",
+    "location": "Locație Fizică (Opțional)",
+    "locationPlaceholder": "ex. Str. Depozitului nr. 1, Oraș",
+    "locationDetails": "Detalii Locație",
+    "saveWarehouse": "Salvează Depozit",
+    "noLocation": "Nicio locație specificată",
+    "validation": {
+      "nameMin": "Numele trebuie să aibă cel puțin 2 caractere."
+    },
+    "toast": {
+      "created": "Depozit creat cu succes",
+      "updated": "Depozit actualizat cu succes",
+      "failedSave": "Salvarea depozitului a eșuat",
+      "deleted": "Depozit șters",
+      "failedDelete": "Ștergerea depozitului a eșuat"
+    }
+  },
+  "movements": {
+    "title": "Mișcări Stoc",
+    "subtitle": "Urmăriți și gestionați fluxul de inventar pe depozite.",
+    "record": "Înregistrează Mișcare",
+    "recordTitle": "Înregistrează Mișcare de Stoc",
+    "type": "Tip",
+    "transactionType": "Tip Tranzacție",
+    "date": "Data",
+    "product": "Produs",
+    "quantity": "Cantitate",
+    "source": "Sursă",
+    "destination": "Destinație",
+    "user": "Utilizator",
+    "allTypes": "Toate Tipurile",
+    "allWarehouses": "Toate Depozitele",
+    "allProducts": "Toate Produsele",
+    "in": "INTRARE (Recepție)",
+    "out": "IEȘIRE (Livrare/Utilizare)",
+    "transfer": "TRANSFER",
+    "receivingIn": "Recepție (IN)",
+    "shippingUsage": "Livrare/Utilizare (OUT)",
+    "interWarehouse": "Transfer între depozite (TRANSFER)",
+    "fromWarehouse": "Depozit Sursă",
+    "toWarehouse": "Depozit Destinație",
+    "selectProduct": "Selectați un produs...",
+    "selectSource": "Selectați sursa...",
+    "selectDestination": "Selectați destinația...",
+    "confirmMovement": "Confirmă Mișcarea",
+    "processing": "Așteptați...",
+    "validation": {
+      "productRequired": "Produsul este obligatoriu",
+      "qtyMin": "Cantitatea trebuie să fie mai mare ca 0",
+      "destRequired": "Depozitul destinație este obligatoriu",
+      "sourceRequired": "Depozitul sursă este obligatoriu",
+      "differentRequired": "Trebuie să fie depozite diferite",
+      "sourceValid": "Sursa este obligatorie",
+      "destValid": "Destinația este obligatorie"
+    },
+    "toast": {
+      "recorded": "Mișcare înregistrată cu succes",
+      "failedRecord": "Înregistrarea mișcării a eșuat"
+    }
+  },
+  "login": {
+    "welcome": "Bine ai revenit",
+    "subtitle": "Introduceți credențialele pentru a accesa contul",
+    "emailLabel": "Adresă de Email",
+    "emailPlaceholder": "nume@companie.ro",
+    "passwordLabel": "Parolă",
+    "passwordPlaceholder": "Introduceți parola",
+    "submit": "Autentificare",
+    "submitting": "Se autentifică...",
+    "orContinue": "Sau continuați cu",
+    "toast": {
+      "success": "Autentificat cu succes",
+      "invalid": "Credențiale invalide",
+      "failed": "Autentificarea a eșuat. Vă rugăm să încercați din nou."
+    },
+    "noAccount": "Nu aveți un cont?",
+    "createAccount": "Creați un cont"
+  },
+  "register": {
+    "title": "Creați un cont",
+    "subtitle": "Introduceți detaliile pentru a vă înregistra",
+    "nameLabel": "Numele Complet",
+    "namePlaceholder": "Ion Popescu",
+    "passwordPlaceholder": "Creați o parolă (min 6 caractere)",
+    "confirmPasswordLabel": "Confirmă Parola",
+    "confirmPasswordPlaceholder": "Reintroduceți parola",
+    "submit": "Creați Cont",
+    "submitting": "Se creează contul...",
+    "haveAccount": "Aveți deja un cont?",
+    "loginLink": "Autentificare",
+    "validation": {
+      "name": "Numele trebuie să conțină cel puțin 2 caractere",
+      "email": "Adresă de email invalidă",
+      "password": "Parola trebuie să conțină cel puțin 6 caractere",
+      "passwordsMatch": "Parolele nu se potrivesc"
+    },
+    "toast": {
+      "success": "Cont creat cu succes",
+      "failed": "Înregistrarea a eșuat. Vă rugăm să verificați detaliile."
+    }
+  },
+  "auth": {
+    "toast": {
+      "success": "Autentificat cu succes",
+      "failed": "Autentificarea a eșuat",
+      "invalid": "Email sau parolă invalidă",
+      "githubSuccess": "Autentificat cu succes folosind GitHub",
+      "githubFailed": "Autentificarea GitHub a eșuat"
+    },
+    "completing": "Finalizare autentificare..."
+  },
+  "users": {
+    "title": "Gestionare Utilizatori",
+    "subtitle": "Gestionați accesul personalului și rolurile de sistem",
+    "noUsersFound": "Niciun utilizator găsit",
+    "name": "Nume",
+    "email": "Email",
+    "role": "Rol",
+    "you": "Tu",
+    "changeRole": "Schimbă Rolul",
+    "editRoleTitle": "Editează Rolul Utilizatorului",
+    "selectRole": "Selectați Rolul",
+    "adminWarning": "Avertisment: Atribuirea rolului ADMIN oferă acces complet la sistem, inclusiv posibilitatea de a șterge date și a schimba rolurile altor utilizatori.",
+    "toast": {
+      "roleUpdated": "Rol utilizator actualizat cu succes",
+      "failedUpdate": "Actualizarea rolului a eșuat"
+    }
+  }
+}

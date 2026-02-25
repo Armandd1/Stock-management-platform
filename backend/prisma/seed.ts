@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import pino from 'pino';
+import * as fs from 'fs';
 
 const logger = pino({
   transport: {
@@ -32,6 +33,7 @@ async function main() {
       email: 'admin@example.com',
       password: adminPassword,
       role: 'ADMIN',
+      name: 'System Administrator',
     },
   });
 
@@ -42,6 +44,7 @@ async function main() {
       email: 'manager@example.com',
       password: managerPassword,
       role: 'MANAGER',
+      name: 'Inventory Manager',
     },
   });
 
@@ -52,6 +55,7 @@ async function main() {
       email: 'viewer@example.com',
       password: viewerPassword,
       role: 'VIEWER',
+      name: 'Guest Viewer',
     },
   });
 
@@ -122,12 +126,61 @@ async function main() {
   }
 
   logger.info(`  Products: ${products.length} products with stock in both warehouses`);
+
+  // --- Stock Movements ---
+  // Clean up old generated movements first to avoid inflating
+  await prisma.stockMovement.deleteMany({});
+  
+  const allProducts = await prisma.product.findMany();
+  
+  if (allProducts.length >= 2) {
+    const p1 = allProducts[0];
+    const p2 = allProducts[1];
+
+    await prisma.stockMovement.create({
+      data: {
+        type: 'IN',
+        quantity: 50,
+        productId: p1.id,
+        toWarehouseId: warehouse1.id,
+        createdById: admin.id,
+        date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      }
+    });
+
+    await prisma.stockMovement.create({
+      data: {
+        type: 'TRANSFER',
+        quantity: 10,
+        productId: p1.id,
+        fromWarehouseId: warehouse1.id,
+        toWarehouseId: warehouse2.id,
+        createdById: manager.id,
+        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+      }
+    });
+
+    await prisma.stockMovement.create({
+      data: {
+        type: 'OUT',
+        quantity: 5,
+        productId: p2.id,
+        fromWarehouseId: warehouse2.id,
+        createdById: admin.id,
+        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+      }
+    });
+
+    logger.info(`  Stock Movements: Added 3 sample historical movements`);
+  }
+
   logger.info('✅ Seeding complete!');
 }
 
 main()
   .catch((e) => {
-    logger.error('Seeding error: ', e);
+    fs.writeFileSync('seed-error.json', JSON.stringify({ message: e.message, name: e.name, code: e.code, meta: e.meta }, null, 2));
+    logger.error({ err: e }, 'Seeding error: ');
     process.exit(1);
   })
   .finally(async () => {

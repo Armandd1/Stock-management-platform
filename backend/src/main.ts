@@ -36,7 +36,11 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   // Enable CORS
-  app.enableCors();
+  const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+  app.enableCors({
+    origin: [frontendUrl, 'http://localhost:3000'],
+    credentials: true,
+  });
 
   // Global Validation Pipe (class-validator)
   app.useGlobalPipes(

@@ -1,0 +1,229 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "warehouses": "Warehouses",
+    "movements": "Movements",
+    "users": "Users",
+    "logout": "Logout"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "actions": "Actions",
+    "search": "Search...",
+    "loadingProducts": "Loading products...",
+    "loadingWarehouses": "Loading warehouses...",
+    "loadingRecords": "Loading records...",
+    "loadingDetails": "Loading details...",
+    "failedLoadProducts": "Failed to load products.",
+    "failedLoadWarehouses": "Failed to load warehouses.",
+    "failedLoadRecords": "Failed to load records.",
+    "failedLoadDetails": "Failed to load details.",
+    "noProductsFound": "No products found",
+    "noProductsDesc": "Adjust your search or add a new product.",
+    "noWarehousesFound": "No warehouses configured",
+    "noWarehousesDesc": "Click 'Add Warehouse' to get started.",
+    "noMovementsFound": "No movements found",
+    "noMovementsDesc": "Change filters or record a new stock movement.",
+    "noStockData": "No stock data available",
+    "noAlerts": "No alerts available",
+    "noStockRecorded": "No stock recorded.",
+    "loadingUsers": "Loading users...",
+    "failedLoadUsers": "Failed to load users.",
+    "close": "Close",
+    "confirmDelete": "Are you sure you want to delete this product?",
+    "confirmDeleteWh": "Delete this warehouse? Action is irreversible."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Overview of your inventory and activities.",
+    "totalProducts": "Total Products",
+    "totalWarehouses": "Total Warehouses",
+    "totalItemsInStock": "Total Items in Stock",
+    "stockByWarehouse": "Stock by Warehouse",
+    "stockByWarehouseDesc": "Overview of inventory distribution",
+    "warehouse": "Warehouse",
+    "location": "Location",
+    "totalItems": "Total Items",
+    "lowStock": "Low Stock Alerts",
+    "lowStockDesc": "Top 10 products with lowest inventory",
+    "product": "Product",
+    "qty": "Qty",
+    "noLowStock": "All products are well stocked!"
+  },
+  "products": {
+    "title": "Products",
+    "subtitle": "Manage your product catalog and view inventory.",
+    "add": "Add Product",
+    "addTitle": "Add New Product",
+    "editTitle": "Edit Product",
+    "detailsTitle": "Product Stock Details",
+    "searchPlaceholder": "Search by SKU or name...",
+    "sku": "SKU",
+    "name": "Product Name",
+    "tableName": "Name",
+    "price": "Price",
+    "description": "Description (Optional)",
+    "descriptionPlaceholder": "Add details...",
+    "saveProduct": "Save Product",
+    "saving": "Saving...",
+    "skuPlaceholder": "e.g. WH-123",
+    "namePlaceholder": "Enter product name...",
+    "pricePlaceholder": "0.00",
+    "stockLevel": "Stock Level",
+    "validation": {
+      "skuMin": "SKU must be at least 3 characters",
+      "nameMin": "Name must be at least 2 characters",
+      "priceMin": "Price must be positive"
+    },
+    "toast": {
+      "created": "Product successfully created",
+      "updated": "Product successfully updated",
+      "failedSave": "Failed to save product",
+      "deleted": "Product deleted",
+      "failedDelete": "Failed to delete product"
+    }
+  },
+  "warehouses": {
+    "title": "Warehouses",
+    "subtitle": "Manage your storage locations and facilities.",
+    "detailsTitle": "Warehouse Details",
+    "noStock": "No items in stock at this warehouse",
+    "add": "Add Warehouse",
+    "addTitle": "Register Warehouse",
+    "editTitle": "Edit Warehouse",
+    "name": "Warehouse Name",
+    "namePlaceholder": "e.g. Main Hub",
+    "location": "Physical Location (Optional)",
+    "locationPlaceholder": "e.g. 123 Storage Lane, City",
+    "locationDetails": "Location Details",
+    "saveWarehouse": "Save Warehouse",
+    "noLocation": "No location specified",
+    "validation": {
+      "nameMin": "Name must be at least 2 characters"
+    },
+    "toast": {
+      "created": "Warehouse successfully created",
+      "updated": "Warehouse successfully updated",
+      "failedSave": "Failed to save warehouse",
+      "deleted": "Warehouse deleted",
+      "failedDelete": "Failed to delete warehouse"
+    }
+  },
+  "movements": {
+    "title": "Stock Movements",
+    "subtitle": "Track and manage inventory flow across warehouses.",
+    "record": "Record Movement",
+    "recordTitle": "Record Stock Movement",
+    "type": "Type",
+    "transactionType": "Transaction Type",
+    "date": "Date",
+    "product": "Product",
+    "quantity": "Quantity",
+    "source": "Source",
+    "destination": "Destination",
+    "user": "User",
+    "allTypes": "All Types",
+    "allWarehouses": "All Warehouses",
+    "allProducts": "All Products",
+    "in": "IN (Receiving)",
+    "out": "OUT (Shipping)",
+    "transfer": "TRANSFER",
+    "receivingIn": "Receiving (IN)",
+    "shippingUsage": "Shipping/Usage (OUT)",
+    "interWarehouse": "Inter-warehouse (TRANSFER)",
+    "fromWarehouse": "From Warehouse",
+    "toWarehouse": "To Warehouse",
+    "selectProduct": "Select a product...",
+    "selectSource": "Select source...",
+    "selectDestination": "Select destination...",
+    "confirmMovement": "Confirm Movement",
+    "processing": "Processing...",
+    "validation": {
+      "productRequired": "Product is required",
+      "qtyMin": "Quantity must be greater than 0",
+      "destRequired": "Destination warehouse required",
+      "sourceRequired": "Source warehouse required",
+      "differentRequired": "Must be different warehouses",
+      "sourceValid": "Source required",
+      "destValid": "Destination required"
+    },
+    "toast": {
+      "recorded": "Movement recorded successfully",
+      "failedRecord": "Failed to record movement"
+    }
+  },
+  "login": {
+    "welcome": "Welcome back",
+    "subtitle": "Enter your credentials to access your account",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "name@company.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "orContinue": "Or continue with",
+    "invalidEmail": "Invalid email address",
+    "passwordRequired": "Password is required",
+    "toast": {
+      "success": "Logged in successfully",
+      "invalid": "Invalid credentials",
+      "failed": "Login failed. Please try again."
+    },
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create an account",
+    "completing": "Completing authentication..."
+  },
+  "register": {
+    "title": "Create an account",
+    "subtitle": "Enter your details to register",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "John Doe",
+    "passwordPlaceholder": "Create a password (min 6 chars)",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "submit": "Create Account",
+    "submitting": "Creating Account...",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Sign in",
+    "validation": {
+      "name": "Name must be at least 2 characters",
+      "email": "Invalid email address",
+      "password": "Password must be at least 6 characters",
+      "passwordsMatch": "Passwords do not match"
+    },
+    "toast": {
+      "success": "Account created successfully",
+      "failed": "Registration failed. Please check your details."
+    }
+  },
+  "auth": {
+    "toast": {
+      "success": "Successfully logged in",
+      "failed": "Login failed",
+      "invalid": "Invalid email or password",
+      "githubSuccess": "Successfully logged in with GitHub",
+      "githubFailed": "GitHub authentication failed"
+    },
+    "completing": "Completing authentication..."
+  },
+  "users": {
+    "title": "User Management",
+    "subtitle": "Manage staff access and assign system roles",
+    "noUsersFound": "No users found",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "you": "You",
+    "changeRole": "Change Role",
+    "editRoleTitle": "Edit User Role",
+    "selectRole": "Select Role",
+    "adminWarning": "Warning: Assigning the ADMIN role gives full access to the system, including deleting data and changing other users' roles.",
+    "toast": {
+      "roleUpdated": "User role successfully updated",
+      "failedUpdate": "Failed to update user role"
+    }
+  }
+}
