@@ -78,11 +78,36 @@ async function main() {
 
   // --- Products ---
   const products = [
-    { sku: 'PROD-001', name: 'Laptop Pro 15',       description: 'High performance laptop',      price: 1299.99 },
-    { sku: 'PROD-002', name: 'Wireless Mouse',      description: 'Ergonomic wireless mouse',     price: 49.99 },
-    { sku: 'PROD-003', name: 'Mechanical Keyboard',  description: 'Cherry MX Blue switches',      price: 109.99 },
-    { sku: 'PROD-004', name: '27" 4K Monitor',      description: 'Ultra HD IPS display',         price: 349.99 },
-    { sku: 'PROD-005', name: 'USB-C Docking Station', description: '10-in-1 hub',                 price: 89.99 },
+    {
+      sku: 'PROD-001',
+      name: 'Laptop Pro 15',
+      description: 'High performance laptop',
+      price: 1299.99,
+    },
+    {
+      sku: 'PROD-002',
+      name: 'Wireless Mouse',
+      description: 'Ergonomic wireless mouse',
+      price: 49.99,
+    },
+    {
+      sku: 'PROD-003',
+      name: 'Mechanical Keyboard',
+      description: 'Cherry MX Blue switches',
+      price: 109.99,
+    },
+    {
+      sku: 'PROD-004',
+      name: '27" 4K Monitor',
+      description: 'Ultra HD IPS display',
+      price: 349.99,
+    },
+    {
+      sku: 'PROD-005',
+      name: 'USB-C Docking Station',
+      description: '10-in-1 hub',
+      price: 89.99,
+    },
   ];
 
   for (const p of products) {
@@ -125,14 +150,16 @@ async function main() {
     });
   }
 
-  logger.info(`  Products: ${products.length} products with stock in both warehouses`);
+  logger.info(
+    `  Products: ${products.length} products with stock in both warehouses`,
+  );
 
   // --- Stock Movements ---
   // Clean up old generated movements first to avoid inflating
   await prisma.stockMovement.deleteMany({});
-  
+
   const allProducts = await prisma.product.findMany();
-  
+
   if (allProducts.length >= 2) {
     const p1 = allProducts[0];
     const p2 = allProducts[1];
@@ -145,7 +172,7 @@ async function main() {
         toWarehouseId: warehouse1.id,
         createdById: admin.id,
         date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-      }
+      },
     });
 
     await prisma.stockMovement.create({
@@ -157,7 +184,7 @@ async function main() {
         toWarehouseId: warehouse2.id,
         createdById: manager.id,
         date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-      }
+      },
     });
 
     await prisma.stockMovement.create({
@@ -168,7 +195,7 @@ async function main() {
         fromWarehouseId: warehouse2.id,
         createdById: admin.id,
         date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-      }
+      },
     });
 
     logger.info(`  Stock Movements: Added 3 sample historical movements`);
@@ -179,7 +206,14 @@ async function main() {
 
 main()
   .catch((e) => {
-    fs.writeFileSync('seed-error.json', JSON.stringify({ message: e.message, name: e.name, code: e.code, meta: e.meta }, null, 2));
+    fs.writeFileSync(
+      'seed-error.json',
+      JSON.stringify(
+        { message: e.message, name: e.name, code: e.code, meta: e.meta },
+        null,
+        2,
+      ),
+    );
     logger.error({ err: e }, 'Seeding error: ');
     process.exit(1);
   })

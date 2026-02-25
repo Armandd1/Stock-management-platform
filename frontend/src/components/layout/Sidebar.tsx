@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useAuthStore, type Role } from '../../store/useAuthStore';
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
+type SidebarProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const Sidebar: React.FC<SidebarProps> = ({ className, ...props }) => {
   const { user } = useAuthStore();

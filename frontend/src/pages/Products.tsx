@@ -59,8 +59,9 @@ export const Products: React.FC = () => {
   const [viewingProductId, setViewingProductId] = useState<number | null>(null);
 
   useEffect(() => {
-    const state = location.state as any;
+    const state = location.state as { viewProductId?: number } | null;
     if (state?.viewProductId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setViewingProductId(state.viewProductId);
     }
   }, [location.state]);

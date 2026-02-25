@@ -37,6 +37,10 @@ export class UsersController {
     @Body() updateRoleDto: UpdateRoleDto,
     @CurrentUser() currentUser: { userId: number },
   ) {
-    return this.usersService.updateRole(id, updateRoleDto.role, currentUser.userId);
+    return this.usersService.updateRole(
+      id,
+      updateRoleDto.role,
+      currentUser.userId,
+    );
   }
 }

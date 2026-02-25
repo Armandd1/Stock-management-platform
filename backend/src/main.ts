@@ -22,7 +22,9 @@ async function bootstrap() {
 
   const jwtSecret = configService.get<string>('JWT_SECRET');
   if (!jwtSecret) {
-    throw new Error('JWT_SECRET is not configured. Please set JWT_SECRET before starting the application.');
+    throw new Error(
+      'JWT_SECRET is not configured. Please set JWT_SECRET before starting the application.',
+    );
   }
 
   await app.register(fastifyCookie, {
@@ -36,7 +38,8 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   // Enable CORS
-  const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+  const frontendUrl =
+    configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
   app.enableCors({
     origin: [frontendUrl, 'http://localhost:3000'],
     credentials: true,
@@ -57,7 +60,9 @@ async function bootstrap() {
   // Swagger / OpenAPI
   const config = new DocumentBuilder()
     .setTitle('Stock Management API')
-    .setDescription('API for managing products, warehouses, stock and movements')
+    .setDescription(
+      'API for managing products, warehouses, stock and movements',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -69,5 +74,4 @@ async function bootstrap() {
   logger.log(`Application is running on: ${await app.getUrl()}`);
   logger.log(`Swagger docs: ${await app.getUrl()}/api/docs`);
 }
-bootstrap();
-
+void bootstrap();

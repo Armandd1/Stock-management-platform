@@ -1,9 +1,4 @@
-import {
-  Controller,
-  Get,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -28,7 +23,10 @@ export class ReportsController {
   })
   @ApiQuery({ name: 'warehouseId', required: false, type: Number })
   @ApiQuery({ name: 'productId', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'Returns stock levels grouped by warehouse.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns stock levels grouped by warehouse.',
+  })
   async getStockOnHand(
     @Query('warehouseId') warehouseId?: string,
     @Query('productId') productId?: string,

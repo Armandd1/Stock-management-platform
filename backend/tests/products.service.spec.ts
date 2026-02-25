@@ -73,10 +73,13 @@ describe('ProductsService', () => {
 
     it('should throw ConflictException for duplicate SKU', async () => {
       const { Prisma } = jest.requireActual('@prisma/client');
-      const error = new Prisma.PrismaClientKnownRequestError('Unique constraint', {
-        code: 'P2002',
-        clientVersion: '5.0.0',
-      });
+      const error = new Prisma.PrismaClientKnownRequestError(
+        'Unique constraint',
+        {
+          code: 'P2002',
+          clientVersion: '5.0.0',
+        },
+      );
       mockPrisma.product.create.mockRejectedValue(error);
 
       await expect(

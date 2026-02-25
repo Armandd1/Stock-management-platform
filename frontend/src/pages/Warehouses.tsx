@@ -53,8 +53,9 @@ export const Warehouses: React.FC = () => {
   const [viewingWarehouseId, setViewingWarehouseId] = useState<number | null>(null);
 
   useEffect(() => {
-    const state = location.state as any;
+    const state = location.state as { viewWarehouseId?: number } | null;
     if (state?.viewWarehouseId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setViewingWarehouseId(state.viewWarehouseId);
     }
   }, [location.state]);

@@ -33,7 +33,10 @@ export class MovementsController {
   @Roles('ADMIN', 'MANAGER')
   @ApiOperation({ summary: 'Create a stock movement (Admin/Manager)' })
   @ApiResponse({ status: 201, description: 'Movement created successfully.' })
-  @ApiResponse({ status: 400, description: 'Invalid movement (missing fields or insufficient stock).' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid movement (missing fields or insufficient stock).',
+  })
   @ApiResponse({ status: 404, description: 'Product or warehouse not found.' })
   async create(
     @Body() dto: CreateMovementDto,
@@ -62,7 +65,10 @@ export class MovementsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a stock movement by ID' })
-  @ApiResponse({ status: 200, description: 'Returns the movement with full details.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the movement with full details.',
+  })
   @ApiResponse({ status: 404, description: 'Movement not found.' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.movementsService.findOne(id);

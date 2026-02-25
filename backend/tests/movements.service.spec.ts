@@ -26,9 +26,7 @@ describe('MovementsService', () => {
       findMany: jest.fn(),
       findUnique: jest.fn(),
     },
-    $transaction: jest.fn((fn) =>
-      typeof fn === 'function' ? fn(mockTx) : fn,
-    ),
+    $transaction: jest.fn((fn) => (typeof fn === 'function' ? fn(mockTx) : fn)),
   };
 
   beforeEach(async () => {
@@ -48,10 +46,7 @@ describe('MovementsService', () => {
   describe('create - IN', () => {
     it('should throw if toWarehouseId is missing for IN', async () => {
       await expect(
-        service.create(
-          { type: 'IN' as any, quantity: 10, productId: 1 },
-          1,
-        ),
+        service.create({ type: 'IN' as any, quantity: 10, productId: 1 }, 1),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -73,10 +68,7 @@ describe('MovementsService', () => {
   describe('create - OUT', () => {
     it('should throw if fromWarehouseId is missing for OUT', async () => {
       await expect(
-        service.create(
-          { type: 'OUT' as any, quantity: 5, productId: 1 },
-          1,
-        ),
+        service.create({ type: 'OUT' as any, quantity: 5, productId: 1 }, 1),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -110,7 +102,12 @@ describe('MovementsService', () => {
     it('should throw if warehouses are missing', async () => {
       await expect(
         service.create(
-          { type: 'TRANSFER' as any, quantity: 5, productId: 1, fromWarehouseId: 1 },
+          {
+            type: 'TRANSFER' as any,
+            quantity: 5,
+            productId: 1,
+            fromWarehouseId: 1,
+          },
           1,
         ),
       ).rejects.toThrow(BadRequestException);
@@ -119,7 +116,13 @@ describe('MovementsService', () => {
     it('should throw if same warehouse', async () => {
       await expect(
         service.create(
-          { type: 'TRANSFER' as any, quantity: 5, productId: 1, fromWarehouseId: 1, toWarehouseId: 1 },
+          {
+            type: 'TRANSFER' as any,
+            quantity: 5,
+            productId: 1,
+            fromWarehouseId: 1,
+            toWarehouseId: 1,
+          },
           1,
         ),
       ).rejects.toThrow('Cannot transfer to the same warehouse');
@@ -130,7 +133,13 @@ describe('MovementsService', () => {
 
       await expect(
         service.create(
-          { type: 'TRANSFER' as any, quantity: 5, productId: 1, fromWarehouseId: 1, toWarehouseId: 2 },
+          {
+            type: 'TRANSFER' as any,
+            quantity: 5,
+            productId: 1,
+            fromWarehouseId: 1,
+            toWarehouseId: 2,
+          },
           1,
         ),
       ).rejects.toThrow(BadRequestException);
@@ -144,7 +153,13 @@ describe('MovementsService', () => {
       mockTx.stockMovement.create.mockResolvedValue(movement);
 
       const result = await service.create(
-        { type: 'TRANSFER' as any, quantity: 5, productId: 1, fromWarehouseId: 1, toWarehouseId: 2 },
+        {
+          type: 'TRANSFER' as any,
+          quantity: 5,
+          productId: 1,
+          fromWarehouseId: 1,
+          toWarehouseId: 2,
+        },
         1,
       );
 
