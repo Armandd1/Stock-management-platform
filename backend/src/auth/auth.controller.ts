@@ -56,10 +56,13 @@ export class AuthController {
       loginDto.password,
     );
 
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+
     // Set HTTP-only cookie for consistency with GitHub OAuth flow
     res.setCookie('auth_token', result.access_token, {
       httpOnly: true,
-      sameSite: 'lax',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/',
       maxAge: 24 * 60 * 60, // 24 hours in seconds
     });
@@ -86,9 +89,12 @@ export class AuthController {
       registerDto.name,
     );
 
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+
     res.setCookie('auth_token', result.access_token, {
       httpOnly: true,
-      sameSite: 'lax',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/',
       maxAge: 24 * 60 * 60, // 24 hours in seconds
     });
@@ -128,10 +134,13 @@ export class AuthController {
   async githubLogin(@Res() res: FastifyReply) {
     const { url, state } = this.authService.getGithubAuthUrl();
 
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+
     // Store CSRF state as a secure, http-only cookie
     res.setCookie('github_oauth_state', state, {
       httpOnly: true,
-      sameSite: 'lax',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/',
       maxAge: 10 * 60, // 10 minutes in seconds
     });
@@ -207,10 +216,13 @@ export class AuthController {
       });
     }
 
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+
     // Store the access token in a secure, HTTP-only cookie
     res.setCookie('auth_token', result.access_token, {
       httpOnly: true,
-      sameSite: 'lax',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/',
       maxAge: 24 * 60 * 60, // 24 hours in seconds
     });
