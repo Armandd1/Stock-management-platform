@@ -7,18 +7,19 @@ import {
 } from '@nestjs/swagger';
 import { AuditService } from './audit.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PoliciesGuard } from '../auth/guards/policies.guard';
+import { CheckPolicies } from '../auth/decorators/check-policies.decorator';
+import { Action } from '../auth/casl/casl-ability.factory';
 
 @ApiTags('audit-logs')
 @Controller('audit-logs')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PoliciesGuard)
 @ApiBearerAuth()
 export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 
   @Get()
-  @Roles('ADMIN')
+  @CheckPolicies((ability) => ability.can(Action.Read, 'AuditLog'))
   @ApiOperation({ summary: 'Get audit logs (Admin only)' })
   @ApiResponse({ status: 200, description: 'Returns the audit logs.' })
   async getLogs() {

@@ -166,7 +166,7 @@ export const Movements: React.FC = () => {
 
       queryClient.setQueryData<Movement[]>(queryKey, (old) => {
         const optimisticMovement: Movement = {
-          id: Math.random(),
+          id: -Date.now(),
           type: newMovement.type,
           quantity: newMovement.quantity,
           date: new Date().toISOString(),

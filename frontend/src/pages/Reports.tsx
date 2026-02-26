@@ -51,6 +51,7 @@ export const Reports: React.FC = () => {
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [appliedFilters, setAppliedFilters] = useState({ start: '', end: '' });
   const [expandedWarehouseIds, setExpandedWarehouseIds] = useState<number[]>([]);
 
   const { data: stockOnHand, isLoading: loadingStock } = useQuery({
@@ -58,37 +59,28 @@ export const Reports: React.FC = () => {
     queryFn: async () => (await api.get<StockOnHand[]>('/reports/stock-on-hand')).data,
   });
 
-  const {
-    data: movementSummary,
-    isLoading: loadingMovement,
-    refetch: refetchMovement,
-  } = useQuery({
-    queryKey: ['reports', 'movement-summary', startDate, endDate],
+  const { data: movementSummary, isLoading: loadingMovement } = useQuery({
+    queryKey: ['reports', 'movement-summary', appliedFilters.start, appliedFilters.end],
     queryFn: async () =>
       (
         await api.get<MovementSummary[]>('/reports/movement-summary', {
-          params: { startDate, endDate },
+          params: { startDate: appliedFilters.start, endDate: appliedFilters.end },
         })
       ).data,
   });
 
-  const {
-    data: topMoved,
-    isLoading: loadingTop,
-    refetch: refetchTop,
-  } = useQuery({
-    queryKey: ['reports', 'top-moved', startDate, endDate],
+  const { data: topMoved, isLoading: loadingTop } = useQuery({
+    queryKey: ['reports', 'top-moved', appliedFilters.start, appliedFilters.end],
     queryFn: async () =>
       (
         await api.get<TopMovedProduct[]>('/reports/top-moved', {
-          params: { startDate, endDate, limit: 10 },
+          params: { startDate: appliedFilters.start, endDate: appliedFilters.end, limit: 10 },
         })
       ).data,
   });
 
   const handleFilter = () => {
-    refetchMovement();
-    refetchTop();
+    setAppliedFilters({ start: startDate, end: endDate });
   };
 
   const toggleWarehouse = (warehouseId: number) => {

@@ -44,7 +44,7 @@ import { AuditModule } from './audit/audit.module';
     ThrottlerModule.forRoot([
       {
         ttl: 60000, // 1 minute
-        limit: 500, // Max 500 requests per minute
+        limit: 200, // Max 200 requests per minute
       },
     ]),
   ],

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
@@ -6,6 +6,8 @@ import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 
 @Injectable()
 export class WarehousesService {
+  private readonly logger = new Logger(WarehousesService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
@@ -36,6 +38,7 @@ export class WarehousesService {
 
   async create(dto: CreateWarehouseDto, userId?: number) {
     const warehouse = await this.prisma.warehouse.create({ data: dto });
+    this.logger.log(`Warehouse created: ${warehouse.name}`);
     if (userId) {
       await this.auditService.logAction(
         userId,
@@ -54,6 +57,7 @@ export class WarehousesService {
       where: { id },
       data: dto,
     });
+    this.logger.log(`Warehouse updated: ${warehouse.name}`);
     if (userId) {
       await this.auditService.logAction(
         userId,
@@ -69,6 +73,7 @@ export class WarehousesService {
   async remove(id: number, userId?: number) {
     await this.findOne(id); // throws if not found
     const warehouse = await this.prisma.warehouse.delete({ where: { id } });
+    this.logger.log(`Warehouse removed: ${warehouse.name}`);
     if (userId) {
       await this.auditService.logAction(
         userId,

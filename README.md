@@ -1,8 +1,10 @@
 # 📦 Stock Management Platform
 
-A full-stack inventory management system for tracking products, warehouses, and stock movements with role-based access control and GitHub OAuth2 authentication.
+A full-stack inventory management system for tracking products, warehouses, and stock movements.
 
 > **Live URL**: _Not deployed yet — run locally with Docker (see below)._
+
+> **Taskboard**: https://www.notion.so/311ba677b46c80bcb3a8dff619f9f411?v=311ba677b46c81838dde000c5c31a59a&source=copy_link
 
 ---
 
@@ -28,12 +30,12 @@ A full-stack inventory management system for tracking products, warehouses, and 
 ┌──────────────────────────────────────────────────────────┐
 │                     Docker Compose                       │
 │                                                          │
-│  ┌──────────────┐   ┌──────────────┐   ┌─────────────┐  │
-│  │   Frontend    │   │   Backend    │   │  PostgreSQL  │  │
-│  │  (React/Vite) │──▶│  (NestJS/   │──▶│   15-alpine  │  │
-│  │  :5173        │   │   Fastify)   │   │   :5433      │  │
-│  │              │   │  :3000       │   │              │  │
-│  └──────────────┘   └──────────────┘   └─────────────┘  │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐  │
+│  │   Frontend   │   │   Backend    │   │  PostgreSQL  │  │
+│  │ (React/Vite) │──▶│   (NestJS/   │──▶│  15-alpine   │  │
+│  │    :5173     │   │   Fastify)   │   │    :5433     │  │
+│  │              │   │    :3000     │   │              │  │
+│  └──────────────┘   └──────────────┘   └──────────────┘  │
 │       SPA               REST API          Data Store     │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -73,25 +75,25 @@ App
 ### Database (PostgreSQL + Prisma)
 
 ```
-┌─────────┐    ┌───────────┐    ┌───────────────┐
-│  User   │───▶│ StockMove │◀───│   Product     │
-│         │    │  ment     │    │               │
-│ id      │    │ id        │    │ id            │
-│ email   │    │ type      │    │ sku (unique)  │
-│ name?   │    │ quantity  │    │ name          │
-│ password?│    │ date      │    │ description?  │
-│ provider │    │ productId │    │ price         │
-│ role     │    │ from/to   │    └───────┬───────┘
-└─────────┘    │ WH ids    │            │
-               │ createdBy │    ┌───────▼───────┐
-               └───────────┘    │    Stock      │
-                                │ id            │
-               ┌───────────┐    │ quantity      │
-               │ Warehouse │◀───│ productId     │
-               │ id        │    │ warehouseId   │
-               │ name      │    │ (unique pair) │
-               │ location? │    └───────────────┘
-               └───────────┘
+┌─────────────┐    ┌───────────────┐    ┌───────────────┐
+│    User     │───▶│ StockMovement │◀───│    Product    │
+│             │    │               │    │               │
+│ id          │    │ id            │    │ id            │
+│ email       │    │ type          │    │ sku (unique)  │
+│ name?       │    │ quantity      │    │ name          │
+│ password?   │    │ date          │    │ description?  │
+│ provider    │    │ productId     │    │ price         │
+│ role        │    │ from/to IDs   │    └───────┬───────┘
+└─────────────┘    │ createdBy     │            │
+                   └───────┬───────┘    ┌───────▼───────┐
+                           │            │     Stock     │
+                   ┌───────▼───────┐    │               │
+                   │   Warehouse   │◀───│ id            │
+                   │               │    │ quantity      │
+                   │ id            │    │ productId     │
+                   │ name          │    │ warehouseId   │
+                   │ location?     │    │ (unique pair) │
+                   └───────────────┘    └───────────────┘
 ```
 
 **Key constraints:**
@@ -319,7 +321,7 @@ Interactive API documentation is available via Swagger at:
 
 ## Rate Limiting & Session Notes
 
-- **Global API throttling**: `500 requests / minute` per client (Throttler global guard).
+- **Global API throttling**: `200 requests / minute` per client (Throttler global guard).
 - **Login endpoint throttling**: `POST /api/v1/auth/login` is stricter at `20 requests / minute`.
 - **Auth cookie**: `auth_token` is set as HTTP-only cookie with ~24h max age.
 - **OAuth state cookie**: `github_oauth_state` has a 10-minute lifetime for callback validation.
@@ -361,7 +363,7 @@ Interactive API documentation is available via Swagger at:
 - ✅ **Fully Dockerized** — Single `docker compose up` to start
 - ✅ **Auto Migration & Seed** — Database setup on container start
 - ✅ **Structured Logging** — Pino with request IDs
-- ✅ **Rate Limiting** — Global 500 req/min; stricter login limit 20 req/min
+- ✅ **Rate Limiting** — Global 200 req/min; stricter login limit 20 req/min
 - ✅ **Swagger/OpenAPI** — Interactive API documentation
 
 ---
@@ -393,11 +395,11 @@ Interactive API documentation is available via Swagger at:
 
 **Decision**: NestJS with Fastify adapter instead of the default Express.
 **Why**: Fastify offers 2–3× better throughput and lower latency. Its schema-based validation and plugin system are a natural fit for a structured NestJS application.
-**Trade-off**: Some Passport strategies (like `passport-github2`) don't work with Fastify out of the box. We solved this by implementing a manual OAuth2 flow using `fetch()` for the GitHub token exchange, which is simpler and has zero middleware dependencies.
+**Trade-off**: Some Passport strategies (like `passport-github2`) don't work with Fastify out of the box. Solved this by implementing a manual OAuth2 flow using `fetch()` for the GitHub token exchange, which is simpler and has zero middleware dependencies.
 
 ### 2. Manual GitHub OAuth2 (no Passport strategy)
 
-**Decision**: Instead of `passport-github2`, we manually redirect to GitHub, exchange the authorization code via `fetch()`, and call the GitHub API directly.
+**Decision**: Instead of `passport-github2`, manually redirect to GitHub, exchange the authorization code via `fetch()`, and call the GitHub API directly.
 **Why**: Passport OAuth2 strategies rely on Express-style middleware (`req.session`, `res.redirect`) which breaks on Fastify. The manual flow is ~40 lines of code and fully transparent.
 **Trade-off**: No session support for OAuth state parameter (CSRF mitigation). For production, a `state` parameter with a server-side nonce should be added.
 

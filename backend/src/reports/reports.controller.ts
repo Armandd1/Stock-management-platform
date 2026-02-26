@@ -8,16 +8,19 @@ import {
 } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { PoliciesGuard } from '../auth/guards/policies.guard';
+import { CheckPolicies } from '../auth/decorators/check-policies.decorator';
+import { Action } from '../auth/casl/casl-ability.factory';
 
 @ApiTags('reports')
 @Controller('reports')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PoliciesGuard)
 @ApiBearerAuth()
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Get('stock-on-hand')
+  @CheckPolicies((ability) => ability.can(Action.Read, 'Warehouse'))
   @ApiOperation({
     summary: 'Get stock on hand report (current stock per warehouse/product)',
   })
@@ -38,6 +41,7 @@ export class ReportsController {
   }
 
   @Get('movement-summary')
+  @CheckPolicies((ability) => ability.can(Action.Read, 'StockMovement'))
   @ApiOperation({ summary: 'Get summary of all stock movements in a period' })
   @ApiQuery({ name: 'startDate', required: false, type: String })
   @ApiQuery({ name: 'endDate', required: false, type: String })
@@ -53,6 +57,7 @@ export class ReportsController {
   }
 
   @Get('top-moved')
+  @CheckPolicies((ability) => ability.can(Action.Read, 'StockMovement'))
   @ApiOperation({ summary: 'Get products with highest total movement volume' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'startDate', required: false, type: String })

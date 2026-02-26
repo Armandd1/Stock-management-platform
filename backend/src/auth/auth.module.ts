@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -9,6 +9,7 @@ import { PoliciesGuard } from './guards/policies.guard';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+@Global()
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -23,6 +24,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, CaslAbilityFactory, PoliciesGuard],
-  exports: [AuthService, JwtModule, CaslAbilityFactory],
+  exports: [AuthService, JwtModule, CaslAbilityFactory, PoliciesGuard],
 })
 export class AuthModule {}

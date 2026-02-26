@@ -23,13 +23,14 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PoliciesGuard } from '../auth/guards/policies.guard';
+import { CheckPolicies } from '../auth/decorators/check-policies.decorator';
+import { Action } from '../auth/casl/casl-ability.factory';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('products')
 @Controller('products')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PoliciesGuard)
 @ApiBearerAuth()
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -58,7 +59,7 @@ export class ProductsController {
   }
 
   @Post()
-  @Roles('ADMIN', 'MANAGER')
+  @CheckPolicies((ability) => ability.can(Action.Create, 'Product'))
   @ApiOperation({ summary: 'Create a new product (Admin/Manager)' })
   @ApiResponse({ status: 201, description: 'Product created.' })
   @ApiResponse({ status: 409, description: 'SKU already exists.' })
@@ -70,7 +71,7 @@ export class ProductsController {
   }
 
   @Post('bulk')
-  @Roles('ADMIN', 'MANAGER')
+  @CheckPolicies((ability) => ability.can(Action.Create, 'Product'))
   @ApiOperation({ summary: 'Create multiple products from a CSV import' })
   @ApiBody({ type: [CreateProductDto] })
   @ApiResponse({ status: 201, description: 'Products imported successfully.' })
@@ -83,7 +84,7 @@ export class ProductsController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'MANAGER')
+  @CheckPolicies((ability) => ability.can(Action.Update, 'Product'))
   @ApiOperation({ summary: 'Update a product (Admin/Manager)' })
   @ApiResponse({ status: 200, description: 'Product updated.' })
   @ApiResponse({ status: 404, description: 'Product not found.' })
@@ -96,7 +97,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  @Roles('ADMIN')
+  @CheckPolicies((ability) => ability.can(Action.Delete, 'Product'))
   @ApiOperation({ summary: 'Delete a product (Admin only)' })
   @ApiResponse({ status: 200, description: 'Product deleted.' })
   @ApiResponse({ status: 404, description: 'Product not found.' })

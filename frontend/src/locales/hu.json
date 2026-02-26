@@ -93,6 +93,7 @@
       "deleted": "Termék törölve",
       "failedDelete": "A termék törlése sikertelen",
       "imported": "Termékek sikeresen importálva!",
+      "importedWithSkips": "{{count}} termék importálva. {{skippedCount}} létező SKU kihagyva.",
       "failedImport": "Nem sikerült a CSV importálása",
       "noValidRows": "Nem található érvényes sor. Ellenőrizd a CSV oszlopait (SKU, Név, Ár).",
       "invalidRowsSkipped": "{{count}} érvénytelen sor kihagyva."

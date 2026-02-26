@@ -93,6 +93,7 @@
       "deleted": "Product deleted",
       "failedDelete": "Failed to delete product",
       "imported": "Products imported successfully!",
+      "importedWithSkips": "Imported {{count}} products. {{skippedCount}} existing SKUs were skipped.",
       "failedImport": "Failed to import CSV",
       "noValidRows": "No valid rows found. Ensure CSV has SKU, Name, and Price columns.",
       "invalidRowsSkipped": "Skipped {{count}} invalid rows."

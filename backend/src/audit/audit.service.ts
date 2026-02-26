@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuditService {
+  private readonly logger = new Logger(AuditService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async logAction(
@@ -11,12 +13,13 @@ export class AuditService {
     action: string,
     entity: string,
     entityId?: number,
-
     changes?: unknown,
   ) {
+    this.logger.debug(
+      `Recording audit log: ${action} on ${entity} (ID: ${entityId}) by User ${userId}`,
+    );
     return this.prisma.auditLog.create({
       data: {
-        // userId could be undefined for system actions, but we'll try to use it if available
         userId,
         action,
         entity,

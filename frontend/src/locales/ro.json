@@ -93,6 +93,7 @@
       "deleted": "Produs șters",
       "failedDelete": "Ștergerea produsului a eșuat",
       "imported": "Produse importate cu succes!",
+      "importedWithSkips": "Am importat {{count}} produse. {{skippedCount}} SKU-uri existente au fost omise.",
       "failedImport": "Importul CSV a eșuat",
       "noValidRows": "Nu s-au găsit rânduri valide. Asigurați-vă că CSV are coloanele SKU, Nume și Preț.",
       "invalidRowsSkipped": "{{count}} rânduri invalide omise."
@@ -220,9 +221,9 @@
     "haveAccount": "Aveți deja un cont?",
     "loginLink": "Autentificare",
     "validation": {
-      "name": "Numele trebuie să conţinã cel puțin 2 caractere",
+      "name": "Numele trebuie să conțină cel puțin 2 caractere",
       "email": "Adresă de email invalidă",
-      "password": "Parola trebuie să conţinã cel puțin 6 caractere",
+      "password": "Parola trebuie să conțină cel puțin 6 caractere",
       "passwordsMatch": "Parolele nu se potrivesc"
     },
     "toast": {

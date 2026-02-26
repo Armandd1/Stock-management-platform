@@ -1,4 +1,0 @@
-{
-  "message": "\nInvalid `prisma.user.upsert()` invocation in\nC:\\Users\\arman\\Desktop\\HelixsoftProject\\Stock-management-platform\\backend\\prisma\\seed.ts:29:35\n\n  26 const managerPassword = await bcrypt.hash(managerPlainPassword, 10);\n  27 const viewerPassword = await bcrypt.hash(viewerPlainPassword, 10);\n  28 \n→ 29 const admin = await prisma.user.upsert(\nAuthentication failed against database server at `localhost`, the provided database credentials for `admin` are not valid.\n\nPlease make sure to provide valid database credentials for the database server at `localhost`.",
-  "name": "PrismaClientInitializationError"
-}

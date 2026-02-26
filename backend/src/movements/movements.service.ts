@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
@@ -11,6 +12,7 @@ import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class MovementsService {
+  private readonly logger = new Logger(MovementsService.name);
   private movementSubject = new Subject<unknown>();
 
   get movementEvents$() {
@@ -62,7 +64,7 @@ export class MovementsService {
     await this.validateWarehouse(dto.toWarehouseId);
 
     // Upsert stock and create movement in a transaction
-    return this.prisma.$transaction(async (tx) => {
+    const movement = await this.prisma.$transaction(async (tx) => {
       await tx.stock.upsert({
         where: {
           productId_warehouseId: {
@@ -78,7 +80,7 @@ export class MovementsService {
         },
       });
 
-      const movement = await tx.stockMovement.create({
+      return tx.stockMovement.create({
         data: {
           type: dto.type,
           quantity: dto.quantity,
@@ -92,16 +94,19 @@ export class MovementsService {
           CreatedBy: { select: { id: true, name: true, email: true } },
         },
       });
-
-      await this.auditService.logAction(
-        userId,
-        'STOCK_IN',
-        'StockMovement',
-        movement.id,
-        dto,
-      );
-      return movement;
     });
+
+    await this.auditService.logAction(
+      userId,
+      'STOCK_IN',
+      'StockMovement',
+      movement.id,
+      dto,
+    );
+    this.logger.log(
+      `Stock IN recorded: Product ${dto.productId}, Qty ${dto.quantity}, Warehouse ${dto.toWarehouseId}`,
+    );
+    return movement;
   }
 
   // --- OUT: Remove stock from a warehouse ---
@@ -114,7 +119,7 @@ export class MovementsService {
 
     await this.validateWarehouse(dto.fromWarehouseId);
 
-    return this.prisma.$transaction(
+    const movement = await this.prisma.$transaction(
       async (tx) => {
         // Lock and read current stock
         const stocks = await tx.$queryRaw<
@@ -134,7 +139,7 @@ export class MovementsService {
           data: { quantity: { decrement: dto.quantity } },
         });
 
-        const movement = await tx.stockMovement.create({
+        return tx.stockMovement.create({
           data: {
             type: dto.type,
             quantity: dto.quantity,
@@ -148,18 +153,21 @@ export class MovementsService {
             CreatedBy: { select: { id: true, name: true, email: true } },
           },
         });
-
-        await this.auditService.logAction(
-          userId,
-          'STOCK_OUT',
-          'StockMovement',
-          movement.id,
-          dto,
-        );
-        return movement;
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
+
+    await this.auditService.logAction(
+      userId,
+      'STOCK_OUT',
+      'StockMovement',
+      movement.id,
+      dto,
+    );
+    this.logger.log(
+      `Stock OUT recorded: Product ${dto.productId}, Qty ${dto.quantity}, Warehouse ${dto.fromWarehouseId}`,
+    );
+    return movement;
   }
 
   // --- TRANSFER: Move stock between warehouses ---
@@ -177,7 +185,7 @@ export class MovementsService {
     await this.validateWarehouse(dto.fromWarehouseId);
     await this.validateWarehouse(dto.toWarehouseId);
 
-    return this.prisma.$transaction(
+    const movement = await this.prisma.$transaction(
       async (tx) => {
         // Lock source stock row
         const sourceStocks = await tx.$queryRaw<
@@ -214,7 +222,7 @@ export class MovementsService {
           },
         });
 
-        const movement = await tx.stockMovement.create({
+        return tx.stockMovement.create({
           data: {
             type: dto.type,
             quantity: dto.quantity,
@@ -230,18 +238,21 @@ export class MovementsService {
             CreatedBy: { select: { id: true, name: true, email: true } },
           },
         });
-
-        await this.auditService.logAction(
-          userId,
-          'STOCK_TRANSFER',
-          'StockMovement',
-          movement.id,
-          dto,
-        );
-        return movement;
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
+
+    await this.auditService.logAction(
+      userId,
+      'STOCK_TRANSFER',
+      'StockMovement',
+      movement.id,
+      dto,
+    );
+    this.logger.log(
+      `Stock TRANSFER recorded: Product ${dto.productId}, Qty ${dto.quantity}, From ${dto.fromWarehouseId} To ${dto.toWarehouseId}`,
+    );
+    return movement;
   }
 
   // --- Read operations ---

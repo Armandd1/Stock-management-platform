@@ -21,10 +21,14 @@ export const Login: React.FC = () => {
   const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
 
-  const loginSchema = z.object({
-    email: z.string().email({ message: t('login.invalidEmail') }),
-    password: z.string().min(1, { message: t('login.passwordRequired') }),
-  });
+  const loginSchema = React.useMemo(
+    () =>
+      z.object({
+        email: z.string().email({ message: t('login.invalidEmail') }),
+        password: z.string().min(1, { message: t('login.passwordRequired') }),
+      }),
+    [t],
+  );
 
   type LoginFormValues = z.infer<typeof loginSchema>;
 

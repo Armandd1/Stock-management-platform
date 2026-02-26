@@ -36,10 +36,10 @@ interface Product {
 }
 
 const productSchema = z.object({
-  sku: z.string().min(3, 'SKU must be at least 3 characters'),
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  description: z.string().optional(),
-  price: z.coerce.number().min(0, 'Price must be positive'),
+  sku: z.string().trim().min(3, 'SKU must be at least 3 characters').max(50, 'SKU too long'),
+  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(200, 'Name too long'),
+  description: z.string().max(1000, 'Description too long').optional(),
+  price: z.coerce.number().min(0.01, 'Price must be positive and greater than zero'),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -154,9 +154,21 @@ export const Products: React.FC = () => {
 
   const importMutation = useMutation({
     mutationFn: async (data: Omit<Product, 'id'>[]) => api.post('/products/bulk', data),
-    onSuccess: () => {
+    onSuccess: (res) => {
+      const { count, skippedSkus } = res.data as { count: number; skippedSkus: string[] };
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success(t('products.toast.imported'));
+
+      if (skippedSkus && skippedSkus.length > 0) {
+        toast.success(
+          t('products.toast.importedWithSkips', {
+            count,
+            skippedCount: skippedSkus.length,
+          }),
+          { duration: 5000 },
+        );
+      } else {
+        toast.success(t('products.toast.imported'));
+      }
     },
     onError: () => toast.error(t('products.toast.failedImport')),
   });
@@ -176,13 +188,15 @@ export const Products: React.FC = () => {
         let errorCount = 0;
 
         parsedData.forEach((row) => {
-          if (row.sku && row.name && row.price && !isNaN(Number(row.price))) {
-            validProducts.push({
-              sku: row.sku,
-              name: row.name,
-              description: row.description || '',
-              price: Number(row.price),
-            });
+          const result = productSchema.safeParse({
+            sku: row.sku,
+            name: row.name,
+            description: row.description,
+            price: row.price,
+          });
+
+          if (result.success) {
+            validProducts.push(result.data as Omit<Product, 'id'>);
           } else {
             errorCount++;
           }
@@ -198,6 +212,12 @@ export const Products: React.FC = () => {
           toast.error(t('products.toast.invalidRowsSkipped', { count: errorCount }));
         }
 
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      },
+      error: (error) => {
+        toast.error(`${t('products.toast.failedImport')}: ${error.message}`);
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }

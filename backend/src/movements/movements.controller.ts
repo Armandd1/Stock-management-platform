@@ -22,19 +22,20 @@ import {
 import { MovementsService } from './movements.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PoliciesGuard } from '../auth/guards/policies.guard';
+import { CheckPolicies } from '../auth/decorators/check-policies.decorator';
+import { Action } from '../auth/casl/casl-ability.factory';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('movements')
 @Controller('movements')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PoliciesGuard)
 @ApiBearerAuth()
 export class MovementsController {
   constructor(private readonly movementsService: MovementsService) {}
 
   @Post()
-  @Roles('ADMIN', 'MANAGER')
+  @CheckPolicies((ability) => ability.can(Action.Create, 'StockMovement'))
   @ApiOperation({ summary: 'Create a stock movement (Admin/Manager)' })
   @ApiResponse({ status: 201, description: 'Movement created successfully.' })
   @ApiResponse({
@@ -69,6 +70,12 @@ export class MovementsController {
 
   @Sse('live')
   @ApiOperation({ summary: 'Server-Sent Events for live layout updates' })
+  /**
+   * SSE endpoint for live updates.
+   * Note: EventSource in browsers does not support custom headers (Authorization).
+   * Authentication is handled via the 'auth_token' cookie.
+   * Client must use { withCredentials: true } when connecting.
+   */
   liveUpdates(): Observable<MessageEvent> {
     return this.movementsService.movementEvents$.pipe(
       map(

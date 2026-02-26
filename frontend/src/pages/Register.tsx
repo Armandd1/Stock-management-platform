@@ -21,17 +21,21 @@ export const Register: React.FC = () => {
   const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
 
-  const registerSchema = z
-    .object({
-      name: z.string().min(2, { message: t('register.validation.name') }),
-      email: z.string().email({ message: t('register.validation.email') }),
-      password: z.string().min(6, { message: t('register.validation.password') }),
-      confirmPassword: z.string(),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      message: t('register.validation.passwordsMatch'),
-      path: ['confirmPassword'],
-    });
+  const registerSchema = React.useMemo(
+    () =>
+      z
+        .object({
+          name: z.string().min(2, { message: t('register.validation.name') }),
+          email: z.string().email({ message: t('register.validation.email') }),
+          password: z.string().min(6, { message: t('register.validation.password') }),
+          confirmPassword: z.string(),
+        })
+        .refine((data) => data.password === data.confirmPassword, {
+          message: t('register.validation.passwordsMatch'),
+          path: ['confirmPassword'],
+        }),
+    [t],
+  );
 
   type RegisterFormValues = z.infer<typeof registerSchema>;
 

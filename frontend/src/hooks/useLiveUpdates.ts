@@ -12,8 +12,10 @@ export const useLiveUpdates = () => {
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 
     // Connect to SSE endpoint
+    // we use withCredentials: true to ensure the 'auth_token' cookie is sent.
+    // This is a standard EventSource option for cross-origin credential support.
     const eventSource = new EventSource(`${baseUrl}/movements/live`, {
-      withCredentials: true, // Sends cookies so JwtAuthGuard passes
+      withCredentials: true,
     });
 
     eventSource.onmessage = (event) => {

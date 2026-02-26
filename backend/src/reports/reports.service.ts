@@ -1,12 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ReportsService {
+  private readonly logger = new Logger(ReportsService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async getStockOnHand(warehouseId?: number, productId?: number) {
+    this.logger.debug(
+      `Generating Stock on Hand report. Filter warehouse: ${warehouseId}, product: ${productId}`,
+    );
     const where: Record<string, unknown> = {};
 
     if (warehouseId) {
@@ -62,6 +67,9 @@ export class ReportsService {
   }
 
   async getMovementSummary(startDate?: string, endDate?: string) {
+    this.logger.debug(
+      `Generating Movement Summary report. Start: ${startDate}, End: ${endDate}`,
+    );
     const where: Prisma.StockMovementWhereInput = {};
     if (startDate || endDate) {
       const date: Prisma.DateTimeFilter = {};
@@ -89,6 +97,7 @@ export class ReportsService {
   }
 
   async getTopMovedProducts(limit = 10, startDate?: string, endDate?: string) {
+    this.logger.debug(`Generating Top Moved Products report. Limit: ${limit}`);
     const where: Prisma.StockMovementWhereInput = {};
     if (startDate || endDate) {
       const date: Prisma.DateTimeFilter = {};

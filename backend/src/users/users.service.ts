@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '@prisma/client';
@@ -9,6 +10,8 @@ import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
@@ -27,6 +30,9 @@ export class UsersService {
 
   async updateRole(userId: number, role: Role, currentUserId: number) {
     if (userId === currentUserId) {
+      this.logger.warn(
+        `User ${currentUserId} attempted to change their own role`,
+      );
       throw new ForbiddenException('You cannot change your own role');
     }
 
@@ -35,6 +41,9 @@ export class UsersService {
     });
 
     if (!user) {
+      this.logger.warn(
+        `Attempted to update role for non-existent user: ${userId}`,
+      );
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
@@ -48,6 +57,10 @@ export class UsersService {
         role: true,
       },
     });
+
+    this.logger.log(
+      `User ${userId} role updated to ${role} by Admin ${currentUserId}`,
+    );
 
     await this.auditService.logAction(
       currentUserId,
