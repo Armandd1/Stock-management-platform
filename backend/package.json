@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./tests/e2e/jest-e2e.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "npx ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@casl/ability": "^6.8.0",
@@ -94,7 +94,7 @@
     "testEnvironment": "node"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "npx ts-node prisma/seed.ts"
   },
   "overrides": {
     "glob": "^11.0.0",

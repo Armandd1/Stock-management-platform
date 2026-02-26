@@ -373,6 +373,7 @@ Interactive API documentation is available via Swagger at:
 | Variable               | Default                                             | Description                     |
 | ---------------------- | --------------------------------------------------- | ------------------------------- |
 | `PORT`                 | `3000`                                              | Backend port                    |
+| `NODE_ENV`             | `development`                                       | `development` or `production`   |
 | `JWT_SECRET`           | **required in production**                          | Secret for JWT signing          |
 | `DATABASE_URL`         | `postgresql://admin:secret@...`                     | Prisma DB connection string     |
 | `POSTGRES_USER`        | `admin`                                             | PostgreSQL username             |
