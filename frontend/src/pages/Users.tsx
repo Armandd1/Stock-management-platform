@@ -129,7 +129,7 @@ export const Users: React.FC = () => {
                               : 'bg-slate-50 text-slate-700 ring-slate-600/20 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600/50'
                         }`}
                       >
-                        {user.role}
+                        {t(`roles.${user.role}`)}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
@@ -175,9 +175,9 @@ export const Users: React.FC = () => {
               onChange={(e) => setSelectedRole(e.target.value as 'ADMIN' | 'MANAGER' | 'VIEWER')}
               className="w-full"
             >
-              <option value="VIEWER">VIEWER</option>
-              <option value="MANAGER">MANAGER</option>
-              <option value="ADMIN">ADMIN</option>
+              <option value="VIEWER">{t('roles.VIEWER')}</option>
+              <option value="MANAGER">{t('roles.MANAGER')}</option>
+              <option value="ADMIN">{t('roles.ADMIN')}</option>
             </Select>
           </div>
 

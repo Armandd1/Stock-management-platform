@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -31,6 +32,8 @@ interface GithubEmailResponse {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -42,6 +45,9 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user || !user.password) {
+      this.logger.warn(
+        `Login attempt for non-existent or passwordless user: ${email}`,
+      );
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -53,6 +59,7 @@ export class AuthService {
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      this.logger.warn(`Invalid password attempt for user: ${email}`);
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -61,6 +68,7 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password);
+    this.logger.log(`User logged in: ${email}`);
     return this.issueToken(user);
   }
 
@@ -85,6 +93,7 @@ export class AuthService {
       },
     });
 
+    this.logger.log(`New user registered: ${email}`);
     return this.issueToken(user);
   }
 
@@ -139,6 +148,7 @@ export class AuthService {
       );
 
       if (!tokenRes.ok) {
+        this.logger.error('Failed to exchange GitHub code for token');
         throw new UnauthorizedException('Failed to authenticate with GitHub');
       }
 
@@ -199,6 +209,9 @@ export class AuthService {
             role: 'VIEWER',
           },
         });
+        this.logger.log(`Created new user from GitHub OAuth: ${email}`);
+      } else {
+        this.logger.log(`Existing user logged in via GitHub: ${email}`);
       }
 
       return this.issueToken(user);

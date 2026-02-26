@@ -66,8 +66,9 @@ export const Dashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="text-muted-foreground animate-pulse font-medium">{t('common.loading')}</p>
       </div>
     );
   }
@@ -108,7 +109,7 @@ export const Dashboard: React.FC = () => {
         <Card className="border-border shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              {t('dashboard.totalItemsInStock', 'Total Items')}
+              {t('dashboard.totalItemsInStock')}
             </CardTitle>
             <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-md">
               <BarChart3 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
@@ -123,20 +124,16 @@ export const Dashboard: React.FC = () => {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4 border-border shadow-sm">
           <CardHeader>
-            <CardTitle>{t('dashboard.stockByWarehouse', 'Stock by Warehouse')}</CardTitle>
-            <CardDescription>
-              {t('dashboard.stockByWarehouseDesc', 'Overview of inventory distribution')}
-            </CardDescription>
+            <CardTitle>{t('dashboard.stockByWarehouse')}</CardTitle>
+            <CardDescription>{t('dashboard.stockByWarehouseDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('dashboard.warehouse', 'Warehouse')}</TableHead>
-                  <TableHead>{t('dashboard.location', 'Location')}</TableHead>
-                  <TableHead className="text-right">
-                    {t('dashboard.totalItems', 'Total Items')}
-                  </TableHead>
+                  <TableHead>{t('dashboard.warehouse')}</TableHead>
+                  <TableHead>{t('dashboard.location')}</TableHead>
+                  <TableHead className="text-right">{t('dashboard.totalItems')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -175,17 +172,15 @@ export const Dashboard: React.FC = () => {
               <AlertTriangle className="h-5 w-5 text-amber-500" />
               {t('dashboard.lowStock')}
             </CardTitle>
-            <CardDescription>
-              {t('dashboard.lowStockDesc', 'Top 10 products with lowest inventory')}
-            </CardDescription>
+            <CardDescription>{t('dashboard.lowStockDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('dashboard.product', 'Product')}</TableHead>
-                  <TableHead>{t('dashboard.warehouse', 'Warehouse')}</TableHead>
-                  <TableHead className="text-right">{t('dashboard.qty', 'Qty')}</TableHead>
+                  <TableHead>{t('dashboard.product')}</TableHead>
+                  <TableHead>{t('dashboard.warehouse')}</TableHead>
+                  <TableHead className="text-right">{t('dashboard.qty')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

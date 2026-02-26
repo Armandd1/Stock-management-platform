@@ -61,7 +61,7 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'lax',
       path: '/',
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60, // 24 hours in seconds
     });
 
     return result;
@@ -90,7 +90,7 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'lax',
       path: '/',
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60, // 24 hours in seconds
     });
 
     return result;
@@ -133,7 +133,7 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'lax',
       path: '/',
-      maxAge: 10 * 60 * 1000, // 10 minutes session for login
+      maxAge: 10 * 60, // 10 minutes in seconds
     });
 
     return res.status(302).redirect(url);
@@ -212,7 +212,7 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'lax',
       path: '/',
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60, // 24 hours in seconds
     });
 
     return res.status(302).redirect(`${frontendUrl}/auth/callback`);

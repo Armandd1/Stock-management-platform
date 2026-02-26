@@ -6,7 +6,7 @@ import * as z from 'zod';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, Edit, Warehouse as WarehouseIcon, Eye } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { api } from '../services/api';
 import { Card, CardContent } from '../components/ui/Card';
@@ -51,6 +51,8 @@ export const Warehouses: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
   const [viewingWarehouseId, setViewingWarehouseId] = useState<number | null>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const state = location.state as { viewWarehouseId?: number } | null;
@@ -300,7 +302,15 @@ export const Warehouses: React.FC = () => {
                   <TableBody>
                     {warehouseDetails.Stocks.length > 0 ? (
                       warehouseDetails.Stocks.map((stock, i) => (
-                        <TableRow key={i}>
+                        <TableRow
+                          key={i}
+                          className="cursor-pointer hover:bg-muted"
+                          onClick={() =>
+                            navigate('/products', {
+                              state: { viewProductId: stock.Product.id },
+                            })
+                          }
+                        >
                           <TableCell>
                             <div className="font-medium text-foreground">{stock.Product.name}</div>
                             <div className="text-xs text-muted-foreground">{stock.Product.sku}</div>

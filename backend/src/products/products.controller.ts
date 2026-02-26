@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   ParseIntPipe,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,17 +17,20 @@ import {
   ApiBearerAuth,
   ApiResponse,
   ApiQuery,
+  ApiBody,
 } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PoliciesGuard } from '../auth/guards/policies.guard';
+import { CheckPolicies } from '../auth/decorators/check-policies.decorator';
+import { Action } from '../auth/casl/casl-ability.factory';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @ApiTags('products')
 @Controller('products')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PoliciesGuard)
 @ApiBearerAuth()
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -55,32 +59,52 @@ export class ProductsController {
   }
 
   @Post()
-  @Roles('ADMIN', 'MANAGER')
+  @CheckPolicies((ability) => ability.can(Action.Create, 'Product'))
   @ApiOperation({ summary: 'Create a new product (Admin/Manager)' })
   @ApiResponse({ status: 201, description: 'Product created.' })
   @ApiResponse({ status: 409, description: 'SKU already exists.' })
-  async create(@Body() dto: CreateProductDto) {
-    return this.productsService.create(dto);
+  async create(
+    @Body() dto: CreateProductDto,
+    @CurrentUser() user: { userId: number },
+  ) {
+    return this.productsService.create(dto, user.userId);
+  }
+
+  @Post('bulk')
+  @CheckPolicies((ability) => ability.can(Action.Create, 'Product'))
+  @ApiOperation({ summary: 'Create multiple products from a CSV import' })
+  @ApiBody({ type: [CreateProductDto] })
+  @ApiResponse({ status: 201, description: 'Products imported successfully.' })
+  async createBulk(
+    @Body(new ParseArrayPipe({ items: CreateProductDto }))
+    dtos: CreateProductDto[],
+    @CurrentUser() user: { userId: number },
+  ) {
+    return this.productsService.createBulk(dtos, user.userId);
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'MANAGER')
+  @CheckPolicies((ability) => ability.can(Action.Update, 'Product'))
   @ApiOperation({ summary: 'Update a product (Admin/Manager)' })
   @ApiResponse({ status: 200, description: 'Product updated.' })
   @ApiResponse({ status: 404, description: 'Product not found.' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductDto,
+    @CurrentUser() user: { userId: number },
   ) {
-    return this.productsService.update(id, dto);
+    return this.productsService.update(id, dto, user.userId);
   }
 
   @Delete(':id')
-  @Roles('ADMIN')
+  @CheckPolicies((ability) => ability.can(Action.Delete, 'Product'))
   @ApiOperation({ summary: 'Delete a product (Admin only)' })
   @ApiResponse({ status: 200, description: 'Product deleted.' })
   @ApiResponse({ status: 404, description: 'Product not found.' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.productsService.remove(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { userId: number },
+  ) {
+    return this.productsService.remove(id, user.userId);
   }
 }

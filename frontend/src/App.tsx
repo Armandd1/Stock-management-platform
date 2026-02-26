@@ -19,6 +19,8 @@ import { AuthCallback } from './pages/AuthCallback';
 import { Warehouses } from './pages/Warehouses';
 import { Movements } from './pages/Movements';
 import { Users } from './pages/Users';
+import { AuditLogs } from './pages/AuditLogs';
+import { Reports } from './pages/Reports';
 
 const queryClient = new QueryClient();
 
@@ -60,6 +62,15 @@ export const App: React.FC = () => {
                     </RoleGuard>
                   }
                 />
+                <Route
+                  path="/audit-logs"
+                  element={
+                    <RoleGuard allowedRoles={['ADMIN']} isRoute>
+                      <AuditLogs />
+                    </RoleGuard>
+                  }
+                />
+                <Route path="/reports" element={<Reports />} />
               </Route>
             </Route>
           </Routes>

@@ -5,6 +5,8 @@
     "warehouses": "Raktárak",
     "movements": "Mozgások",
     "users": "Felhasználók",
+    "auditLogs": "Audit Napló",
+    "reports": "Riportok",
     "logout": "Kijelentkezés"
   },
   "common": {
@@ -13,6 +15,7 @@
     "cancel": "Mégse",
     "actions": "Műveletek",
     "search": "Keresés...",
+    "error": "Hiba az adatok betöltésekor",
     "loadingProducts": "Termékek betöltése...",
     "loadingWarehouses": "Raktárak betöltése...",
     "loadingRecords": "Bejegyzések betöltése...",
@@ -34,7 +37,11 @@
     "failedLoadUsers": "Nem sikerült betölteni a felhasználókat.",
     "close": "Bezárás",
     "confirmDelete": "Biztosan törölni szeretnéd ezt a terméket?",
-    "confirmDeleteWh": "Törlöd ezt a raktárat? A művelet nem vonható vissza."
+    "confirmDeleteWh": "Törlöd ezt a raktárat? A művelet nem vonható vissza.",
+    "openMenu": "Menü megnyitása",
+    "closeMenu": "Menü bezárása",
+    "changeLanguage": "Nyelv módosítása",
+    "toggleTheme": "Téma váltása"
   },
   "dashboard": {
     "title": "Műszerfal",
@@ -73,6 +80,7 @@
     "namePlaceholder": "Add meg a termék nevét...",
     "pricePlaceholder": "0.00",
     "stockLevel": "Készlet Szint",
+    "importCsv": "CSV Importálása",
     "validation": {
       "skuMin": "A cikkszámnak legalább 3 karakternek kell lennie",
       "nameMin": "A névnek legalább 2 karakternek kell lennie",
@@ -83,7 +91,12 @@
       "updated": "Termék sikeresen frissítve",
       "failedSave": "A termék mentése sikertelen",
       "deleted": "Termék törölve",
-      "failedDelete": "A termék törlése sikertelen"
+      "failedDelete": "A termék törlése sikertelen",
+      "imported": "Termékek sikeresen importálva!",
+      "importedWithSkips": "{{count}} termék importálva. {{skippedCount}} létező SKU kihagyva.",
+      "failedImport": "Nem sikerült a CSV importálása",
+      "noValidRows": "Nem található érvényes sor. Ellenőrizd a CSV oszlopait (SKU, Név, Ár).",
+      "invalidRowsSkipped": "{{count}} érvénytelen sor kihagyva."
     }
   },
   "warehouses": {
@@ -141,6 +154,7 @@
     "selectDestination": "Válassz célt...",
     "confirmMovement": "Mozgás Megerősítése",
     "processing": "Feldolgozás...",
+    "you": "Te",
     "validation": {
       "productRequired": "Termék megadása kötelező",
       "qtyMin": "A mennyiségnek nagyobbnak kell lennie 0-nál",
@@ -153,6 +167,27 @@
     "toast": {
       "recorded": "Mozgás sikeresen rögzítve",
       "failedRecord": "A mozgás rögzítése sikertelen"
+    }
+  },
+  "audit": {
+    "title": "Audit Naplók",
+    "subtitle": "Rendszertevékenységek nyomon követése és előzményei",
+    "noLogs": "Nem találhatók audit naplók",
+    "date": "Dátum",
+    "user": "Felhasználó",
+    "action": "Művelet",
+    "entity": "Entitás",
+    "details": "Részletek",
+    "system": "Rendszer",
+    "actions": {
+      "CREATE": "Létrehozás",
+      "UPDATE": "Frissítés",
+      "REMOVE": "Törlés",
+      "STOCK_IN": "Bevételezés",
+      "STOCK_OUT": "Kiadás",
+      "STOCK_TRANSFER": "Áthelyezés",
+      "UPDATE_ROLE": "Szerepkör módosítás",
+      "CREATE_BULK": "Tömeges importálás"
     }
   },
   "login": {
@@ -195,6 +230,7 @@
     },
     "toast": {
       "success": "A fiók sikeresen létrehozva",
+      "emailExists": "Ez az e-mail cím már regisztrálva van.",
       "failed": "A regisztráció sikertelen. Kérjük, ellenőrizd az adataidat."
     }
   },
@@ -224,5 +260,33 @@
       "roleUpdated": "Felhasználói szerepkör sikeresen frissítve",
       "failedUpdate": "A felhasználói szerepkör frissítése sikertelen"
     }
+  },
+  "roles": {
+    "ADMIN": "Adminisztrátor",
+    "MANAGER": "Menedzser",
+    "VIEWER": "Megtekintő"
+  },
+  "reports": {
+    "title": "Riportok",
+    "subtitle": "Elemzések és betekintés a készletbe.",
+    "stockOnHand": "Aktuális Készlet",
+    "stockOnHandDesc": "Aktuális készletszintek raktáranként csoportosítva",
+    "movementSummary": "Mozgás Összesítő",
+    "movementSummaryDesc": "BE, KI és TRANSZFER műveletek teljes volumene",
+    "topMoved": "Legtöbbet Mozgatott Termékek",
+    "topMovedDesc": "A legmagasabb mozgási volumenű termékek",
+    "startDate": "Kezdő Dátum",
+    "endDate": "Záró Dátum",
+    "filter": "Szűrés",
+    "totalVolume": "Teljes Volumen",
+    "movementCount": "Műveletek száma",
+    "product": "Termék",
+    "volume": "Volumen",
+    "allTime": "Összes időszak",
+    "expandAll": "Összes kinyitása",
+    "collapseAll": "Összes összecsukása",
+    "warehousesCount": "raktár",
+    "skuRows": "SKU sor",
+    "productsCount": "termék"
   }
 }

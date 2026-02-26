@@ -12,20 +12,25 @@ import { Button } from '../components/ui/Button';
 import toast from 'react-hot-toast';
 import { Boxes } from 'lucide-react';
 import { ModeToggle } from '../components/mode-toggle';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  password: z.string().min(1, { message: 'Password is required' }),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
 
 export const Login: React.FC = () => {
   const { checkAuth } = useAuthStore();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
+
+  const loginSchema = React.useMemo(
+    () =>
+      z.object({
+        email: z.string().email({ message: t('login.invalidEmail') }),
+        password: z.string().min(1, { message: t('login.passwordRequired') }),
+      }),
+    [t],
+  );
+
+  type LoginFormValues = z.infer<typeof loginSchema>;
 
   const {
     register,
@@ -51,7 +56,8 @@ export const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4 relative">
-      <div className="absolute top-4 right-4 sm:top-8 sm:right-8">
+      <div className="absolute top-4 right-4 sm:top-8 sm:right-8 flex items-center gap-2">
+        <LanguageSwitcher />
         <ModeToggle />
       </div>
       <div className="mb-8 flex items-center gap-2">

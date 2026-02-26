@@ -3,6 +3,8 @@ import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+// Node.js 20.11.0+ supports import.meta.dirname natively
+
 
 export default tseslint.config(
   {

@@ -33,17 +33,18 @@ model User {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   StockMovements StockMovement[]
+  AuditLogs      AuditLog[]
 }
 
 model Warehouse {
-  id                Int             @id @default(autoincrement())
-  name              String
-  location          String?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  Stocks            Stock[]
-  MovementsFrom     StockMovement[] @relation("FromWarehouse")
-  MovementsTo       StockMovement[] @relation("ToWarehouse")
+  id            Int             @id @default(autoincrement())
+  name          String
+  location      String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  Stocks        Stock[]
+  MovementsFrom StockMovement[] @relation("FromWarehouse")
+  MovementsTo   StockMovement[] @relation("ToWarehouse")
 }
 
 model Product {
@@ -72,22 +73,34 @@ model Stock {
 }
 
 model StockMovement {
-  id              Int          @id @default(autoincrement())
-  type            MovementType
-  quantity        Int
-  date            DateTime     @default(now())
+  id       Int          @id @default(autoincrement())
+  type     MovementType
+  quantity Int
+  date     DateTime     @default(now())
 
-  productId       Int
-  Product         Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+  Product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   fromWarehouseId Int?
-  FromWarehouse   Warehouse?   @relation("FromWarehouse", fields: [fromWarehouseId], references: [id])
+  FromWarehouse   Warehouse? @relation("FromWarehouse", fields: [fromWarehouseId], references: [id])
 
-  toWarehouseId   Int?
-  ToWarehouse     Warehouse?   @relation("ToWarehouse", fields: [toWarehouseId], references: [id])
+  toWarehouseId Int?
+  ToWarehouse   Warehouse? @relation("ToWarehouse", fields: [toWarehouseId], references: [id])
 
-  createdById     Int?
-  CreatedBy       User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById Int?
+  CreatedBy   User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
-  createdAt       DateTime     @default(now())
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  entity    String
+  entityId  Int?
+  changes   Json?
+  createdAt DateTime @default(now())
+
+  userId Int?
+  User   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }

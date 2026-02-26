@@ -12,6 +12,7 @@ import { Button } from '../components/ui/Button';
 import toast from 'react-hot-toast';
 import { Boxes } from 'lucide-react';
 import { ModeToggle } from '../components/mode-toggle';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 
 export const Register: React.FC = () => {
@@ -20,17 +21,21 @@ export const Register: React.FC = () => {
   const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
 
-  const registerSchema = z
-    .object({
-      name: z.string().min(2, { message: t('register.validation.name') }),
-      email: z.string().email({ message: t('register.validation.email') }),
-      password: z.string().min(6, { message: t('register.validation.password') }),
-      confirmPassword: z.string(),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      message: t('register.validation.passwordsMatch'),
-      path: ['confirmPassword'],
-    });
+  const registerSchema = React.useMemo(
+    () =>
+      z
+        .object({
+          name: z.string().min(2, { message: t('register.validation.name') }),
+          email: z.string().email({ message: t('register.validation.email') }),
+          password: z.string().min(6, { message: t('register.validation.password') }),
+          confirmPassword: z.string(),
+        })
+        .refine((data) => data.password === data.confirmPassword, {
+          message: t('register.validation.passwordsMatch'),
+          path: ['confirmPassword'],
+        }),
+    [t],
+  );
 
   type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -54,15 +59,20 @@ export const Register: React.FC = () => {
       toast.success(t('register.toast.success'));
       navigate('/');
     } catch (err) {
-      const e = err as { response?: { data?: { message?: string } } };
-      setError(e.response?.data?.message || t('register.toast.failed'));
-      toast.error(t('register.toast.failed'));
+      const e = err as { response?: { status?: number; data?: { message?: string } } };
+      const isConflict = e.response?.status === 409;
+      const fallback = isConflict ? t('register.toast.emailExists') : t('register.toast.failed');
+      const message = e.response?.data?.message || fallback;
+
+      setError(message);
+      toast.error(message);
     }
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4 relative">
-      <div className="absolute top-4 right-4 sm:top-8 sm:right-8">
+      <div className="absolute top-4 right-4 sm:top-8 sm:right-8 flex items-center gap-2">
+        <LanguageSwitcher />
         <ModeToggle />
       </div>
       <div className="mb-8 flex items-center gap-2">

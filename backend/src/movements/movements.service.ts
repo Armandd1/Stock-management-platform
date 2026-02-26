@@ -2,14 +2,27 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { Prisma } from '@prisma/client';
+import { Subject } from 'rxjs';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class MovementsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(MovementsService.name);
+  private movementSubject = new Subject<unknown>();
+
+  get movementEvents$() {
+    return this.movementSubject.asObservable();
+  }
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async create(dto: CreateMovementDto, userId: number) {
     // Validate product exists
@@ -20,16 +33,23 @@ export class MovementsService {
       throw new NotFoundException(`Product with ID ${dto.productId} not found`);
     }
 
+    let movement: unknown;
     switch (dto.type) {
       case 'IN':
-        return this.handleIn(dto, userId);
+        movement = await this.handleIn(dto, userId);
+        break;
       case 'OUT':
-        return this.handleOut(dto, userId);
+        movement = await this.handleOut(dto, userId);
+        break;
       case 'TRANSFER':
-        return this.handleTransfer(dto, userId);
+        movement = await this.handleTransfer(dto, userId);
+        break;
       default:
         throw new BadRequestException(`Unknown movement type: ${dto.type}`);
     }
+
+    this.movementSubject.next(movement);
+    return movement;
   }
 
   // --- IN: Add stock to a warehouse ---
@@ -44,7 +64,7 @@ export class MovementsService {
     await this.validateWarehouse(dto.toWarehouseId);
 
     // Upsert stock and create movement in a transaction
-    return this.prisma.$transaction(async (tx) => {
+    const movement = await this.prisma.$transaction(async (tx) => {
       await tx.stock.upsert({
         where: {
           productId_warehouseId: {
@@ -75,6 +95,18 @@ export class MovementsService {
         },
       });
     });
+
+    await this.auditService.logAction(
+      userId,
+      'STOCK_IN',
+      'StockMovement',
+      movement.id,
+      dto,
+    );
+    this.logger.log(
+      `Stock IN recorded: Product ${dto.productId}, Qty ${dto.quantity}, Warehouse ${dto.toWarehouseId}`,
+    );
+    return movement;
   }
 
   // --- OUT: Remove stock from a warehouse ---
@@ -87,7 +119,7 @@ export class MovementsService {
 
     await this.validateWarehouse(dto.fromWarehouseId);
 
-    return this.prisma.$transaction(
+    const movement = await this.prisma.$transaction(
       async (tx) => {
         // Lock and read current stock
         const stocks = await tx.$queryRaw<
@@ -124,6 +156,18 @@ export class MovementsService {
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
+
+    await this.auditService.logAction(
+      userId,
+      'STOCK_OUT',
+      'StockMovement',
+      movement.id,
+      dto,
+    );
+    this.logger.log(
+      `Stock OUT recorded: Product ${dto.productId}, Qty ${dto.quantity}, Warehouse ${dto.fromWarehouseId}`,
+    );
+    return movement;
   }
 
   // --- TRANSFER: Move stock between warehouses ---
@@ -141,7 +185,7 @@ export class MovementsService {
     await this.validateWarehouse(dto.fromWarehouseId);
     await this.validateWarehouse(dto.toWarehouseId);
 
-    return this.prisma.$transaction(
+    const movement = await this.prisma.$transaction(
       async (tx) => {
         // Lock source stock row
         const sourceStocks = await tx.$queryRaw<
@@ -197,6 +241,18 @@ export class MovementsService {
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
+
+    await this.auditService.logAction(
+      userId,
+      'STOCK_TRANSFER',
+      'StockMovement',
+      movement.id,
+      dto,
+    );
+    this.logger.log(
+      `Stock TRANSFER recorded: Product ${dto.productId}, Qty ${dto.quantity}, From ${dto.fromWarehouseId} To ${dto.toWarehouseId}`,
+    );
+    return movement;
   }
 
   // --- Read operations ---
