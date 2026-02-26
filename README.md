@@ -469,3 +469,4 @@ Interactive API documentation is available via Swagger at:
 ## License
 
 This project is unlicensed (private/educational use).
+Made by Tőtős Armand.
