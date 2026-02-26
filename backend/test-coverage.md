@@ -7,10 +7,10 @@ Command: `npm run test:cov`
 
 | Metric     | Coverage |
 | ---------- | -------: |
-| Statements |   74.35% |
-| Branches   |   73.63% |
-| Functions  |   80.43% |
-| Lines      |   74.35% |
+| Statements |    74.8% |
+| Branches   |   72.64% |
+| Functions  |   79.16% |
+| Lines      |    74.8% |
 
 ## Test run snapshot
 

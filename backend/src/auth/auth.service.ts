@@ -81,6 +81,12 @@ export class AuthService {
       throw new ConflictException('User with this email already exists');
     }
 
+    if (!password || password.trim() === '') {
+      throw new ConflictException(
+        'Password is required for local registration',
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await this.prisma.user.create({

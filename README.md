@@ -335,7 +335,7 @@ Interactive API documentation is available via Swagger at:
 
 ### Core
 
-- ✅ **Product Management** — CRUD with SKU, name, description, price
+- ✅ **Product Management** — CRUD with SKU, name, description, price (Soft Delete implemented to retain movement history)
 - ✅ **Warehouse Management** — CRUD with name and location
 - ✅ **Stock Movements** — IN (receive), OUT (ship), TRANSFER (between warehouses)
 - ✅ **Stock Consistency** — Atomic updates, prevents negative stock levels
@@ -349,6 +349,7 @@ Interactive API documentation is available via Swagger at:
 ### Authentication & Authorization
 
 - ✅ **JWT Authentication** — Token via Bearer header or HTTP-only cookie
+- ✅ **Strict Local Auth** — Hardened registration pipeline prevents passwordless local accounts
 - ✅ **GitHub OAuth2** — One-click login, auto-creates VIEWER accounts
 - ✅ **Policy-based RBAC** — CASL-based Guards for fine-grained resource permission policies
 - ✅ **Provider Conflict Detection** — Prevents GitHub login for email/password accounts
@@ -416,17 +417,17 @@ Interactive API documentation is available via Swagger at:
 2. Conversely, modern browsers (like Safari or Chrome in Incognito mode) aggressively block third-party cookies (`SameSite=None`), breaking authentication when the backend and frontend are on different domains (e.g., free Render tiers).
    **Solution**: When a user logs in (or returns from GitHub), the frontend explicitly captures the token from the API response (or URL query params) and saves it to `localStorage`. An Axios interceptor injects it as a `Bearer` header on every request. This hybrid approach ensures the app works flawlessly regardless of strict browser cookie policies.
 
-### 4. Single Prisma migration file
+### 4. Prisma migrations
 
-**Decision**: All schema changes (initial + auth fields) are consolidated into a single migration.
-**Why**: During early development, iterating on a single migration avoids a chain of incremental migrations that are hard to review. Once the schema stabilizes, new changes get their own migrations.
-**Trade-off**: You must `docker compose down -v` to reset the database when the migration changes (cannot apply partial changes).
+**Decision**: The initial schema was consolidated into a single migration for rapid early development, but subsequent changes (like adding soft-delete functionality) are handled via standard incremental migrations.
+**Why**: During early iteration, a single migration avoids clutter. As the project matures and features are added, incremental migrations ensure data is safely transitioned.
+**Trade-off**: Managing migrations requires careful alignment across environments when deploying updates.
 
 ### 5. Nullable password + provider field
 
 **Decision**: `password` is nullable and `provider` defaults to `"local"` on the User model.
-**Why**: GitHub users don't have local passwords. Making `password` nullable avoids sentinel values ("no-password") and keeps the schema honest. The `provider` field enables conflict detection (prevents GitHub login for local accounts and vice versa).
-**Trade-off**: All password-related code must handle `null` checks.
+**Why**: GitHub users don't have local passwords. Making `password` nullable avoids sentinel values ("no-password") and keeps the database structure honest. The `provider` field enables conflict detection (prevents GitHub login for local accounts and vice versa).
+**Trade-off**: The DB allows null passwords, so the application layer enforces a strict validation guard during local registration to guarantee that local accounts can never be created without a valid password.
 
 ### 6. Role-based seeding with environment variables
 
