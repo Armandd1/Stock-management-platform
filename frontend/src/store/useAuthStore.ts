@@ -41,6 +41,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch {
       // Ignore
     }
+    localStorage.removeItem('auth_token');
     set({ user: null, isAuthenticated: false });
   },
 }));

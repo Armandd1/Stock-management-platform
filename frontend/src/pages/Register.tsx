@@ -50,11 +50,12 @@ export const Register: React.FC = () => {
   const onSubmit = async (data: RegisterFormValues) => {
     setError(null);
     try {
-      await api.post('/auth/register', {
+      const response = await api.post<{ access_token: string }>('/auth/register', {
         name: data.name,
         email: data.email,
         password: data.password,
       });
+      localStorage.setItem('auth_token', response.data.access_token);
       await checkAuth(); // Hydrates user state from API
       toast.success(t('register.toast.success'));
       navigate('/');

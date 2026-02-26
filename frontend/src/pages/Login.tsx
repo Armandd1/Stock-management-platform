@@ -43,7 +43,8 @@ export const Login: React.FC = () => {
   const onSubmit = async (data: LoginFormValues) => {
     setError(null);
     try {
-      await api.post('/auth/login', data);
+      const response = await api.post<{ access_token: string }>('/auth/login', data);
+      localStorage.setItem('auth_token', response.data.access_token);
       await checkAuth(); // Hydrates user state from API
       toast.success(t('login.toast.success'));
       navigate('/');

@@ -14,7 +14,14 @@ export const AuthCallback: React.FC = () => {
 
     const processCallback = async () => {
       try {
-        await checkAuth(); // Reads the http-only cookie set by backend
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+
+        if (token) {
+          localStorage.setItem('auth_token', token);
+        }
+
+        await checkAuth(); // Reads the http-only cookie OR use the token from localStorage (via interceptor)
         if (isMounted) {
           toast.success(t('auth.toast.githubSuccess'));
           navigate('/');

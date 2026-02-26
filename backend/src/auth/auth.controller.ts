@@ -227,6 +227,6 @@ export class AuthController {
       maxAge: 24 * 60 * 60, // 24 hours in seconds
     });
 
-    return res.status(302).redirect(`${frontendUrl}/auth/callback`);
+    return res.status(302).redirect(`${frontendUrl}/auth/callback?token=${result.access_token}`);
   }
 }
