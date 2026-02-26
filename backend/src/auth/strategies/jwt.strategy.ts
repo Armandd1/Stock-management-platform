@@ -17,6 +17,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         ExtractJwt.fromAuthHeaderAsBearerToken(),
+        // Support for SSE/EventSource which doesn't support headers
+        ExtractJwt.fromUrlQueryParameter('token'),
         // Requires @fastify/cookie plugin registered in main.ts.
         // If cookies are not parsed, falls back to null (Bearer token only).
         (req: FastifyRequest) => {

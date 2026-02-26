@@ -38,7 +38,11 @@ export const Header: React.FC<HeaderProps> = ({
             variant="ghost"
             size="icon"
             onClick={onMobileMenuToggle}
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={
+              mobileMenuOpen
+                ? t('common.closeMenu', { defaultValue: 'Close menu' })
+                : t('common.openMenu', { defaultValue: 'Open menu' })
+            }
             className="text-muted-foreground hover:text-foreground"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -54,7 +58,9 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="text-sm font-medium text-foreground leading-none mb-1">
               {user?.name || user?.email}
             </span>
-            <span className="text-xs text-muted-foreground leading-none">{user?.role}</span>
+            <span className="text-xs text-muted-foreground leading-none">
+              {user && t(`roles.${user.role}`)}
+            </span>
           </div>
           <div className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center border border-border">
             <UserIcon className="h-5 w-5 text-muted-foreground" />

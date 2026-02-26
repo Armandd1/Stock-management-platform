@@ -1,6 +1,15 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, Warehouse, ArrowRightLeft, Boxes, Users } from 'lucide-react';
+import { NavLink, Link } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  Package,
+  Warehouse,
+  ArrowRightLeft,
+  Boxes,
+  Users,
+  Activity,
+  BarChart3,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 import { useAuthStore, type Role } from '../../store/useAuthStore';
@@ -27,6 +36,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, ...props }) => {
       allowedRoles: ['ADMIN', 'MANAGER'],
     },
     { name: t('nav.users'), href: '/users', icon: Users, allowedRoles: ['ADMIN'] },
+    {
+      name: t('nav.auditLogs'),
+      href: '/audit-logs',
+      icon: Activity,
+      allowedRoles: ['ADMIN'],
+    },
+    { name: t('nav.reports'), href: '/reports', icon: BarChart3 },
   ];
 
   const filteredNavigation = navigation.filter((item) => {
@@ -42,10 +58,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, ...props }) => {
       )}
       {...props}
     >
-      <div className="flex h-16 shrink-0 items-center px-6 border-b border-border">
+      <Link
+        to="/"
+        className="flex h-16 shrink-0 items-center px-6 border-b border-border hover:bg-accent/50 transition-colors"
+      >
         <Boxes className="h-6 w-6 text-primary flex-shrink-0" />
         <span className="ml-3 text-lg font-bold tracking-tight text-foreground">Stockify</span>
-      </div>
+      </Link>
       <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
         <nav className="flex-1 space-y-1 px-3">
           {filteredNavigation.map((item) => (
