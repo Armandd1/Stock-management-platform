@@ -13,7 +13,7 @@ export const useLiveUpdates = () => {
     const token = localStorage.getItem('auth_token');
 
     // Connect to SSE endpoint
-    // We pass the token in the query string as a fallback because EventSource 
+    // We pass the token in the query string as a fallback because EventSource
     // does not support custom headers (like Authorization: Bearer).
     // We also use withCredentials: true to ensure the 'auth_token' cookie is sent if available.
     const url = new URL(`${baseUrl}/movements/live`, window.location.origin);

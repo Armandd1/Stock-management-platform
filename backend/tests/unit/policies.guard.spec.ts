@@ -1,7 +1,10 @@
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PoliciesGuard } from '../../src/auth/guards/policies.guard';
-import { CaslAbilityFactory, Action } from '../../src/auth/casl/casl-ability.factory';
+import {
+  CaslAbilityFactory,
+  Action,
+} from '../../src/auth/casl/casl-ability.factory';
 import { Role } from '@prisma/client';
 
 describe('PoliciesGuard', () => {
@@ -20,7 +23,7 @@ describe('PoliciesGuard', () => {
     handlers?: any[],
   ): ExecutionContext => {
     const mockHandler = jest.fn();
-    
+
     jest.spyOn(reflector, 'get').mockReturnValue(handlers ?? []);
 
     return {
@@ -46,8 +49,10 @@ describe('PoliciesGuard', () => {
     const handler = (ability: any) => ability.can(Action.Delete, 'Product');
     // VIEWER cannot delete products
     const context = createMockContext({ id: 1, role: Role.VIEWER }, [handler]);
-    
-    await expect(guard.canActivate(context)).rejects.toThrow(ForbiddenException);
+
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      ForbiddenException,
+    );
     await expect(guard.canActivate(context)).rejects.toThrow(
       'You are not allowed to perform this action based on CASL policies',
     );

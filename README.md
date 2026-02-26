@@ -6,8 +6,9 @@ A full-stack inventory management system for tracking products, warehouses, and 
 > _Note: Due to the Render free tier, the first request may take up to 1 minute to spin up the service if it has been inactive._
 
 > **Taskboard**: https://www.notion.so/311ba677b46c80bcb3a8dff619f9f411?v=311ba677b46c81838dde000c5c31a59a&source=copy_link
-> 
+>
 > _Note for reviewers: Git branches were intentionally kept undeleted to make it easier to track development progress._
+
 ---
 
 ## Table of Contents
@@ -409,10 +410,11 @@ Interactive API documentation is available via Swagger at:
 ### 3. Dual Token Delivery: HTTP-only Cookie + LocalStorage Fallback
 
 **Decision**: Dual token extraction — the API reads from `Authorization: Bearer <token>` first, then falls back to the `auth_token` HTTP-only cookie.
-**Why**: 
+**Why**:
+
 1. After GitHub OAuth callback, we can't send a Bearer token to the frontend SPA via a regular redirect without putting it in the URL.
 2. Conversely, modern browsers (like Safari or Chrome in Incognito mode) aggressively block third-party cookies (`SameSite=None`), breaking authentication when the backend and frontend are on different domains (e.g., free Render tiers).
-**Solution**: When a user logs in (or returns from GitHub), the frontend explicitly captures the token from the API response (or URL query params) and saves it to `localStorage`. An Axios interceptor injects it as a `Bearer` header on every request. This hybrid approach ensures the app works flawlessly regardless of strict browser cookie policies.
+   **Solution**: When a user logs in (or returns from GitHub), the frontend explicitly captures the token from the API response (or URL query params) and saves it to `localStorage`. An Axios interceptor injects it as a `Bearer` header on every request. This hybrid approach ensures the app works flawlessly regardless of strict browser cookie policies.
 
 ### 4. Single Prisma migration file
 

@@ -74,6 +74,8 @@ async function bootstrap() {
   await app.listen(configService.get<number>('PORT') ?? 3000, '0.0.0.0');
   logger.log(`Application is running on: ${await app.getUrl()}`);
   logger.log(`Swagger docs: ${await app.getUrl()}/api/docs`);
-  logger.log(`Environment: ${configService.get<string>('NODE_ENV') || 'development'}`);
+  logger.log(
+    `Environment: ${configService.get<string>('NODE_ENV') || 'development'}`,
+  );
 }
 void bootstrap();
