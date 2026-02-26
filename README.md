@@ -2,7 +2,8 @@
 
 A full-stack inventory management system for tracking products, warehouses, and stock movements.
 
-> **Live URL**: _Not deployed yet — run locally with Docker (see below)._
+> **Live URL**: [https://stock-frontend-lf6b.onrender.com/](https://stock-frontend-lf6b.onrender.com/)
+> _Note: Due to the Render free tier, the first request may take up to 1 minute to spin up the service if it has been inactive._
 
 > **Taskboard**: https://www.notion.so/311ba677b46c80bcb3a8dff619f9f411?v=311ba677b46c81838dde000c5c31a59a&source=copy_link
 
