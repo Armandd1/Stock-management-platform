@@ -20,14 +20,17 @@ export class ProductsService {
   ) {}
 
   async findAll(search?: string) {
-    const where: Prisma.ProductWhereInput = search
-      ? {
-          OR: [
-            { sku: { contains: search, mode: 'insensitive' } },
-            { name: { contains: search, mode: 'insensitive' } },
-          ],
-        }
-      : {};
+    const where: Prisma.ProductWhereInput = {
+      isActive: true,
+      ...(search
+        ? {
+            OR: [
+              { sku: { contains: search, mode: 'insensitive' } },
+              { name: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
 
     return this.prisma.product.findMany({
       where,
@@ -152,15 +155,18 @@ export class ProductsService {
 
   async remove(id: number, userId?: number) {
     await this.findOne(id);
-    const product = await this.prisma.product.delete({ where: { id } });
-    this.logger.log(`Product removed: ${product.sku}`);
+    const product = await this.prisma.product.update({
+      where: { id },
+      data: { isActive: false },
+    });
+    this.logger.log(`Product soft-removed: ${product.sku}`);
     if (userId) {
       await this.auditService.logAction(
         userId,
         'DELETE',
         'Product',
         product.id,
-        product,
+        { action: 'soft_delete' },
       );
     }
     return product;

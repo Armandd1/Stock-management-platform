@@ -35,10 +35,14 @@ describe('ProductsService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all products without search', async () => {
+    it('should return all active products without search', async () => {
       const products = [{ id: 1, sku: 'SKU-1', name: 'Widget' }];
       mockPrisma.product.findMany.mockResolvedValue(products);
       expect(await service.findAll()).toEqual(products);
+      expect(mockPrisma.product.findMany).toHaveBeenCalledWith({
+        where: { isActive: true },
+        orderBy: { name: 'asc' },
+      });
     });
 
     it('should filter products by search term', async () => {
@@ -47,6 +51,7 @@ describe('ProductsService', () => {
       expect(mockPrisma.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
+            isActive: true,
             OR: [
               { sku: { contains: 'widget', mode: 'insensitive' } },
               { name: { contains: 'widget', mode: 'insensitive' } },
@@ -95,10 +100,14 @@ describe('ProductsService', () => {
   });
 
   describe('remove', () => {
-    it('should delete a product', async () => {
+    it('should soft-delete a product', async () => {
       mockPrisma.product.findUnique.mockResolvedValue({ id: 1 });
-      mockPrisma.product.delete.mockResolvedValue({ id: 1 });
-      expect(await service.remove(1)).toEqual({ id: 1 });
+      mockPrisma.product.update.mockResolvedValue({ id: 1, isActive: false });
+      expect(await service.remove(1)).toEqual({ id: 1, isActive: false });
+      expect(mockPrisma.product.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { isActive: false },
+      });
     });
   });
 });
