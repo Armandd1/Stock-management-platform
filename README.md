@@ -6,7 +6,8 @@ A full-stack inventory management system for tracking products, warehouses, and 
 > _Note: Due to the Render free tier, the first request may take up to 1 minute to spin up the service if it has been inactive._
 
 > **Taskboard**: https://www.notion.so/311ba677b46c80bcb3a8dff619f9f411?v=311ba677b46c81838dde000c5c31a59a&source=copy_link
-
+> 
+> _Note for reviewers: Git branches were intentionally kept undeleted to make it easier to track development progress._
 ---
 
 ## Table of Contents
@@ -316,7 +317,7 @@ Interactive API documentation is available via Swagger at:
 | `GET`   | `/api/v1/users`                    | Admin     | List all users                |
 | `PATCH` | `/api/v1/users/:id/role`           | Admin     | Update a user's role          |
 | `GET`   | `/api/v1/audit-logs`               | Admin     | View system audit trail       |
-| `GET`   | `/api/v1/movements/sse`            | Bearer    | Real-time update stream (SSE) |
+| `GET`   | `/api/v1/movements/live`           | Bearer    | Real-time update stream (SSE) |
 
 ---
 

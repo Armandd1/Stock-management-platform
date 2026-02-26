@@ -10,11 +10,18 @@ export const useLiveUpdates = () => {
     if (!isAuthenticated) return;
 
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+    const token = localStorage.getItem('auth_token');
 
     // Connect to SSE endpoint
-    // we use withCredentials: true to ensure the 'auth_token' cookie is sent.
-    // This is a standard EventSource option for cross-origin credential support.
-    const eventSource = new EventSource(`${baseUrl}/movements/live`, {
+    // We pass the token in the query string as a fallback because EventSource 
+    // does not support custom headers (like Authorization: Bearer).
+    // We also use withCredentials: true to ensure the 'auth_token' cookie is sent if available.
+    const url = new URL(`${baseUrl}/movements/live`, window.location.origin);
+    if (token) {
+      url.searchParams.append('token', token);
+    }
+
+    const eventSource = new EventSource(url.toString(), {
       withCredentials: true,
     });
 

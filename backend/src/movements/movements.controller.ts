@@ -9,8 +9,9 @@ import {
   ParseIntPipe,
   Sse,
   MessageEvent,
+  Header,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Observable, interval, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
   ApiTags,
@@ -69,15 +70,24 @@ export class MovementsController {
   }
 
   @Sse('live')
+  @Header('Content-Type', 'text/event-stream')
+  @Header('Cache-Control', 'no-cache')
+  @Header('Connection', 'keep-alive')
+  @Header('X-Accel-Buffering', 'no') // Disables buffering on proxies like Nginx or Render
   @ApiOperation({ summary: 'Server-Sent Events for live layout updates' })
   /**
    * SSE endpoint for live updates.
    * Note: EventSource in browsers does not support custom headers (Authorization).
-   * Authentication is handled via the 'auth_token' cookie.
-   * Client must use { withCredentials: true } when connecting.
+   * JwtStrategy supports extraction from the 'token' query parameter as a fallback
+   * for browsers that block third-party cookies (SameSite=None issue).
+   * Client should use { withCredentials: true } and/or ?token=<token> URL parameter.
    */
   liveUpdates(): Observable<MessageEvent> {
-    return this.movementsService.movementEvents$.pipe(
+    const heartbeat$ = interval(20000).pipe(
+      map(() => ({ data: 'heartbeat' }) as MessageEvent),
+    );
+
+    const movementEvents$ = this.movementsService.movementEvents$.pipe(
       map(
         (movement) =>
           ({
@@ -85,6 +95,8 @@ export class MovementsController {
           }) as MessageEvent,
       ),
     );
+
+    return merge(movementEvents$, heartbeat$);
   }
 
   @Get(':id')
