@@ -107,7 +107,14 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout and clear authentication cookie' })
   @ApiResponse({ status: 200, description: 'Successful logout.' })
   logout(@Res({ passthrough: true }) res: FastifyReply) {
-    res.clearCookie('auth_token', { path: '/' });
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+
+    res.clearCookie('auth_token', {
+      path: '/',
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+    });
     return { message: 'Logged out successfully' };
   }
 

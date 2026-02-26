@@ -48,7 +48,7 @@ AppModule
 ├── AuthModule          — JWT + GitHub OAuth2, login/register
 │   ├── JwtStrategy     — Extracts token from Bearer header or auth_token cookie
 │   ├── JwtAuthGuard    — Protects authenticated routes
-│   └── RolesGuard      — Enforces RBAC (ADMIN, MANAGER, VIEWER)
+│   └── PoliciesGuard   — Enforces CASL-based RBAC policies (ADMIN, MANAGER, VIEWER)
 ├── UsersModule         — User listing (Admin), role management (Admin)
 ├── ProductsModule      — CRUD for products (SKU, name, price)
 ├── WarehousesModule    — CRUD for warehouses (name, location)
@@ -405,11 +405,13 @@ Interactive API documentation is available via Swagger at:
 **Why**: Passport OAuth2 strategies rely on Express-style middleware (`req.session`, `res.redirect`) which breaks on Fastify. The manual flow is ~40 lines of code and fully transparent.
 **Trade-off**: No session support for OAuth state parameter (CSRF mitigation). For production, a `state` parameter with a server-side nonce should be added.
 
-### 3. JWT in HTTP-only cookie (for OAuth) + Bearer header (for API)
+### 3. Dual Token Delivery: HTTP-only Cookie + LocalStorage Fallback
 
-**Decision**: Dual token extraction — the JWT strategy reads from `Authorization: Bearer <token>` first, then falls back to the `auth_token` HTTP-only cookie.
-**Why**: After GitHub OAuth callback, we can't send a Bearer token to the frontend SPA via a redirect. Using an HTTP-only cookie prevents token leakage in browser history, logs, and referrer headers. Regular API clients (Swagger, mobile) still use the standard Bearer header.
-**Trade-off**: Cross-origin cookie handling requires matching `sameSite` and `secure` settings in production. CORS must be configured to allow credentials.
+**Decision**: Dual token extraction — the API reads from `Authorization: Bearer <token>` first, then falls back to the `auth_token` HTTP-only cookie.
+**Why**: 
+1. After GitHub OAuth callback, we can't send a Bearer token to the frontend SPA via a regular redirect without putting it in the URL.
+2. Conversely, modern browsers (like Safari or Chrome in Incognito mode) aggressively block third-party cookies (`SameSite=None`), breaking authentication when the backend and frontend are on different domains (e.g., free Render tiers).
+**Solution**: When a user logs in (or returns from GitHub), the frontend explicitly captures the token from the API response (or URL query params) and saves it to `localStorage`. An Axios interceptor injects it as a `Bearer` header on every request. This hybrid approach ensures the app works flawlessly regardless of strict browser cookie policies.
 
 ### 4. Single Prisma migration file
 
